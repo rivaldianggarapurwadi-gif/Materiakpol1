@@ -18,16 +18,22 @@
     --radius: 8px;
   }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+
+  /* ——— HEADER ——— */
   header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%); border-bottom: 3px solid var(--gold); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(13,27,62,0.3); }
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-emblem { width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .logo-title { font-size: 15px; font-weight: 700; color: #fff; line-height: 1.2; }
   .logo-sub { font-size: 10px; color: var(--gold-light); letter-spacing: 0.08em; text-transform: uppercase; }
   .header-actions { display: flex; gap: 8px; }
+
+  /* ——— HERO ——— */
   .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, #243d8a 100%); padding: 28px 24px; text-align: center; border-bottom: 2px solid var(--gold); }
   .hero-badge { display: inline-flex; align-items: center; background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.4); color: var(--gold-light); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 99px; margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
   .hero h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
   .hero p { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+  /* ——— LAYOUT ——— */
   .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
   .breadcrumb { display: flex; align-items: center; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
   .breadcrumb-item { font-size: 13px; color: var(--text-sec); cursor: pointer; }
@@ -35,33 +41,42 @@
   .breadcrumb-item.active { color: var(--text); font-weight: 600; cursor: default; }
   .breadcrumb-item.active:hover { text-decoration: none; }
   .breadcrumb-sep { color: var(--text-muted); font-size: 13px; }
-  .upload-zone { background: var(--surface); border: 2px dashed var(--border-strong); border-radius: 12px; padding: 32px 24px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 24px; }
+
+  /* ——— UPLOAD ZONE ——— */
+  .upload-zone { background: var(--surface); border: 2px dashed var(--border-strong); border-radius: 12px; padding: 28px 24px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 24px; }
   .upload-zone:hover, .upload-zone.drag { border-color: var(--gold); background: var(--gold-bg); }
-  .upload-icon { width: 52px; height: 52px; background: var(--accent-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; border: 1px solid var(--accent-border); transition: all 0.15s; }
+  .upload-icon { width: 48px; height: 48px; background: var(--accent-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; border: 1px solid var(--accent-border); }
   .upload-zone:hover .upload-icon, .upload-zone.drag .upload-icon { background: var(--gold-bg); border-color: var(--gold-border); }
   .upload-zone svg { color: var(--accent); }
-  .upload-zone.drag svg { color: var(--gold); }
   .upload-zone h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .upload-zone p { font-size: 13px; color: var(--text-sec); }
   .upload-zone input { display: none; }
-  .progress-wrap { margin-top: 16px; display: none; }
+  .progress-wrap { margin-top: 14px; display: none; }
   .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.3s; width: 0%; }
   .progress-label { font-size: 12px; color: var(--text-sec); margin-top: 6px; }
+
+  /* ——— TOOLBAR ——— */
   .toolbar { display: flex; align-items: center; margin-bottom: 12px; gap: 12px; }
   .search-box { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 12px; flex: 1; }
   .search-box svg { color: var(--text-muted); flex-shrink: 0; }
   .search-box input { border: none; outline: none; font-size: 13px; background: transparent; color: var(--text); width: 100%; }
   .search-box input::placeholder { color: var(--text-muted); }
+
+  /* ——— BUTTONS ——— */
   .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font-size: 13px; cursor: pointer; font-family: inherit; transition: background 0.1s; white-space: nowrap; font-weight: 500; }
   .btn:hover { background: var(--bg); }
   .btn.primary { background: var(--navy); color: white; border-color: var(--navy); }
   .btn.primary:hover { background: var(--navy-mid); }
   .btn.gold { background: var(--gold); color: var(--navy); border-color: var(--gold); font-weight: 600; }
   .btn.gold:hover { background: var(--gold-light); }
+  .btn.ghost { background: transparent; border-color: rgba(255,255,255,0.3); color: white; }
+  .btn.ghost:hover { background: rgba(255,255,255,0.1); }
+
+  /* ——— FILE LIST ——— */
   .file-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .file-list-header { display: grid; grid-template-columns: 1fr 130px 100px 80px; padding: 10px 16px; border-bottom: 2px solid var(--border); background: var(--navy); font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.07em; }
-  .file-item { display: grid; grid-template-columns: 1fr 130px 100px 80px; padding: 12px 16px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
+  .file-list-header { display: grid; grid-template-columns: 1fr 130px 100px 110px; padding: 10px 16px; border-bottom: 2px solid var(--border); background: var(--navy); font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.07em; }
+  .file-item { display: grid; grid-template-columns: 1fr 130px 100px 110px; padding: 12px 16px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.1s; }
   .file-item:last-child { border-bottom: none; }
   .file-item:hover { background: #f8f9fc; }
   .file-name-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -71,6 +86,7 @@
   .file-icon.doc { background: #dbeafe; color: #1e40af; }
   .file-icon.pdf { background: #fee2e2; color: #991b1b; }
   .file-icon.vid { background: #fce7f3; color: #9d174d; }
+  .file-icon.aud { background: #ecfdf5; color: #065f46; }
   .file-icon.other { background: var(--bg); color: var(--text-sec); }
   .file-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
   .file-name:hover { color: var(--accent); }
@@ -82,10 +98,18 @@
   .icon-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-sec); transition: background 0.1s, color 0.1s; }
   .icon-btn:hover { background: var(--border); color: var(--text); }
   .icon-btn.del:hover { background: var(--danger-bg); color: var(--danger); }
+
   .empty { text-align: center; padding: 60px 24px; }
   .empty-icon { font-size: 40px; margin-bottom: 12px; }
   .empty h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
   .empty p { font-size: 13px; color: var(--text-sec); }
+
+  /* ——— STATS ——— */
+  .stats-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat { font-size: 13px; color: var(--text-sec); display: flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; }
+  .stat strong { color: var(--navy); font-weight: 600; }
+
+  /* ——— MODAL ——— */
   .modal-overlay { position: fixed; inset: 0; background: rgba(13,27,62,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
   .modal { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 420px; overflow: hidden; }
   .modal-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; background: var(--navy); border-bottom: 2px solid var(--gold); }
@@ -95,22 +119,79 @@
   .form-label { font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block; color: var(--text-sec); }
   .form-input { width: 100%; border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 9px 12px; font-size: 14px; outline: none; font-family: inherit; color: var(--text); background: var(--surface); }
   .form-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-bg); }
-  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+
+  /* ——— TOAST ——— */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 600; display: flex; flex-direction: column; gap: 8px; }
   .toast { padding: 10px 16px; border-radius: var(--radius); border: 1px solid; font-size: 13px; font-weight: 500; animation: slide-in 0.2s ease; display: flex; align-items: center; gap: 8px; min-width: 220px; max-width: 300px; }
   .toast.success { background: var(--success-bg); border-color: #86efac; color: var(--success); }
   .toast.error { background: var(--danger-bg); border-color: #fca5a5; color: var(--danger); }
   @keyframes slide-in { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  .stats-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-  .stat { font-size: 13px; color: var(--text-sec); display: flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; }
-  .stat strong { color: var(--navy); font-weight: 600; }
+
+  /* ——— VIEWER FULLSCREEN ——— */
+  .viewer-overlay { position: fixed; inset: 0; background: #050a19; z-index: 500; display: none; flex-direction: column; }
+  .viewer-overlay.open { display: flex; }
+
+  .viewer-header { background: var(--navy); border-bottom: 2px solid var(--gold); padding: 0 16px; height: 56px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .viewer-title { flex: 1; font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .viewer-type-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
+  .vbadge-img { background: #ede9fe; color: #5b21b6; }
+  .vbadge-pdf { background: #fee2e2; color: #991b1b; }
+  .vbadge-vid { background: #fce7f3; color: #9d174d; }
+  .vbadge-aud { background: #ecfdf5; color: #065f46; }
+  .vbadge-doc { background: #dbeafe; color: #1e40af; }
+  .vbadge-txt { background: #f1f5f9; color: #475569; }
+  .vbadge-other { background: #374151; color: #d1d5db; }
+  .viewer-acts { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .viewer-body { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; padding: 16px; position: relative; background: #070d1f; }
+
+  /* Image */
+  .img-viewer { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; transition: transform 0.2s; transform-origin: center; cursor: zoom-in; user-select: none; }
+  .img-viewer.zoomed { cursor: zoom-out; }
+  .zoom-controls { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; background: rgba(0,0,0,0.7); border-radius: 99px; padding: 6px 14px; backdrop-filter: blur(4px); }
+  .zoom-btn { background: none; border: none; color: white; cursor: pointer; font-size: 16px; padding: 2px 8px; border-radius: 4px; transition: background 0.1s; font-weight: 600; }
+  .zoom-btn:hover { background: rgba(255,255,255,0.2); }
+  .zoom-label { color: rgba(255,255,255,0.7); font-size: 12px; align-self: center; min-width: 36px; text-align: center; }
+
+  /* PDF */
+  .pdf-frame { width: 100%; height: 100%; border: none; border-radius: 6px; min-height: 400px; }
+
+  /* Video */
+  .vid-player { max-width: 100%; max-height: 100%; border-radius: 6px; background: #000; }
+
+  /* Audio */
+  .aud-wrap { text-align: center; padding: 60px 24px; }
+  .aud-art { font-size: 80px; margin-bottom: 20px; }
+  .aud-name { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+  .aud-size { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 24px; }
+  .aud-player { width: 100%; max-width: 500px; }
+
+  /* Text */
+  .txt-viewer { width: 100%; max-width: 820px; background: #0f172a; border-radius: 8px; padding: 24px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.75; color: #e2e8f0; white-space: pre-wrap; word-break: break-all; overflow-y: auto; max-height: calc(100vh - 100px); align-self: flex-start; border: 1px solid #1e293b; }
+
+  /* Office (Word/PPT/Excel via Google Docs Viewer) */
+  .office-frame { width: 100%; height: 100%; border: none; min-height: 400px; background: white; border-radius: 6px; }
+
+  /* Loading */
+  .viewer-loading { display: flex; flex-direction: column; align-items: center; gap: 16px; color: rgba(255,255,255,0.5); }
+  .viewer-spinner { width: 40px; height: 40px; border: 3px solid rgba(201,162,39,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Unsupported */
+  .unsup-wrap { text-align: center; padding: 60px 24px; }
+  .unsup-icon { font-size: 64px; margin-bottom: 20px; }
+  .unsup-name { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+  .unsup-desc { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 28px; }
+
+  /* ——— RESPONSIVE ——— */
   @media (max-width: 600px) {
-    .file-list-header { grid-template-columns: 1fr 70px; }
+    .file-list-header { grid-template-columns: 1fr 80px; }
     .file-list-header span:nth-child(2), .file-list-header span:nth-child(3) { display: none; }
-    .file-item { grid-template-columns: 1fr 70px; }
+    .file-item { grid-template-columns: 1fr 80px; }
     .file-item > .file-meta:nth-child(2), .file-item > .file-meta:nth-child(3) { display: none; }
-    .toolbar { flex-direction: column; align-items: stretch; }
     .file-actions { opacity: 1; }
     .hero h1 { font-size: 17px; }
+    .viewer-acts .btn span { display: none; }
   }
 </style>
 </head>
@@ -148,14 +229,14 @@
 
   <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
     <div class="upload-icon">
-      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
     </div>
     <h3>Seret materi ke sini atau klik untuk memilih</h3>
-    <p>PDF, Word, PPT, gambar, video — tersimpan di cloud, dapat diakses semua taruna</p>
+    <p>PDF, Word, PPT, gambar, video, audio — tersimpan di cloud</p>
     <input type="file" id="fileInput" multiple>
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-label" id="progressLabel">Mengupload...</div>
+      <div class="progress-label" id="progressLabel"></div>
     </div>
   </div>
 
@@ -168,7 +249,7 @@
 
   <div class="file-list">
     <div class="file-list-header">
-      <span>Nama Materi</span><span>Tanggal</span><span>Ukuran</span><span></span>
+      <span>Nama Materi</span><span>Tanggal</span><span>Ukuran</span><span>Aksi</span>
     </div>
     <div id="fileListBody">
       <div class="empty"><div class="empty-icon">⏳</div><h3>Memuat materi...</h3><p>Mengambil data dari server</p></div>
@@ -178,6 +259,7 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- Folder Modal -->
 <div class="modal-overlay" id="folderModal" style="display:none">
   <div class="modal">
     <div class="modal-header">
@@ -197,23 +279,23 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="previewModal" style="display:none">
-  <div class="modal" style="max-width:560px">
-    <div class="modal-header">
-      <h2 id="previewTitle" style="max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px"></h2>
-      <button class="icon-btn" style="color:rgba(255,255,255,0.7)" onclick="hideModal('previewModal')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body" id="previewBody"></div>
-    <div class="modal-footer">
-      <button class="btn" onclick="hideModal('previewModal')">Tutup</button>
-      <button class="btn gold" id="previewDownloadBtn">
+<!-- ——— FULLSCREEN VIEWER ——— -->
+<div class="viewer-overlay" id="viewerOverlay">
+  <div class="viewer-header">
+    <div class="viewer-title" id="viewerTitle"></div>
+    <div class="viewer-type-badge" id="viewerBadge"></div>
+    <div class="viewer-acts">
+      <button class="btn ghost" id="viewerDlBtn" onclick="">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
-        Download
+        <span>Download</span>
+      </button>
+      <button class="btn ghost" onclick="closeViewer()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span>Tutup</span>
       </button>
     </div>
   </div>
+  <div class="viewer-body" id="viewerBody"></div>
 </div>
 
 <script>
@@ -221,8 +303,10 @@ const SUPABASE_URL = 'https://mqfhqudtcoxpqmbanoju.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZmhxdWR0Y294cHFtYmFub2p1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MDU2MDAsImV4cCI6MjEwMTM4MTYwMH0.0QIbZPJu53PeCFgF8KJggyI06TP_0pSX7doM-eB9Ddw';
 const BUCKET = 'materi';
 
-let currentPath = []; // [{id, name}]
+let currentPath = [];
 let allItems = [];
+let imgZoom = 1;
+let viewerCurrentId = null;
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 function currentFolderId() { return currentPath.length ? currentPath[currentPath.length-1].id : null; }
@@ -235,68 +319,85 @@ function fmtSize(b) {
   return (b/1073741824).toFixed(1) + ' GB';
 }
 function getExt(n) { return (n.split('.').pop()||'').toLowerCase(); }
-function getIconClass(item) {
+
+function getFileType(item) {
   if (item.is_folder) return 'folder';
   const e = getExt(item.name);
-  if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(e)) return 'img';
-  if (e==='pdf') return 'pdf';
-  if (['doc','docx','txt','md','ppt','pptx'].includes(e)) return 'doc';
-  if (['mp4','mkv','avi','mov','webm'].includes(e)) return 'vid';
+  if (['jpg','jpeg','png','gif','webp','svg','bmp','ico'].includes(e)) return 'img';
+  if (e === 'pdf') return 'pdf';
+  if (['mp4','mkv','avi','mov','webm','ogv'].includes(e)) return 'vid';
+  if (['mp3','wav','ogg','flac','aac','m4a'].includes(e)) return 'aud';
+  if (['doc','docx','ppt','pptx','xls','xlsx'].includes(e)) return 'office';
+  if (['txt','md','csv','json','js','html','css','xml','py','java','c','cpp','ts'].includes(e)) return 'txt';
   return 'other';
 }
+
+function getIconClass(item) {
+  const t = getFileType(item);
+  if (t === 'folder') return 'folder';
+  if (t === 'img') return 'img';
+  if (t === 'pdf') return 'pdf';
+  if (t === 'vid') return 'vid';
+  if (t === 'aud') return 'aud';
+  if (t === 'office' || t === 'txt') return 'doc';
+  return 'other';
+}
+
 function getIconLabel(item) {
   if (item.is_folder) return '📁';
   const e = getExt(item.name);
-  if (['jpg','jpeg','png','gif','webp','svg','bmp'].includes(e)) return 'IMG';
-  if (e==='pdf') return 'PDF';
+  const t = getFileType(item);
+  if (t === 'img') return 'IMG';
+  if (t === 'pdf') return 'PDF';
+  if (t === 'vid') return 'VID';
+  if (t === 'aud') return '🎵';
   if (['doc','docx'].includes(e)) return 'DOC';
   if (['ppt','pptx'].includes(e)) return 'PPT';
+  if (['xls','xlsx'].includes(e)) return 'XLS';
   if (['txt','md'].includes(e)) return 'TXT';
-  if (['mp4','mkv','avi','mov','webm'].includes(e)) return 'VID';
-  return e.toUpperCase().slice(0,3)||'…';
+  return e.toUpperCase().slice(0,3) || '…';
 }
 
 function toast(msg, type='success') {
   const el = document.createElement('div');
-  el.className = 'toast '+type;
+  el.className = 'toast ' + type;
   el.innerHTML = (type==='success'?'✓ ':'✕ ') + msg;
   document.getElementById('toastContainer').appendChild(el);
-  setTimeout(()=>el.remove(), 3500);
+  setTimeout(() => el.remove(), 3500);
 }
-function showNewFolderModal() {
-  document.getElementById('folderNameInput').value='';
-  document.getElementById('folderModal').style.display='flex';
-  setTimeout(()=>document.getElementById('folderNameInput').focus(),50);
-}
-function hideModal(id) { document.getElementById(id).style.display='none'; }
 
-// ——— DB via Supabase REST ———
-function dbHeaders() {
+function showNewFolderModal() {
+  document.getElementById('folderNameInput').value = '';
+  document.getElementById('folderModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('folderNameInput').focus(), 50);
+}
+function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// ——— DB ———
+function dbH() {
   return { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 }
-
-async function dbSelect(filter='') {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/items?${filter}&order=is_folder.desc,created_at.desc`, { headers: dbHeaders() });
+async function dbSelect() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/items?order=is_folder.desc,created_at.desc`, { headers: dbH() });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function dbInsert(row) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/items`, { method:'POST', headers: dbHeaders(), body: JSON.stringify(row) });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/items`, { method:'POST', headers: dbH(), body: JSON.stringify(row) });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function dbDelete(id) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/items?id=eq.${id}`, { method:'DELETE', headers: dbHeaders() });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/items?id=eq.${id}`, { method:'DELETE', headers: dbH() });
   if (!res.ok) throw new Error(await res.text());
 }
 
-// ——— LOAD ———
 async function loadAndRender() {
   try {
     allItems = await dbSelect();
     renderBreadcrumb(); renderStats(); renderFiles();
   } catch(e) {
-    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat data</h3><p>${e.message}</p></div>`;
+    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat</h3><p>${e.message}</p></div>`;
   }
 }
 
@@ -326,35 +427,36 @@ function renderStats() {
 function getVisible() {
   const fid = currentFolderId();
   const search = document.getElementById('searchInput').value.trim().toLowerCase();
-  return allItems.filter(i => {
-    const matchFolder = (i.folder_id||null)===fid;
-    const matchSearch = !search || i.name.toLowerCase().includes(search);
-    return matchFolder && matchSearch;
-  });
+  return allItems.filter(i => (i.folder_id||null)===fid && (!search || i.name.toLowerCase().includes(search)));
 }
 
 function renderFiles() {
   const items = getVisible();
   const body = document.getElementById('fileListBody');
-  if (items.length===0) {
-    const search = document.getElementById('searchInput').value.trim();
-    body.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><h3>${search?'Tidak ada hasil untuk "'+search+'"':'Belum ada materi di sini'}</h3><p>${search?'Coba kata kunci lain.':'Upload materi atau buat folder baru.'}</p></div>`;
+  if (!items.length) {
+    const s = document.getElementById('searchInput').value.trim();
+    body.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><h3>${s?'Tidak ada hasil untuk "'+s+'"':'Belum ada materi'}</h3><p>${s?'Coba kata kunci lain.':'Upload materi atau buat folder baru.'}</p></div>`;
     return;
   }
   body.innerHTML = items.map(item => {
     const childCount = item.is_folder ? allItems.filter(c=>c.folder_id===item.id).length : 0;
     const sn = item.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    const ft = getFileType(item);
+    const canView = !item.is_folder;
     return `<div class="file-item">
       <div class="file-name-cell">
         <div class="file-icon ${getIconClass(item)}">${getIconLabel(item)}</div>
         <div style="min-width:0">
-          <div class="file-name ${item.is_folder?'folder-name':''}" onclick="${item.is_folder?`openFolder('${item.id}','${sn}')`:`previewItem('${item.id}')`}">${item.name}</div>
+          <div class="file-name ${item.is_folder?'folder-name':''}" onclick="${item.is_folder?`openFolder('${item.id}','${sn}')`:`openViewer('${item.id}')`}">${item.name}</div>
           ${item.is_folder?`<div class="file-meta">${childCount} item</div>`:''}
         </div>
       </div>
       <div class="file-meta">${fmtDate(item.created_at)}</div>
       <div class="file-meta">${fmtSize(item.size)}</div>
       <div class="file-actions">
+        ${canView?`<button class="icon-btn" title="Lihat" onclick="openViewer('${item.id}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>`:''}
         ${!item.is_folder?`<button class="icon-btn" title="Download" onclick="downloadItem('${item.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
         </button>`:''}
@@ -366,7 +468,6 @@ function renderFiles() {
   }).join('');
 }
 
-// ——— NAVIGATE ———
 function navigateTo(idx) {
   if (idx===-1) currentPath=[];
   else currentPath=currentPath.slice(0,idx+1);
@@ -379,63 +480,59 @@ function openFolder(id, name) {
   renderBreadcrumb(); renderStats(); renderFiles();
 }
 
-// ——— FOLDER ———
 async function createFolder() {
   const name = document.getElementById('folderNameInput').value.trim();
   if (!name) return;
   try {
-    const row = { id: uid(), name, is_folder: true, folder_id: currentFolderId(), size: 0 };
+    const row = { id:uid(), name, is_folder:true, folder_id:currentFolderId(), size:0 };
     const result = await dbInsert(row);
     allItems.push(Array.isArray(result)?result[0]:result);
     hideModal('folderModal');
     renderBreadcrumb(); renderStats(); renderFiles();
     toast('Folder "'+name+'" berhasil dibuat');
-  } catch(e) { toast('Gagal: '+e.message, 'error'); }
+  } catch(e) { toast('Gagal: '+e.message,'error'); }
 }
 
-// ——— UPLOAD ———
 async function handleFiles(files) {
   const pw = document.getElementById('progressWrap');
   const pf = document.getElementById('progressFill');
   const pl = document.getElementById('progressLabel');
   pw.style.display='block';
   let done=0;
-
   for (const file of files) {
     pl.textContent=`Mengupload ${file.name} (${done+1}/${files.length})...`;
-    pf.style.width=Math.round((done/files.length)*100)+'%';
+    pf.style.width=Math.round((done/files.length)*90)+'%';
     try {
-      const filePath = (currentFolderId()?currentFolderId()+'/':'') + uid()+'_'+file.name;
-      const upRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filePath}`, {
+      const fp = (currentFolderId()?currentFolderId()+'/':'') + uid()+'_'+file.name;
+      const ur = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${fp}`, {
         method:'POST',
-        headers:{ 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY, 'Content-Type':file.type||'application/octet-stream' },
-        body: file
+        headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':file.type||'application/octet-stream'},
+        body:file
       });
-      if (!upRes.ok) { toast('Gagal upload: '+file.name,'error'); done++; continue; }
-
-      const row = { id:uid(), name:file.name, is_folder:false, folder_id:currentFolderId(), size:file.size, mime:file.type, storage_path:filePath };
+      if (!ur.ok) { toast('Gagal upload: '+file.name,'error'); done++; continue; }
+      const row = { id:uid(), name:file.name, is_folder:false, folder_id:currentFolderId(), size:file.size, mime:file.type, storage_path:fp };
       const result = await dbInsert(row);
       allItems.push(Array.isArray(result)?result[0]:result);
     } catch(e) { toast('Error: '+e.message,'error'); }
     done++;
-    pf.style.width=Math.round((done/files.length)*100)+'%';
   }
-
-  pw.style.display='none'; pf.style.width='0%';
+  pf.style.width='100%';
+  setTimeout(()=>{ pw.style.display='none'; pf.style.width='0%'; },600);
   renderBreadcrumb(); renderStats(); renderFiles();
   toast(done+' materi berhasil diupload ✓');
 }
 
-// ——— DOWNLOAD ———
+function getFileUrl(item) {
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${item.storage_path}`;
+}
+
 function downloadItem(id) {
   const item = allItems.find(i=>i.id===id);
   if (!item||!item.storage_path) return;
-  const url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${item.storage_path}`;
   const a = document.createElement('a');
-  a.href=url; a.download=item.name; a.target='_blank'; a.click();
+  a.href = getFileUrl(item); a.download = item.name; a.target='_blank'; a.click();
 }
 
-// ——— DELETE ———
 async function deleteItem(id, name, isFolder) {
   if (!confirm('Hapus "'+name+'"?')) return;
   try {
@@ -445,9 +542,7 @@ async function deleteItem(id, name, isFolder) {
     } else {
       const item = allItems.find(i=>i.id===id);
       if (item?.storage_path) {
-        await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${item.storage_path}`, {
-          method:'DELETE', headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
-        });
+        await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${item.storage_path}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
       }
     }
     await dbDelete(id);
@@ -457,24 +552,161 @@ async function deleteItem(id, name, isFolder) {
   } catch(e) { toast('Gagal hapus: '+e.message,'error'); }
 }
 
-// ——— PREVIEW ———
-function previewItem(id) {
+// ——— VIEWER ———
+function openViewer(id) {
   const item = allItems.find(i=>i.id===id);
-  if (!item) return;
-  const url = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${item.storage_path}`;
+  if (!item || !item.storage_path) return;
+  viewerCurrentId = id;
+
+  const url = getFileUrl(item);
+  const ft = getFileType(item);
   const ext = getExt(item.name);
-  const isImg = ['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext);
-  const isPdf = ext==='pdf';
-  document.getElementById('previewTitle').textContent=item.name;
-  const body = document.getElementById('previewBody');
-  if (isImg) body.innerHTML=`<img src="${url}" style="width:100%;border-radius:8px;max-height:360px;object-fit:contain;background:#f4f5f7;">`;
-  else if (isPdf) body.innerHTML=`<iframe src="${url}" style="width:100%;height:360px;border-radius:8px;border:1px solid var(--border)"></iframe>`;
-  else body.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--text-sec)"><div style="font-size:48px;margin-bottom:12px">📄</div><p style="font-size:14px;font-weight:600">${item.name}</p><p style="font-size:13px;margin-top:4px">${fmtSize(item.size)}</p></div>`;
-  document.getElementById('previewDownloadBtn').onclick=()=>downloadItem(id);
-  document.getElementById('previewModal').style.display='flex';
+
+  // Header
+  document.getElementById('viewerTitle').textContent = item.name;
+  const badge = document.getElementById('viewerBadge');
+  const badgeMap = { img:'vbadge-img', pdf:'vbadge-pdf', vid:'vbadge-vid', aud:'vbadge-aud', office:'vbadge-doc', txt:'vbadge-txt', other:'vbadge-other' };
+  const labelMap = { img:'Gambar', pdf:'PDF', vid:'Video', aud:'Audio', office:'Dokumen', txt:'Teks', other:'File' };
+  badge.className = 'viewer-type-badge ' + (badgeMap[ft]||'vbadge-other');
+  badge.textContent = labelMap[ft] || ext.toUpperCase();
+
+  // Download button
+  document.getElementById('viewerDlBtn').onclick = () => downloadItem(id);
+
+  // Show overlay
+  document.getElementById('viewerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Render
+  const body = document.getElementById('viewerBody');
+  body.style.alignItems = 'center';
+  body.innerHTML = '<div class="viewer-loading"><div class="viewer-spinner"></div><span style="color:rgba(255,255,255,0.5);font-size:13px">Memuat file...</span></div>';
+
+  if (ft === 'img') {
+    imgZoom = 1;
+    const img = new Image();
+    img.className = 'img-viewer';
+    img.src = url;
+    img.onclick = () => {
+      imgZoom = imgZoom===1 ? 2 : 1;
+      img.style.transform = `scale(${imgZoom})`;
+      img.classList.toggle('zoomed', imgZoom>1);
+      updateZoomLabel();
+    };
+    img.onload = () => {
+      body.innerHTML = '';
+      body.appendChild(img);
+      const ctrl = document.createElement('div');
+      ctrl.className = 'zoom-controls';
+      ctrl.innerHTML = `
+        <button class="zoom-btn" onclick="zoomImg(-0.25)">−</button>
+        <span class="zoom-label" id="zoomLabel">100%</span>
+        <button class="zoom-btn" onclick="zoomImg(0.25)">+</button>
+        <button class="zoom-btn" onclick="zoomReset()" title="Reset">⟳</button>
+      `;
+      body.appendChild(ctrl);
+      window._vImg = img;
+    };
+    img.onerror = () => { body.innerHTML = viewerErr('Gagal memuat gambar'); };
+
+  } else if (ft === 'pdf') {
+    body.innerHTML = `<iframe class="pdf-frame" src="${url}"></iframe>`;
+
+  } else if (ft === 'vid') {
+    body.innerHTML = `<video class="vid-player" controls autoplay><source src="${url}" type="${item.mime||'video/mp4'}">Browser tidak mendukung video ini.</video>`;
+
+  } else if (ft === 'aud') {
+    body.innerHTML = `
+      <div class="aud-wrap">
+        <div class="aud-art">🎵</div>
+        <div class="aud-name">${item.name}</div>
+        <div class="aud-size">${fmtSize(item.size)}</div>
+        <audio class="aud-player" controls autoplay>
+          <source src="${url}" type="${item.mime||'audio/mpeg'}">
+        </audio>
+      </div>`;
+
+  } else if (ft === 'office') {
+    const gv = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+    body.innerHTML = `<iframe class="office-frame" src="${gv}" onload="this.style.opacity=1;document.getElementById('viewerBody').querySelector('.viewer-loading')&&(document.getElementById('viewerBody').innerHTML='')" style="opacity:0;transition:opacity 0.3s"></iframe>`;
+    // fallback jika gagal load
+    setTimeout(()=>{ const f=body.querySelector('iframe'); if(f&&f.style.opacity==='0') body.innerHTML=viewerOfflineFallback(item,url); },8000);
+
+  } else if (ft === 'txt') {
+    fetch(url)
+      .then(r=>r.text())
+      .then(text=>{
+        const pre = document.createElement('pre');
+        pre.className = 'txt-viewer';
+        pre.textContent = text.slice(0,200000);
+        body.innerHTML='';
+        body.style.alignItems='flex-start';
+        body.appendChild(pre);
+      })
+      .catch(()=>{ body.innerHTML=viewerErr('Gagal membaca file teks'); });
+
+  } else {
+    body.innerHTML = `
+      <div class="unsup-wrap">
+        <div class="unsup-icon">📄</div>
+        <div class="unsup-name">${item.name}</div>
+        <div class="unsup-desc">${fmtSize(item.size)} · Tipe file ini tidak dapat ditampilkan di browser</div>
+        <button class="btn gold" onclick="downloadItem('${id}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
+          Download untuk membuka
+        </button>
+      </div>`;
+  }
 }
 
-// ——— EVENTS ———
+function viewerOfflineFallback(item, url) {
+  return `<div class="unsup-wrap">
+    <div class="unsup-icon">📄</div>
+    <div class="unsup-name">${item.name}</div>
+    <div class="unsup-desc">Tidak dapat menampilkan via Google Docs Viewer. Coba download.</div>
+    <button class="btn gold" onclick="downloadItem('${item.id}')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
+      Download
+    </button>
+  </div>`;
+}
+
+function viewerErr(msg) {
+  return `<div class="unsup-wrap"><div class="unsup-icon">⚠️</div><div class="unsup-name">${msg}</div><div class="unsup-desc">Coba download file ini.</div></div>`;
+}
+
+function closeViewer() {
+  const ov = document.getElementById('viewerOverlay');
+  ov.classList.remove('open');
+  document.body.style.overflow='';
+  ov.querySelectorAll('video,audio').forEach(m=>{m.pause();m.src='';});
+  const b = document.getElementById('viewerBody');
+  b.innerHTML=''; b.style.alignItems='center';
+  viewerCurrentId = null;
+  window._vImg = null;
+}
+
+function zoomImg(delta) {
+  if (!window._vImg) return;
+  imgZoom = Math.max(0.3, Math.min(5, imgZoom+delta));
+  window._vImg.style.transform = `scale(${imgZoom})`;
+  window._vImg.classList.toggle('zoomed', imgZoom>1);
+  updateZoomLabel();
+}
+function zoomReset() {
+  if (!window._vImg) return;
+  imgZoom=1;
+  window._vImg.style.transform='scale(1)';
+  window._vImg.classList.remove('zoomed');
+  updateZoomLabel();
+}
+function updateZoomLabel() {
+  const el = document.getElementById('zoomLabel');
+  if (el) el.textContent = Math.round(imgZoom*100)+'%';
+}
+
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeViewer(); });
+
 const dz=document.getElementById('dropZone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
