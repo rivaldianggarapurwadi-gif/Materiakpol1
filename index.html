@@ -104,6 +104,19 @@
   .empty h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
   .empty p { font-size: 13px; color: var(--text-sec); }
 
+  /* ——— DRAG TO MOVE ——— */
+  .file-item[draggable="true"] { cursor: grab; }
+  .file-item[draggable="true"]:active { cursor: grabbing; }
+  .file-item.dragging { opacity: 0.35; background: var(--accent-bg); border-left: 3px solid var(--accent); }
+  .file-item.drag-over-folder { background: var(--gold-bg) !important; border-left: 3px solid var(--gold); outline: 2px dashed var(--gold); outline-offset: -2px; }
+  .drag-hint { font-size: 11px; color: var(--text-muted); text-align: right; margin-bottom: 8px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+  /* Drop zone for moving to parent folder */
+  .drop-to-parent { display: none; background: var(--surface); border: 2px dashed var(--border-strong); border-radius: 8px; padding: 10px 16px; margin-bottom: 10px; font-size: 13px; color: var(--text-muted); align-items: center; gap: 8px; cursor: default; transition: all 0.15s; }
+  .drop-to-parent.visible { display: flex; }
+  .drop-to-parent.drag-over { border-color: var(--gold); background: var(--gold-bg); color: var(--navy); }
+  /* Ghost drag image */
+  .drag-ghost { position: fixed; top: -100px; left: -100px; background: var(--navy); color: white; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; white-space: nowrap; pointer-events: none; border: 1px solid var(--gold); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
   /* ——— STATS ——— */
   .stats-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
   .stat { font-size: 13px; color: var(--text-sec); display: flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; }
@@ -240,11 +253,23 @@
     </div>
   </div>
 
+  <!-- Drop zone untuk pindah ke folder parent -->
+  <div class="drop-to-parent" id="dropToParent"
+    ondragover="onParentDragOver(event)"
+    ondragleave="onParentDragLeave(event)"
+    ondrop="onParentDrop(event)">
+    ↑ Lepas di sini untuk pindah ke folder sebelumnya
+  </div>
+
   <div class="toolbar">
     <div class="search-box">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" id="searchInput" placeholder="Cari materi..." oninput="renderFiles()">
     </div>
+  </div>
+  <div class="drag-hint" id="dragHint" style="display:none">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l3 3 3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
+    Seret file ke folder tujuan untuk memindahkan
   </div>
 
   <div class="file-list">
@@ -433,17 +458,32 @@ function getVisible() {
 function renderFiles() {
   const items = getVisible();
   const body = document.getElementById('fileListBody');
+
+  // Tampilkan hint dan drop-to-parent jika ada folder di atasnya
+  const hasFolder = items.some(i => i.is_folder);
+  document.getElementById('dragHint').style.display = hasFolder ? 'flex' : 'none';
+  const dtp = document.getElementById('dropToParent');
+  dtp.classList.toggle('visible', currentPath.length > 0);
+
   if (!items.length) {
     const s = document.getElementById('searchInput').value.trim();
     body.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><h3>${s?'Tidak ada hasil untuk "'+s+'"':'Belum ada materi'}</h3><p>${s?'Coba kata kunci lain.':'Upload materi atau buat folder baru.'}</p></div>`;
     return;
   }
+
   body.innerHTML = items.map(item => {
     const childCount = item.is_folder ? allItems.filter(c=>c.folder_id===item.id).length : 0;
     const sn = item.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    const ft = getFileType(item);
     const canView = !item.is_folder;
-    return `<div class="file-item">
+    return `<div class="file-item"
+      draggable="true"
+      data-id="${item.id}"
+      data-is-folder="${item.is_folder}"
+      ondragstart="onItemDragStart(event,'${item.id}')"
+      ondragend="onItemDragEnd(event)"
+      ondragover="${item.is_folder?`onFolderDragOver(event,'${item.id}')`:'event.preventDefault()'}"
+      ondragleave="${item.is_folder?`onFolderDragLeave(event)`:'null'}"
+      ondrop="${item.is_folder?`onFolderDrop(event,'${item.id}','${sn}')`:'null'}">
       <div class="file-name-cell">
         <div class="file-icon ${getIconClass(item)}">${getIconLabel(item)}</div>
         <div style="min-width:0">
@@ -747,6 +787,123 @@ function updateZoomLabel() {
 }
 
 document.addEventListener('keydown', e => { if (e.key==='Escape') closeViewer(); });
+
+// ——— DRAG TO MOVE ———
+let dragItemId = null;
+let dragGhost = null;
+
+function onItemDragStart(e, id) {
+  dragItemId = id;
+  const item = allItems.find(i=>i.id===id);
+  if (!item) return;
+
+  // Custom ghost image
+  dragGhost = document.createElement('div');
+  dragGhost.className = 'drag-ghost';
+  dragGhost.textContent = (item.is_folder ? '📁 ' : '📄 ') + item.name;
+  document.body.appendChild(dragGhost);
+  e.dataTransfer.setDragImage(dragGhost, 0, 0);
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id);
+
+  setTimeout(() => {
+    const el = document.querySelector(`.file-item[data-id="${id}"]`);
+    if (el) el.classList.add('dragging');
+  }, 0);
+}
+
+function onItemDragEnd(e) {
+  dragItemId = null;
+  if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+  document.querySelectorAll('.file-item.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.file-item.drag-over-folder').forEach(el => el.classList.remove('drag-over-folder'));
+}
+
+// Drag over folder
+function onFolderDragOver(e, folderId) {
+  if (!dragItemId || dragItemId === folderId) return; // jangan drop ke diri sendiri
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.file-item.drag-over-folder').forEach(el => el.classList.remove('drag-over-folder'));
+  const el = document.querySelector(`.file-item[data-id="${folderId}"]`);
+  if (el) el.classList.add('drag-over-folder');
+}
+
+function onFolderDragLeave(e) {
+  // Hanya hapus jika benar-benar meninggalkan elemen (bukan child)
+  if (!e.currentTarget.contains(e.relatedTarget)) {
+    e.currentTarget.classList.remove('drag-over-folder');
+  }
+}
+
+async function onFolderDrop(e, folderId, folderName) {
+  e.preventDefault();
+  e.stopPropagation();
+  const id = dragItemId || e.dataTransfer.getData('text/plain');
+  if (!id || id === folderId) return;
+
+  // Cegah drop folder ke dalam subfolder-nya sendiri
+  if (isDescendant(folderId, id)) {
+    toast('Tidak bisa memindahkan folder ke dalam subfolder-nya sendiri', 'error');
+    return;
+  }
+
+  await moveItem(id, folderId, folderName);
+}
+
+// Drop ke folder parent (naik satu level)
+function onParentDragOver(e) {
+  if (!dragItemId) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.getElementById('dropToParent').classList.add('drag-over');
+}
+function onParentDragLeave(e) {
+  document.getElementById('dropToParent').classList.remove('drag-over');
+}
+async function onParentDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropToParent').classList.remove('drag-over');
+  const id = dragItemId || e.dataTransfer.getData('text/plain');
+  if (!id) return;
+  // Target = folder parent dari currentPath (satu level di atas)
+  const parentId = currentPath.length >= 2 ? currentPath[currentPath.length-2].id : null;
+  const parentName = parentId ? currentPath[currentPath.length-2].name : 'Semua Materi';
+  await moveItem(id, parentId, parentName);
+}
+
+// Cek apakah targetId adalah turunan dari sourceId
+function isDescendant(targetId, sourceId) {
+  let check = allItems.find(i=>i.id===targetId);
+  while (check) {
+    if (check.folder_id === sourceId) return true;
+    check = allItems.find(i=>i.id===check.folder_id);
+  }
+  return false;
+}
+
+async function moveItem(itemId, targetFolderId, targetName) {
+  const item = allItems.find(i=>i.id===itemId);
+  if (!item) return;
+  if ((item.folder_id||null) === (targetFolderId||null)) return; // sudah di sana
+
+  try {
+    // Update di database
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/items?id=eq.${itemId}`, {
+      method: 'PATCH',
+      headers: { ...dbH(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ folder_id: targetFolderId })
+    });
+    if (!res.ok) throw new Error(await res.text());
+
+    // Update local state
+    item.folder_id = targetFolderId;
+    renderBreadcrumb(); renderStats(); renderFiles();
+    toast(`"${item.name}" dipindahkan ke ${targetName||'Semua Materi'}`);
+  } catch(e) {
+    toast('Gagal memindahkan: ' + e.message, 'error');
+  }
+}
 
 const dz=document.getElementById('dropZone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
