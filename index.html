@@ -694,7 +694,7 @@ function openViewer(id) {
     body.innerHTML = `<iframe class="pdf-frame" src="${url}"></iframe>`;
 
   } else if (ft === 'vid') {
-    body.innerHTML = `<video class="vid-player" controls autoplay><source src="${url}" type="${item.mime||'video/mp4'}">Browser tidak mendukung video ini.</video>`;
+    body.innerHTML = `<video class="vid-player" controls><source src="${url}" type="${item.mime||'video/mp4'}">Browser tidak mendukung video ini.</video>`;
 
   } else if (ft === 'aud') {
     body.innerHTML = `
@@ -702,7 +702,7 @@ function openViewer(id) {
         <div class="aud-art">🎵</div>
         <div class="aud-name">${item.name}</div>
         <div class="aud-size">${fmtSize(item.size)}</div>
-        <audio class="aud-player" controls autoplay>
+        <audio class="aud-player" controls>
           <source src="${url}" type="${item.mime||'audio/mpeg'}">
         </audio>
       </div>`;
