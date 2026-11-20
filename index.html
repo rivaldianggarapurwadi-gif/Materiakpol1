@@ -252,7 +252,7 @@
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
     </div>
     <h3>Seret materi ke sini atau klik untuk memilih</h3>
-    <p>PDF, Word, PPT, gambar, video, audio — tersimpan di cloud</p>
+    <p>PDF, Word, PPT, gambar, video, audio — tersimpan di Google Drive</p>
     <input type="file" id="fileInput" multiple>
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -331,9 +331,9 @@
 </div>
 
 <script>
-const SUPABASE_URL = 'https://mqfhqudtcoxpqmbanoju.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZmhxdWR0Y294cHFtYmFub2p1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MDU2MDAsImV4cCI6MjEwMTM4MTYwMH0.0QIbZPJu53PeCFgF8KJggyI06TP_0pSX7doM-eB9Ddw';
-const BUCKET = 'materi';
+// URL Web App dari Google Apps Script (lihat SETUP.md). Ganti dengan URL milikmu.
+const API_URL = 'PASTE_URL_WEB_APP_DI_SINI';
+const CHUNK = 8 * 1024 * 1024; // 8 MB per potongan upload (kelipatan 256 KB)
 
 let currentPath = [];
 let allItems = [];
@@ -406,26 +406,30 @@ function showNewFolderModal() {
 }
 function hideModal(id) { document.getElementById(id).style.display = 'none'; }
 
-// ——— DB ———
-function dbH() {
-  return { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+// ——— API (Google Apps Script) ———
+function apiReady() { return /^https:\/\/script\.google\.com\//.test(API_URL); }
+async function apiCall(res) {
+  let r;
+  try { r = await res; }
+  catch (e) { throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet.'); }
+  const data = await r.json().catch(() => { throw new Error('Respon server tidak valid (HTTP ' + r.status + ')'); });
+  if (!data.ok) throw new Error(data.error || 'Terjadi kesalahan di server');
+  return data;
+}
+// Body dikirim sebagai text/plain agar tidak ada preflight CORS
+function apiPost(action, body) {
+  return apiCall(fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...body }) }));
 }
 async function dbSelect() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/items?order=is_folder.desc,created_at.desc`, { headers: dbH() });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-async function dbInsert(row) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/items`, { method:'POST', headers: dbH(), body: JSON.stringify(row) });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-async function dbDelete(id) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/items?id=eq.${id}`, { method:'DELETE', headers: dbH() });
-  if (!res.ok) throw new Error(await res.text());
+  const d = await apiCall(fetch(API_URL + '?action=list'));
+  return d.items.sort((a, b) => (b.is_folder - a.is_folder) || String(b.created_at).localeCompare(String(a.created_at)));
 }
 
 async function loadAndRender() {
+  if (!apiReady()) {
+    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚙️</div><h3>Server belum diatur</h3><p>Isi <code>API_URL</code> di index.html dengan URL Web App Google Apps Script (lihat SETUP.md).</p></div>`;
+    return;
+  }
   try {
     allItems = await dbSelect();
     renderBreadcrumb(); renderStats(); renderFiles();
@@ -531,9 +535,8 @@ async function createFolder() {
   const name = document.getElementById('folderNameInput').value.trim();
   if (!name) return;
   try {
-    const row = { id:uid(), name, is_folder:true, folder_id:currentFolderId(), size:0 };
-    const result = await dbInsert(row);
-    allItems.push(Array.isArray(result)?result[0]:result);
+    const { item } = await apiPost('createFolder', { name, folder_id: currentFolderId() });
+    allItems.unshift(item);
     hideModal('folderModal');
     renderBreadcrumb(); renderStats(); renderFiles();
     toast('Folder "'+name+'" berhasil dibuat');
@@ -553,51 +556,34 @@ async function handleFiles(fileInput) {
   let done = 0;
   let failed = 0;
   const total = files.length;
+  const folderId = currentFolderId();
 
   for (let i = 0; i < total; i++) {
     const file = files[i];
-    pl.textContent = `Mengupload ${file.name} (${i+1}/${total})...`;
-    pf.style.width = Math.round((i / total) * 90) + '%';
-
+    const label = `Mengupload ${file.name} (${i+1}/${total})`;
+    pl.textContent = label + '...';
+    pf.style.width = '0%';
     try {
-      // Sanitize nama file: ganti spasi & karakter khusus
-      const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-      const fp = (currentFolderId() ? currentFolderId() + '/' : '') + uid() + '_' + safeName;
-
-      const ur = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${fp}`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': file.type || 'application/octet-stream',
-          'x-upsert': 'false'
-        },
-        body: file
-      });
-
-      if (!ur.ok) {
-        const errText = await ur.text();
-        console.error('Upload error:', errText);
-        toast('Gagal upload: ' + file.name, 'error');
-        failed++;
-        continue;
-      }
-
-      const row = {
-        id: uid(),
-        name: file.name, // simpan nama asli di metadata
-        is_folder: false,
-        folder_id: currentFolderId(),
-        size: file.size,
-        mime: file.type,
-        storage_path: fp
-      };
-      const result = await dbInsert(row);
-      allItems.push(Array.isArray(result) ? result[0] : result);
+      const mime = file.type || 'application/octet-stream';
+      const { session } = await apiPost('startUpload', { name: file.name, mime, size: file.size });
+      let item = null, start = 0;
+      do {
+        const blob = file.slice(start, start + CHUNK);
+        const data = await blobToBase64(blob);
+        const res = await apiPost('uploadChunk', { session, start, total: file.size, data, name: file.name, mime, folder_id: folderId });
+        start += blob.size;
+        const pct = file.size ? Math.round(start / file.size * 100) : 100;
+        pf.style.width = pct + '%';
+        pl.textContent = `${label} — ${pct}%`;
+        if (res.done) item = res.item;
+      } while (!item && start < file.size);
+      if (!item) throw new Error('Upload tidak selesai');
+      allItems.unshift(item);
       done++;
+      if (folderId === currentFolderId()) { renderStats(); renderFiles(); }
     } catch(e) {
-      console.error('Exception:', e);
-      toast('Error: ' + e.message, 'error');
+      console.error('Upload error:', e);
+      toast('Gagal upload ' + file.name + ': ' + e.message, 'error');
       failed++;
     }
   }
@@ -610,15 +596,23 @@ async function handleFiles(fileInput) {
   if (failed > 0) toast(failed + ' file gagal diupload', 'error');
 }
 
-function getFileUrl(item) {
-  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${item.storage_path}`;
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(String(fr.result).split(',')[1] || '');
+    fr.onerror = () => reject(fr.error);
+    fr.readAsDataURL(blob);
+  });
 }
+
+function previewUrl(item) { return `https://drive.google.com/file/d/${item.drive_id}/preview`; }
+function downloadUrl(item) { return `https://drive.google.com/uc?export=download&id=${item.drive_id}`; }
 
 function downloadItem(id) {
   const item = allItems.find(i=>i.id===id);
-  if (!item||!item.storage_path) return;
+  if (!item||!item.drive_id) return;
   const a = document.createElement('a');
-  a.href = getFileUrl(item); a.download = item.name; a.target='_blank'; a.click();
+  a.href = downloadUrl(item); a.download = item.name; a.target='_blank'; a.click();
 }
 
 async function deleteItem(id) {
@@ -628,31 +622,21 @@ async function deleteItem(id) {
   const msg = 'Hapus "'+item.name+'"?' + (n ? '\nSemua isi folder ('+n+' item) juga akan dihapus.' : '');
   if (!confirm(msg)) return;
   try {
-    await deleteRecursive(id);
+    const { deleted } = await apiPost('delete', { id });
+    const gone = new Set(deleted);
+    allItems = allItems.filter(i => !gone.has(i.id));
     toast('"'+item.name+'" berhasil dihapus');
   } catch(e) { toast('Gagal hapus: '+e.message,'error'); }
   renderBreadcrumb(); renderStats(); renderFiles();
 }
 
-async function deleteRecursive(id) {
-  const item = allItems.find(i=>i.id===id);
-  if (!item) return;
-  if (item.is_folder) {
-    for (const c of allItems.filter(i=>i.folder_id===id)) await deleteRecursive(c.id);
-  } else if (item.storage_path) {
-    await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${item.storage_path}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
-  }
-  await dbDelete(id);
-  allItems = allItems.filter(i=>i.id!==id);
-}
-
 // ——— VIEWER ———
 function openViewer(id) {
   const item = allItems.find(i=>i.id===id);
-  if (!item || !item.storage_path) return;
+  if (!item || !item.drive_id) return;
   viewerCurrentId = id;
 
-  const url = getFileUrl(item);
+  const url = previewUrl(item);
   const ft = getFileType(item);
   const ext = getExt(item.name);
 
@@ -680,7 +664,8 @@ function openViewer(id) {
     imgZoom = 1;
     const img = new Image();
     img.className = 'img-viewer';
-    img.src = url;
+    img.referrerPolicy = 'no-referrer';
+    img.src = `https://drive.google.com/thumbnail?id=${item.drive_id}&sz=w2400`;
     img.onclick = () => {
       imgZoom = imgZoom===1 ? 2 : 1;
       img.style.transform = `scale(${imgZoom})`;
@@ -688,6 +673,7 @@ function openViewer(id) {
       updateZoomLabel();
     };
     img.onload = () => {
+      if (viewerCurrentId!==id) return;
       body.innerHTML = '';
       body.appendChild(img);
       const ctrl = document.createElement('div');
@@ -701,80 +687,19 @@ function openViewer(id) {
       body.appendChild(ctrl);
       window._vImg = img;
     };
-    img.onerror = () => { body.innerHTML = viewerErr('Gagal memuat gambar'); };
-
-  } else if (ft === 'pdf') {
-    body.innerHTML = `<iframe class="pdf-frame" src="${url}"></iframe>`;
-
-  } else if (ft === 'vid') {
-    body.innerHTML = `<video class="vid-player" controls><source src="${url}" type="${item.mime||'video/mp4'}">Browser tidak mendukung video ini.</video>`;
-
-  } else if (ft === 'aud') {
-    body.innerHTML = `
-      <div class="aud-wrap">
-        <div class="aud-art">🎵</div>
-        <div class="aud-name">${esc(item.name)}</div>
-        <div class="aud-size">${fmtSize(item.size)}</div>
-        <audio class="aud-player" controls>
-          <source src="${url}" type="${item.mime||'audio/mpeg'}">
-        </audio>
-      </div>`;
-
-  } else if (ft === 'office') {
-    const gv = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
-    body.innerHTML = `<iframe class="office-frame" src="${gv}" onload="this.style.opacity=1;document.getElementById('viewerBody').querySelector('.viewer-loading')&&(document.getElementById('viewerBody').innerHTML='')" style="opacity:0;transition:opacity 0.3s"></iframe>`;
-    // fallback jika gagal load
-    setTimeout(()=>{ if (viewerCurrentId!==id) return; const f=body.querySelector('iframe'); if(f&&f.style.opacity==='0') body.innerHTML=viewerOfflineFallback(item,url); },8000);
-
-  } else if (ft === 'txt') {
-    fetch(url)
-      .then(r=>r.text())
-      .then(text=>{
-        if (viewerCurrentId!==id) return;
-        const pre = document.createElement('pre');
-        pre.className = 'txt-viewer';
-        pre.textContent = text.slice(0,200000);
-        body.innerHTML='';
-        body.style.alignItems='flex-start';
-        body.appendChild(pre);
-      })
-      .catch(()=>{ body.innerHTML=viewerErr('Gagal membaca file teks'); });
+    // Gambar belum diproses Drive → tampilkan pratinjau Drive
+    img.onerror = () => { if (viewerCurrentId===id) body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; };
 
   } else {
-    body.innerHTML = `
-      <div class="unsup-wrap">
-        <div class="unsup-icon">📄</div>
-        <div class="unsup-name">${esc(item.name)}</div>
-        <div class="unsup-desc">${fmtSize(item.size)} · Tipe file ini tidak dapat ditampilkan di browser</div>
-        <button class="btn gold" onclick="downloadItem('${id}')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
-          Download untuk membuka
-        </button>
-      </div>`;
+    // PDF, Word, PPT, Excel, video, audio, teks: pratinjau bawaan Google Drive
+    body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
   }
-}
-
-function viewerOfflineFallback(item, url) {
-  return `<div class="unsup-wrap">
-    <div class="unsup-icon">📄</div>
-    <div class="unsup-name">${esc(item.name)}</div>
-    <div class="unsup-desc">Tidak dapat menampilkan via Google Docs Viewer. Coba download.</div>
-    <button class="btn gold" onclick="downloadItem('${item.id}')">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
-      Download
-    </button>
-  </div>`;
-}
-
-function viewerErr(msg) {
-  return `<div class="unsup-wrap"><div class="unsup-icon">⚠️</div><div class="unsup-name">${msg}</div><div class="unsup-desc">Coba download file ini.</div></div>`;
 }
 
 function closeViewer() {
   const ov = document.getElementById('viewerOverlay');
   ov.classList.remove('open');
   document.body.style.overflow='';
-  ov.querySelectorAll('video,audio').forEach(m=>{m.pause();m.src='';});
   const b = document.getElementById('viewerBody');
   b.innerHTML=''; b.style.alignItems='center';
   viewerCurrentId = null;
@@ -904,12 +829,7 @@ async function moveItem(itemId, targetFolderId, targetName) {
 
   try {
     // Update di database
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/items?id=eq.${itemId}`, {
-      method: 'PATCH',
-      headers: { ...dbH(), 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ folder_id: targetFolderId })
-    });
-    if (!res.ok) throw new Error(await res.text());
+    await apiPost('move', { id: itemId, folder_id: targetFolderId });
 
     // Update local state
     item.folder_id = targetFolderId;
