@@ -205,6 +205,13 @@
     .file-actions { opacity: 1; }
     .hero h1 { font-size: 17px; }
     .viewer-acts .btn span { display: none; }
+    header { padding: 0 12px; gap: 8px; }
+    .logo { gap: 8px; min-width: 0; }
+    .logo-emblem { width: 32px; height: 32px; font-size: 16px; }
+    .logo-title { font-size: 13px; white-space: nowrap; }
+    .logo-sub { display: none; }
+    .header-actions .btn { padding: 8px 10px; }
+    .header-actions .btn .lbl { display: none; }
   }
 </style>
 </head>
@@ -219,13 +226,13 @@
     </div>
   </div>
   <div class="header-actions">
-    <button class="btn" onclick="showNewFolderModal()">
+    <button class="btn" onclick="showNewFolderModal()" title="Folder baru" aria-label="Folder baru">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.5L10 7h9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-      Folder baru
+      <span class="lbl">Folder baru</span>
     </button>
-    <button class="btn gold" onclick="document.getElementById('fileInput').click()">
+    <button class="btn gold" onclick="document.getElementById('fileInput').click()" title="Upload Materi" aria-label="Upload Materi">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-      Upload Materi
+      <span class="lbl">Upload Materi</span>
     </button>
   </div>
 </header>
@@ -343,6 +350,7 @@ function fmtSize(b) {
   if (b < 1073741824) return (b/1048576).toFixed(1) + ' MB';
   return (b/1073741824).toFixed(1) + ' GB';
 }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function getExt(n) { return (n.split('.').pop()||'').toLowerCase(); }
 
 function getFileType(item) {
@@ -386,7 +394,7 @@ function getIconLabel(item) {
 function toast(msg, type='success') {
   const el = document.createElement('div');
   el.className = 'toast ' + type;
-  el.innerHTML = (type==='success'?'✓ ':'✕ ') + msg;
+  el.textContent = (type==='success'?'✓ ':'✕ ') + msg;
   document.getElementById('toastContainer').appendChild(el);
   setTimeout(() => el.remove(), 3500);
 }
@@ -422,7 +430,7 @@ async function loadAndRender() {
     allItems = await dbSelect();
     renderBreadcrumb(); renderStats(); renderFiles();
   } catch(e) {
-    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat</h3><p>${e.message}</p></div>`;
+    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat</h3><p>${esc(e.message)}</p></div>`;
   }
 }
 
@@ -431,7 +439,7 @@ function renderBreadcrumb() {
   let html = `<span class="breadcrumb-item ${currentPath.length===0?'active':''}" onclick="navigateTo(-1)">🏠 Semua Materi</span>`;
   currentPath.forEach((p,i) => {
     const isLast = i===currentPath.length-1;
-    html += `<span class="breadcrumb-sep">›</span><span class="breadcrumb-item ${isLast?'active':''}" onclick="navigateTo(${i})">${p.name}</span>`;
+    html += `<span class="breadcrumb-sep">›</span><span class="breadcrumb-item ${isLast?'active':''}" onclick="navigateTo(${i})">${esc(p.name)}</span>`;
   });
   el.innerHTML = html;
 }
@@ -467,13 +475,12 @@ function renderFiles() {
 
   if (!items.length) {
     const s = document.getElementById('searchInput').value.trim();
-    body.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><h3>${s?'Tidak ada hasil untuk "'+s+'"':'Belum ada materi'}</h3><p>${s?'Coba kata kunci lain.':'Upload materi atau buat folder baru.'}</p></div>`;
+    body.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><h3>${s?'Tidak ada hasil untuk "'+esc(s)+'"':'Belum ada materi'}</h3><p>${s?'Coba kata kunci lain.':'Upload materi atau buat folder baru.'}</p></div>`;
     return;
   }
 
   body.innerHTML = items.map(item => {
     const childCount = item.is_folder ? allItems.filter(c=>c.folder_id===item.id).length : 0;
-    const sn = item.name.replace(/'/g,"\\'").replace(/"/g,'&quot;');
     const canView = !item.is_folder;
     return `<div class="file-item"
       draggable="true"
@@ -481,13 +488,11 @@ function renderFiles() {
       data-is-folder="${item.is_folder}"
       ondragstart="onItemDragStart(event,'${item.id}')"
       ondragend="onItemDragEnd(event)"
-      ondragover="${item.is_folder?`onFolderDragOver(event,'${item.id}')`:'event.preventDefault()'}"
-      ondragleave="${item.is_folder?`onFolderDragLeave(event)`:'null'}"
-      ondrop="${item.is_folder?`onFolderDrop(event,'${item.id}','${sn}')`:'null'}">
+      ${item.is_folder?`ondragover="onFolderDragOver(event,'${item.id}')" ondragleave="onFolderDragLeave(event)" ondrop="onFolderDrop(event,'${item.id}')"`:''}>
       <div class="file-name-cell">
         <div class="file-icon ${getIconClass(item)}">${getIconLabel(item)}</div>
         <div style="min-width:0">
-          <div class="file-name ${item.is_folder?'folder-name':''}" onclick="${item.is_folder?`openFolder('${item.id}','${sn}')`:`openViewer('${item.id}')`}">${item.name}</div>
+          <div class="file-name ${item.is_folder?'folder-name':''}" onclick="${item.is_folder?`openFolder('${item.id}')`:`openViewer('${item.id}')`}">${esc(item.name)}</div>
           ${item.is_folder?`<div class="file-meta">${childCount} item</div>`:''}
         </div>
       </div>
@@ -500,7 +505,7 @@ function renderFiles() {
         ${!item.is_folder?`<button class="icon-btn" title="Download" onclick="downloadItem('${item.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
         </button>`:''}
-        <button class="icon-btn del" title="Hapus" onclick="deleteItem('${item.id}','${sn}','${!!item.is_folder}')">
+        <button class="icon-btn del" title="Hapus" onclick="deleteItem('${item.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         </button>
       </div>
@@ -514,8 +519,10 @@ function navigateTo(idx) {
   document.getElementById('searchInput').value='';
   renderBreadcrumb(); renderStats(); renderFiles();
 }
-function openFolder(id, name) {
-  currentPath.push({id, name});
+function openFolder(id) {
+  const f = allItems.find(i=>i.id===id);
+  if (!f) return;
+  currentPath.push({id, name: f.name});
   document.getElementById('searchInput').value='';
   renderBreadcrumb(); renderStats(); renderFiles();
 }
@@ -614,23 +621,29 @@ function downloadItem(id) {
   a.href = getFileUrl(item); a.download = item.name; a.target='_blank'; a.click();
 }
 
-async function deleteItem(id, name, isFolder) {
-  if (!confirm('Hapus "'+name+'"?')) return;
+async function deleteItem(id) {
+  const item = allItems.find(i=>i.id===id);
+  if (!item) return;
+  const n = item.is_folder ? allItems.filter(i=>isDescendant(i.id, id)).length : 0;
+  const msg = 'Hapus "'+item.name+'"?' + (n ? '\nSemua isi folder ('+n+' item) juga akan dihapus.' : '');
+  if (!confirm(msg)) return;
   try {
-    if (isFolder==='true') {
-      const children = allItems.filter(i=>i.folder_id===id);
-      for (const c of children) await deleteItem(c.id, c.name, String(!!c.is_folder));
-    } else {
-      const item = allItems.find(i=>i.id===id);
-      if (item?.storage_path) {
-        await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${item.storage_path}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
-      }
-    }
-    await dbDelete(id);
-    allItems = allItems.filter(i=>i.id!==id);
-    renderBreadcrumb(); renderStats(); renderFiles();
-    toast('"'+name+'" berhasil dihapus');
+    await deleteRecursive(id);
+    toast('"'+item.name+'" berhasil dihapus');
   } catch(e) { toast('Gagal hapus: '+e.message,'error'); }
+  renderBreadcrumb(); renderStats(); renderFiles();
+}
+
+async function deleteRecursive(id) {
+  const item = allItems.find(i=>i.id===id);
+  if (!item) return;
+  if (item.is_folder) {
+    for (const c of allItems.filter(i=>i.folder_id===id)) await deleteRecursive(c.id);
+  } else if (item.storage_path) {
+    await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${item.storage_path}`,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
+  }
+  await dbDelete(id);
+  allItems = allItems.filter(i=>i.id!==id);
 }
 
 // ——— VIEWER ———
@@ -700,7 +713,7 @@ function openViewer(id) {
     body.innerHTML = `
       <div class="aud-wrap">
         <div class="aud-art">🎵</div>
-        <div class="aud-name">${item.name}</div>
+        <div class="aud-name">${esc(item.name)}</div>
         <div class="aud-size">${fmtSize(item.size)}</div>
         <audio class="aud-player" controls>
           <source src="${url}" type="${item.mime||'audio/mpeg'}">
@@ -711,12 +724,13 @@ function openViewer(id) {
     const gv = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
     body.innerHTML = `<iframe class="office-frame" src="${gv}" onload="this.style.opacity=1;document.getElementById('viewerBody').querySelector('.viewer-loading')&&(document.getElementById('viewerBody').innerHTML='')" style="opacity:0;transition:opacity 0.3s"></iframe>`;
     // fallback jika gagal load
-    setTimeout(()=>{ const f=body.querySelector('iframe'); if(f&&f.style.opacity==='0') body.innerHTML=viewerOfflineFallback(item,url); },8000);
+    setTimeout(()=>{ if (viewerCurrentId!==id) return; const f=body.querySelector('iframe'); if(f&&f.style.opacity==='0') body.innerHTML=viewerOfflineFallback(item,url); },8000);
 
   } else if (ft === 'txt') {
     fetch(url)
       .then(r=>r.text())
       .then(text=>{
+        if (viewerCurrentId!==id) return;
         const pre = document.createElement('pre');
         pre.className = 'txt-viewer';
         pre.textContent = text.slice(0,200000);
@@ -730,7 +744,7 @@ function openViewer(id) {
     body.innerHTML = `
       <div class="unsup-wrap">
         <div class="unsup-icon">📄</div>
-        <div class="unsup-name">${item.name}</div>
+        <div class="unsup-name">${esc(item.name)}</div>
         <div class="unsup-desc">${fmtSize(item.size)} · Tipe file ini tidak dapat ditampilkan di browser</div>
         <button class="btn gold" onclick="downloadItem('${id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
@@ -743,7 +757,7 @@ function openViewer(id) {
 function viewerOfflineFallback(item, url) {
   return `<div class="unsup-wrap">
     <div class="unsup-icon">📄</div>
-    <div class="unsup-name">${item.name}</div>
+    <div class="unsup-name">${esc(item.name)}</div>
     <div class="unsup-desc">Tidak dapat menampilkan via Google Docs Viewer. Coba download.</div>
     <button class="btn gold" onclick="downloadItem('${item.id}')">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
@@ -836,9 +850,10 @@ function onFolderDragLeave(e) {
   }
 }
 
-async function onFolderDrop(e, folderId, folderName) {
+async function onFolderDrop(e, folderId) {
   e.preventDefault();
   e.stopPropagation();
+  const folderName = allItems.find(i=>i.id===folderId)?.name;
   const id = dragItemId || e.dataTransfer.getData('text/plain');
   if (!id || id === folderId) return;
 
@@ -908,7 +923,10 @@ async function moveItem(itemId, targetFolderId, targetName) {
 const dz=document.getElementById('dropZone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFiles(e.dataTransfer.files);});
+dz.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();dz.classList.remove('drag');if(!dragItemId)handleFiles(e.dataTransfer.files);});
+// Cegah browser membuka file saat file dari komputer dijatuhkan di luar upload zone; upload saja
+window.addEventListener('dragover',e=>{if(!dragItemId)e.preventDefault();});
+window.addEventListener('drop',e=>{if(dragItemId)return;e.preventDefault();if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
 document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value='';});
 document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.style.display='none';}));
 
