@@ -535,7 +535,8 @@
       </div>
       <div class="vm-option" style="margin-bottom:0">
         <h4>▶️ Dari YouTube</h4>
-        <p>Cocok untuk video besar. Tidak memakai kuota Google Drive.</p>
+        <p>Tidak memakai kuota Google Drive.</p>
+        <p style="color:var(--danger);font-weight:500">⚠️ YouTube diblokir di WiFi AKPOL — taruna di jaringan kampus tidak bisa menonton video dari link YouTube. Untuk materi kursus, pakai <b>Upload file video</b> di atas.</p>
         <input type="url" class="form-input" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." onkeydown="if(event.key==='Enter')addYoutube()">
         <input type="text" class="form-input" id="ytTitleInput" placeholder="Judul video (opsional)" onkeydown="if(event.key==='Enter')addYoutube()">
         <button class="btn primary" onclick="addYoutube()">Tambahkan video</button>
@@ -1683,7 +1684,7 @@ function loadYTApi() {
     s.src = 'https://www.youtube.com/iframe_api';
     s.onerror = () => { ytApiPromise = null; reject(); };
     document.head.appendChild(s);
-    setTimeout(() => reject(new Error('timeout')), 10000);
+    setTimeout(() => reject(new Error('timeout')), 7000);
   });
   return ytApiPromise;
 }
@@ -1711,7 +1712,19 @@ function loadYT(item) {
     W.ytTimer = setInterval(savePos, 3000);
   }).catch(() => {
     if (W.item !== item) return;
-    host.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${ytId(item)}?autoplay=1&rel=0&start=${start}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    // YouTube tidak bisa dijangkau (mis. diblokir di WiFi AKPOL) → beri penjelasan, bukan layar rusak
+    const end = $('pEnd');
+    const next = upNextQueue()[0];
+    end.innerHTML = `
+      <div style="font-size:44px">🚫</div>
+      <div class="pe-title">Video YouTube tidak bisa diputar di jaringan ini</div>
+      <div class="pe-label" style="max-width:440px;line-height:1.5">YouTube diblokir di jaringan ini (mis. WiFi AKPOL). Putar video ini dengan data seluler,
+        atau minta pengunggah mengupload <b>file videonya</b> langsung ke web ini.</div>
+      <div class="pe-acts">
+        <button class="btn ghost" onclick="openWatch('${item.id}', false)">Coba lagi</button>
+        ${next ? `<button class="btn gold" onclick="playNext()">Video berikutnya</button>` : ''}
+      </div>`;
+    end.classList.add('open');
   });
 }
 

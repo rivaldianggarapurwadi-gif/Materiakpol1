@@ -18,6 +18,8 @@ Storage history:
    - Video playback depends on Drive streaming URLs, which are undocumented (see §2.3).
 3. **Proposed: self-hosted server** on a computer the owner will provide. This is the subject of this handoff.
 
+> **New constraint (owner, 2026-11-26): YouTube is blocked on the AKPOL campus Wi-Fi.** YouTube link items cannot be watched on campus, so course videos must be hosted by us. This strengthens the case for a server **on the campus LAN**. It is not yet known whether Google Drive is reachable or fast on AKPOL Wi-Fi (§7, question 8). The site now shows a clear "YouTube tidak bisa diputar di jaringan ini" message instead of a broken player.
+
 Alternatives already discussed with the owner, and why they were set aside:
 - **Jellyfin:** excellent player and real adaptive transcoding, but users can't upload, every viewer needs a login, and it doesn't replace the document library. It could still be the video layer later; see §4.6.
 - **Cloudflare Tunnel (free):** its terms disallow serving video, so it is not usable for the video traffic.
@@ -205,6 +207,7 @@ The owner's answers in §7 decide which of these applies.
 5. **Domain:** is there one (or can one be bought), or is a LAN-only name fine?
 6. **Migration:** move everything currently in Google Drive (and the old Supabase data, if still reachable), or start fresh?
 7. **Keep Google Drive as a fallback/mirror** for off-site viewing, or cut it off completely?
+8. **On AKPOL Wi-Fi, do Google Drive videos play smoothly?** (YouTube is blocked there; Drive may be blocked or throttled too.) Also: will **AKPOL IT** allow a server on the campus network, or whitelist the domain we use?
 
 ## 8. Known issues and unverified items in the current system
 
@@ -234,5 +237,6 @@ The owner's answers in §7 decide which of these applies.
 
 - **Drive over Supabase:** the free tier with no egress cap was the deciding factor. (Done.)
 - **YouTube links are first-class video items:** best option for very large videos and off-site viewing. (Done.)
+- **YouTube is not an option for course videos**, because it is blocked on AKPOL Wi-Fi. YouTube links stay supported for off-campus viewing only.
 - **Self-hosting is approved in principle** for independence from Google and faster LAN uploads. Remaining blocker: the §7 answers.
 - **Prefer our own app plus an HLS pipeline over Jellyfin:** this keeps upload, documents and video in one UI, and keeps viewing open without per-viewer accounts. Revisit if the owner prefers Jellyfin.
