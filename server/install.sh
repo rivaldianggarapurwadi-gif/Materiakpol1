@@ -16,7 +16,7 @@ setenv() { # setenv KEY VALUE  → tulis/ganti di .env
 say "1/6 Memasang Docker, Git, rsync"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
-apt-get install -y -q docker.io docker-compose-v2 git rsync unattended-upgrades
+apt-get install -y -q docker.io docker-compose-v2 docker-buildx git rsync unattended-upgrades
 systemctl enable --now docker
 
 say "2/6 Pengaturan"
