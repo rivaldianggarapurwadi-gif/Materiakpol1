@@ -18,6 +18,8 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
 apt-get install -y -q docker.io docker-compose-v2 docker-buildx git rsync unattended-upgrades
 systemctl enable --now docker
+# Pengguna yang menjalankan pemasang boleh memakai "docker compose ..." tanpa sudo (berlaku setelah login ulang)
+if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != root ]; then usermod -aG docker "$SUDO_USER"; fi
 
 say "2/6 Pengaturan"
 FIRST=0
@@ -92,6 +94,8 @@ SITE=$(grep '^SITE_ADDRESS=' .env | cut -d= -f2-)
 say "Selesai!"
 echo "Buka di jaringan lokal:  http://$IP/"
 case "$SITE" in *.*) echo "Alamat publik:           https://${SITE%%,*}/";; esac
+echo
+echo "Perintah 'docker compose ...' bisa dipakai tanpa sudo setelah keluar lalu masuk lagi (ketik: exit)."
 echo
 echo "Langkah berikutnya (lihat PANDUAN.md):"
 echo "  • Atur IP tetap untuk server ini di router (DHCP reservation)."
