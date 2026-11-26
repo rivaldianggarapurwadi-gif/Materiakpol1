@@ -447,7 +447,7 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 @media(max-width:700px) { .video-grid { grid-template-columns:1fr; }.library-heading > p { max-width:100%; } }
 
 </style>
-<link rel="stylesheet" href="assets/theme.css?v=crest-logo">
+<link rel="stylesheet" href="assets/theme.css?v=office-preview">
 </head>
 <body>
 
@@ -669,17 +669,17 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 </div>
 
 <!-- ——— FULLSCREEN VIEWER ——— -->
-<div class="viewer-overlay" id="viewerOverlay">
+<div class="viewer-overlay" id="viewerOverlay" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
   <div class="viewer-header">
     <img class="brand-crest compact-crest" src="assets/manggala-satya.png" alt="Manggala Satya" width="38" height="38">
     <div class="viewer-title" id="viewerTitle"></div>
     <div class="viewer-type-badge" id="viewerBadge"></div>
     <div class="viewer-acts">
-      <button class="btn ghost" id="viewerDlBtn" onclick="">
+      <button class="btn ghost" id="viewerDlBtn" aria-label="Download materi">
         <svg id="viewerDlIcon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
         <span id="viewerDlLabel">Download</span>
       </button>
-      <button class="btn ghost" onclick="closeViewer()">
+      <button class="btn ghost" id="viewerCloseBtn" onclick="closeViewer()" aria-label="Tutup pratinjau">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         <span>Tutup</span>
       </button>
@@ -697,6 +697,8 @@ let currentPath = [];
 let allItems = [];
 let imgZoom = 1;
 let viewerCurrentId = null;
+let viewerReturnFocus = null;
+let viewerPreviousOverflow = '';
 const pageName = new URLSearchParams(location.search).get('page');
 let currentView = pageName === 'courses' ? 'videos' : pageName === 'upload' ? 'upload' : 'files';
 
@@ -1300,6 +1302,10 @@ function openViewer(id) {
   const item = allItems.find(i=>i.id===id);
   if (item && getFileType(item) === 'vid') return openWatch(id);
   if (!item || !item.drive_id) return;
+  if (!document.getElementById('viewerOverlay').classList.contains('open')) {
+    viewerReturnFocus = document.activeElement;
+    viewerPreviousOverflow = document.body.style.overflow;
+  }
   viewerCurrentId = id;
 
   const url = previewUrl(item);
@@ -1320,11 +1326,42 @@ function openViewer(id) {
   // Show overlay
   document.getElementById('viewerOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.getElementById('viewerCloseBtn').focus({ preventScroll: true });
 
   // Render
   const body = document.getElementById('viewerBody');
   body.style.alignItems = 'center';
   body.innerHTML = '<div class="viewer-loading"><div class="viewer-spinner"></div><span style="color:rgba(255,255,255,0.5);font-size:13px">Memuat file...</span></div>';
+
+  if (ft === 'office') {
+    // Keep the expensive Office renderer out of the library's document.
+    const presentation = ['ppt', 'pptx'].includes(ext);
+    const card = document.createElement('section');
+    card.className = 'office-preview';
+    const format = document.createElement('span');
+    format.className = 'office-format';
+    format.textContent = ext.toUpperCase();
+    const title = document.createElement('h2');
+    title.textContent = item.name;
+    const description = document.createElement('p');
+    description.textContent = 'Buka ' + (presentation ? 'presentasi' : 'dokumen') + ' di tab baru untuk melihat seluruh halaman. Tab materi ini tetap tersedia.';
+    const open = document.createElement('a');
+    open.className = 'btn primary';
+    open.href = 'https://drive.google.com/file/d/' + encodeURIComponent(item.drive_id) + '/view';
+    open.target = '_blank';
+    open.rel = 'noopener noreferrer';
+    open.textContent = presentation ? 'Buka presentasi di tab baru' : 'Buka dokumen di tab baru';
+    const download = document.createElement('button');
+    download.className = 'btn';
+    download.textContent = 'Download ' + ext.toUpperCase();
+    download.onclick = () => downloadItem(id);
+    const actions = document.createElement('div');
+    actions.className = 'office-preview-actions';
+    actions.append(open, download);
+    card.append(format, title, description, actions);
+    body.replaceChildren(card);
+    return;
+  }
 
   if (ft === 'img') {
     imgZoom = 1;
@@ -1354,22 +1391,25 @@ function openViewer(id) {
       window._vImg = img;
     };
     // Gambar belum diproses Drive → tampilkan pratinjau Drive
-    img.onerror = () => { if (viewerCurrentId===id) body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; };
+    img.onerror = () => { if (viewerCurrentId===id) body.innerHTML = `<iframe class="pdf-frame" title="Pratinjau materi" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; };
 
   } else {
-    // PDF, Word, PPT, Excel, audio, teks: pratinjau bawaan Google Drive
-    body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+    // PDF, audio, and text retain the embedded Google Drive preview.
+    body.innerHTML = `<iframe class="pdf-frame" title="Pratinjau materi" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
   }
 }
 
 function closeViewer() {
   const ov = document.getElementById('viewerOverlay');
+  if (!ov.classList.contains('open')) return;
   ov.classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = viewerPreviousOverflow;
   const b = document.getElementById('viewerBody');
   b.innerHTML=''; b.style.alignItems='center';
   viewerCurrentId = null;
   window._vImg = null;
+  if (viewerReturnFocus && viewerReturnFocus.isConnected) viewerReturnFocus.focus({ preventScroll: true });
+  viewerReturnFocus = null;
 }
 
 function zoomImg(delta) {
