@@ -1,0 +1,238 @@
+# Handoff: Move Materi AKPOL to a self-hosted server
+
+> **Ringkasan (ID):** Pemilik web ingin berhenti bergantung pada Google Drive dan memakai **server sendiri** (komputer disiapkan pemilik). Dokumen ini menjelaskan kondisi web saat ini, rancangan server sendiri, langkah kerja, dan hal yang masih harus ditanyakan ke pemilik sebelum mulai.
+
+Status: **proposal, not started.** Nothing in this document has been built yet. The owner approved the idea in principle; the open questions in §7 must be answered before implementation starts.
+
+---
+
+## 1. Background
+
+Materi AKPOL is a file-sharing site for police-academy cadets (taruna). It stores course material (PDF, Word, PPT, images, audio) and educational videos, organised in folders. Anyone with the link can browse, upload, move and delete.
+
+Storage history:
+1. **Supabase.** The free tier's 5 GB/month egress cap took the site down.
+2. **Google Drive via Google Apps Script** (current). It is free and has 15 GB, but:
+   - Uploads are slow. The direct browser→Drive route may be refused by Google, and then uploads fall back to base64 chunks through Apps Script. This is unconfirmed; we are waiting on a screenshot from the owner (see §8).
+   - The owner wants independence from proprietary Google services.
+   - Video playback depends on Drive streaming URLs, which are undocumented (see §2.3).
+3. **Proposed: self-hosted server** on a computer the owner will provide. This is the subject of this handoff.
+
+Alternatives already discussed with the owner, and why they were set aside:
+- **Jellyfin:** excellent player and real adaptive transcoding, but users can't upload, every viewer needs a login, and it doesn't replace the document library. It could still be the video layer later; see §4.6.
+- **Cloudflare Tunnel (free):** its terms disallow serving video, so it is not usable for the video traffic.
+
+## 2. Current system (what exists today)
+
+Repo: `rivaldianggarapurwadi-gif/Materiakpol1`. The site is published from `main` via **GitHub Pages** (`https://rivaldianggarapurwadi-gif.github.io/Materiakpol1/`). The working branch is `claude/hopeful-archimedes-0llefc`.
+
+| File | What it is |
+|---|---|
+| `index.html` | The entire frontend (about 2,000 lines): one HTML file with inline CSS and JS and no build step. |
+| `apps-script/Code.gs` | Backend: a Google Apps Script web app (API version 2). |
+| `SETUP.md` | Owner-facing setup guide for the Apps Script backend (Indonesian). |
+
+### 2.1 Data model
+
+Each row is one item, stored in the Google Sheet `Materi AKPOL - Database`:
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | Random id (`Date.now().toString(36)+random`). |
+| `name` | string | Display name (the original filename for files). |
+| `is_folder` | bool | |
+| `folder_id` | string \| null | Parent folder id; `null` means root. |
+| `size` | number | Bytes. |
+| `mime` | string | `video/youtube` marks a YouTube link item. |
+| `drive_id` | string | Google Drive file id. **Must be replaced** by a server file key. |
+| `created_at` | ISO string | |
+| `url` | string | YouTube watch URL, for link items only. |
+| `variants` | object | e.g. `{"360": "<driveId>"}`, the low-quality video copy. |
+
+### 2.2 API contract (Apps Script web app, `API_URL` in `index.html`)
+
+- `GET ?action=list` returns `{ ok, version: 2, items: Item[] }`.
+- `POST` with a JSON body (sent as `text/plain` to avoid a CORS preflight):
+
+| `action` | Body | Returns |
+|---|---|---|
+| `createFolder` | `name, folder_id` | `{ item }` |
+| `startUpload` | `name, mime, size, origin?` | `{ session }`: a Drive resumable-upload URL |
+| `uploadChunk` | `session, start, total, data(base64), register?` | `{ done, item? \| drive_id? }` |
+| `finishUpload` | `drive_id, name, mime, folder_id, variants` | `{ item }` |
+| `addLink` | `url, name, folder_id` | `{ item }` (YouTube) |
+| `move` | `id, folder_id` | `{}` |
+| `delete` | `id` | `{ deleted: id[] }` (recursive; trashes Drive files) |
+
+Errors come back as `{ ok: false, error: "message" }`. **Recommendation:** the new server should keep this exact contract where it can, so the frontend change stays small.
+
+### 2.3 Places in `index.html` that are Drive-specific (must change)
+
+Find them by name; line numbers drift.
+- **API layer:** `apiReady()` (checks for a `script.google.com` URL), `apiCall`, `apiPost`, `dbSelect`.
+- **Upload pipeline:**
+  - `handleFiles`, `uploadBlob`, `directPut`, `xhrPut`.
+  - Uses the Drive resumable protocol (`Content-Range`, `308`).
+  - `compressVideo` / `convertTo`: in-browser transcoding to 720p + 360p with mediabunny/WebCodecs, loaded via the import map in `<head>`.
+
+  With a real server, browser-side compression should be dropped or made optional (see §4.3).
+- **File URLs:**
+  - `previewUrl()`: Drive preview iframe, used for PDF/Office/audio.
+  - `downloadUrl()`.
+  - `videoThumb()`: Drive thumbnail endpoint.
+  - The image viewer uses the Drive thumbnail at `sz=w2400`.
+- **Video player:**
+  - `driveStream()`: `drive.usercontent.google.com/download?...&confirm=t`.
+  - `fallbackDrive()`.
+  - The quality logic (`hasLow`, `pickQuality`, `switchQuality`, `onStall`) is built on two fixed MP4 files (`drive_id` plus `variants['360']`).
+- **Office files:** these currently rely on Drive's preview to render Word/PPT/Excel. A self-hosted server needs its own answer (see §4.5).
+
+Parts that are **backend-agnostic and should be kept as-is:**
+- folder UI, breadcrumb, drag-to-move, search, tabs;
+- the video gallery and the YouTube-style watch page (`openWatch` and its controls, keyboard shortcuts, up-next, autoplay, resume via `localStorage`, `#v=<id>` deep links);
+- YouTube link items (`addLink`, `loadYT`);
+- HTML escaping (`esc()`), and the mobile layout.
+
+## 3. Goals for the self-hosted version
+
+1. **No dependency on Google** for storage or streaming.
+2. **Fast uploads.** Upload the original file as-is over plain HTTP, resumable, with no base64 and no in-browser compression required.
+3. **YouTube-like playback.** The server transcodes each video to an **HLS adaptive ladder** (1080/720/480/360 as the source allows). The player switches quality automatically by bandwidth and also offers a manual quality menu.
+4. **Same look and features** as today: folders, upload, preview, video tab, watch page, YouTube links.
+5. **Admin control.** Viewing stays open (or behind a simple shared login, per the owner's answer). Upload, move and delete require a login, because today anyone can delete anything.
+6. **Runs on one owner-provided computer**, survives reboots, and is easy to back up.
+
+Non-goals for v1: multiple servers, a CDN, per-cadet accounts, comments or likes.
+
+## 4. Proposed design
+
+### 4.1 Architecture
+
+```
+Browser (index.html, same UI)
+   │  HTTPS
+   ▼
+Reverse proxy (Caddy: automatic HTTPS, static files, range requests)
+   ├── /            → index.html + assets (serve the site from the server itself)
+   ├── /media/...   → files on disk (originals, HLS segments, thumbnails)
+   └── /api/...     → app server (Node.js or Go)
+                         ├── SQLite database (items table, same fields as §2.1)
+                         ├── tus/resumable upload endpoint → /data/uploads
+                         └── job queue → FFmpeg workers (transcode, thumbnails)
+Disk: /data/originals, /data/hls/<id>/..., /data/thumbs, /data/db.sqlite
+```
+
+- **Serve the frontend from the server too.** If the site stays on github.io, every media URL must be HTTPS with a valid certificate (a mixed-content rule), and the API needs CORS. Serving everything from one origin avoids both problems. GitHub Pages can stay as a mirror or a redirect.
+- **SQLite** is enough for this scale: single file, trivial to back up.
+- **Language:** Node.js (Express or Fastify) is the suggested default because the frontend is already JS. Go is the alternative if a single static binary is preferred for ease of install.
+
+### 4.2 API
+
+Keep the §2.2 actions and shapes, swapping the Drive-specific ones:
+- `GET /api/items` replaces `list`. Each item gains `src` (download URL), `thumb`, `hls` (master playlist URL, videos only), and `status` (`ready` | `processing` | `failed`).
+- **Upload** uses the **tus protocol** (resumable, chunked, retries, a good JS client: `tus-js-client`). On completion: create the item, then enqueue transcoding if it's a video.
+- `createFolder`, `move`, `delete`, `addLink` behave as today. `delete` removes files from disk, or moves them to a `/data/trash` with a 30-day purge to mirror Drive's trash.
+- **Auth:** `POST /api/login` sets an HttpOnly session cookie. Write endpoints require an admin session.
+
+### 4.3 Video pipeline (the "like YouTube" part)
+
+- After upload, run FFmpeg to produce an HLS ladder, picking rungs at or below the source resolution:
+  - 1080p ≈ 5 Mbps, 720p ≈ 2.8 Mbps, 480p ≈ 1.2 Mbps, 360p ≈ 0.7 Mbps
+  - AAC 128k audio, 4–6 s segments, keyframes aligned (`-g`/`-keyint_min` = 2 × fps, `-sc_threshold 0`)
+  - and a `master.m3u8`.
+- **Hardware encoding:**
+  - Intel Quick Sync: `-c:v h264_qsv`, or VAAPI on Linux.
+  - NVIDIA: `h264_nvenc`.
+  - Fallback: `libx264 -preset veryfast`.
+- **Extras:** generate a poster/thumbnail (`thumb.jpg`, at about 10% of the duration) and store the duration.
+- The item shows `processing` until done. The gallery can show a "Memproses…" ("processing") badge. The original file stays playable meanwhile (as progressive MP4, if the browser can decode it).
+- **Player:**
+  - Use **hls.js** (pin an exact version; cdnjs or jsdelivr) on Chrome/Firefox/Android, and native HLS on Safari/iOS.
+  - Replace `driveStream`/`switchQuality`/`onStall` with hls.js levels. "Otomatis" (auto) maps to `hls.currentLevel = -1`; manual picks set the level.
+  - Keep all existing controls.
+- Browser-side compression (mediabunny) becomes unnecessary, since the server transcodes. Remove it, or keep it as an option for remote uploaders on slow links.
+
+### 4.4 Thumbnails and images
+
+- Images: serve the original and generate a ~400 px thumbnail (sharp or FFmpeg).
+- Videos: poster frame from the pipeline.
+
+### 4.5 Documents (PDF / Office)
+
+- **PDF:** the browser's own viewer (an iframe of the file URL), or pdf.js.
+- **Word/PPT/Excel:** convert to PDF on upload with **LibreOffice headless** (`soffice --headless --convert-to pdf`) and preview the PDF. Download always serves the original.
+- **Text/code:** fetch and show in the existing `<pre>` viewer.
+
+### 4.6 Optional: Jellyfin as the video layer
+
+If the owner prefers off-the-shelf software, keep our app for documents and uploads, and let Jellyfin watch the same `/data/originals/videos` folder. Our video tab would then link into Jellyfin. The trade-off: viewers need Jellyfin logins and the UI is no longer unified. **Default plan: no Jellyfin** (our own HLS pipeline), unless the owner asks for it.
+
+## 5. Hosting and network
+
+The owner's answers in §7 decide which of these applies.
+
+| Scenario | What to do |
+|---|---|
+| Viewers mostly on the **same LAN** (campus or dorm Wi-Fi) as the server | Simplest and fastest. Local hostname (e.g. `materi-akpol.local` via mDNS, or a DNS entry on the router). For HTTPS on the LAN, use Caddy's internal CA (install its root on devices) or a real domain with a DNS-01 Let's Encrypt cert. |
+| Viewers **on the internet** | Needs a public IP or a tunnel. **Check for CGNAT first** (common on IndiHome and other Indonesian ISPs): compare the router's WAN IP with `curl ifconfig.me`. Options: ask the ISP for a public IP (sometimes paid) and port-forward 443; **Tailscale Funnel** (free, public HTTPS without a public IP, but bandwidth is limited, so fine for light use, not mass streaming); a cheap VPS as a WireGuard relay (costs money, which the owner wants to avoid). Do **not** use Cloudflare Tunnel's free plan for video (against its terms). |
+| **Both** | Run on the LAN, plus a public route for off-site viewers. Optionally keep YouTube (unlisted) links for important videos as an off-site fallback, which the site already supports. |
+
+**Capacity rule of thumb for internet viewers:** concurrent 720p viewers ≈ server upload Mbps ÷ 3. Adaptive HLS degrades gracefully (viewers drop to 480/360 instead of stalling), but it cannot exceed the uplink.
+
+## 6. Server hardware and operations
+
+- **Recommended hardware:**
+  - CPU: Intel Core i3/i5, **7th gen or newer** (Quick Sync), or any CPU plus an NVIDIA GPU.
+  - 8 GB RAM.
+  - SSD for the OS and app; HDD 1–2 TB+ for media.
+  - **Wired Ethernet.**
+  - **UPS** (power cuts).
+- **OS:** Ubuntu Server LTS is recommended. Windows also works; provide an installer script for both, or Docker Compose.
+- **Install method:** `docker compose up -d` with services `caddy`, `app` and `worker`, all `restart: unless-stopped`. Provide a one-page Indonesian guide like `SETUP.md`.
+- **Backups:**
+  - Nightly SQLite backup (`.backup`) plus `rsync` of `/data/originals` to an external disk.
+  - HLS output can be regenerated, so it needs no backup.
+  - Document how to restore.
+- **Updates:** unattended security updates on the OS; pin image versions.
+- **Monitoring (minimal):** a health endpoint, a disk-space warning in the admin UI, and a transcode-failure list.
+
+## 7. Open questions for the owner (answer before building)
+
+1. **Where do cadets watch?** Campus Wi-Fi, home/mobile data, or both? (This is the main deciding factor.)
+2. **Where will the server live?** On the campus network or at home? Which ISP? What upload speed (speedtest.net)? Is there a public IP or CGNAT?
+3. **Computer specs:** CPU model, RAM, disks, OS preference (Ubuntu / Windows).
+4. **Who may upload and delete?** Everyone (as today) or admins/instructors only? Should viewing need a login?
+5. **Domain:** is there one (or can one be bought), or is a LAN-only name fine?
+6. **Migration:** move everything currently in Google Drive (and the old Supabase data, if still reachable), or start fresh?
+7. **Keep Google Drive as a fallback/mirror** for off-site viewing, or cut it off completely?
+
+## 8. Known issues and unverified items in the current system
+
+- **Upload is slow (owner report).** The latest build labels the route in the progress text (`langsung ke Drive` = direct to Drive, vs `via server (lambat)` = via server, slow) and shows a red toast if Google refuses the direct route. **Waiting on the owner's screenshot** to see whether the direct browser→Drive upload works. If the self-hosted move happens, this becomes moot.
+- **Not verified against real Google** (only against mocks in Playwright):
+  - the direct PUT to the Drive session URL (CORS with the `Origin` header set by Apps Script);
+  - streaming from `drive.usercontent.google.com` into `<video>` with range requests;
+  - the `finishUpload` folder check.
+- **The API is open:** anyone with the URL can upload, move or delete. This is a deliberate carry-over from the Supabase era; the self-hosted version should add admin auth (§3.5).
+- Videos uploaded before the compression update were not compressed. The self-hosted migration will transcode everything anyway.
+
+## 9. Suggested implementation plan
+
+| Phase | Deliverable | Done when |
+|---|---|---|
+| 0 | Owner answers §7; hardware confirmed | Answers recorded in this file |
+| 1 | `server/` folder: Docker Compose (Caddy + app + worker), SQLite schema, `/api/items`, folders, move, delete, login | `docker compose up` on a clean Ubuntu VM serves the current UI against the new API with an empty library |
+| 2 | tus uploads plus static file serving with range requests; image thumbs; PDF/Office preview via LibreOffice | Upload a 2 GB file over LAN; it resumes after the network is unplugged mid-upload; PDF/DOCX preview works |
+| 3 | FFmpeg HLS pipeline (hardware encode with libx264 fallback), poster frames, processing status | A 1080p phone video becomes a 4-rung HLS ladder; the gallery shows a poster |
+| 4 | Frontend: swap the Drive-specific functions (§2.3) for server URLs and hls.js; keep the watch page UI | Auto quality switches under Chrome DevTools throttling (Fast 3G → 360p, no stall loop); Safari plays via native HLS |
+| 5 | Migration tool: copy items, folders and files from Google Drive (via the Apps Script `list` and file downloads), then queue transcodes | Every existing item appears with the same folders and names |
+| 6 | Owner guide (Indonesian): install, backup/restore, adding an admin, network setup for the chosen scenario | Owner installs it on their machine following only the guide |
+
+**Test approach:** Playwright against the local stack (the repo already uses Playwright-style manual checks in development); FFmpeg-generated test clips (`testsrc2` + `sine`), as used during Drive-era testing.
+
+## 10. Key decisions so far (with reasons)
+
+- **Drive over Supabase:** the free tier with no egress cap was the deciding factor. (Done.)
+- **YouTube links are first-class video items:** best option for very large videos and off-site viewing. (Done.)
+- **Self-hosting is approved in principle** for independence from Google and faster LAN uploads. Remaining blocker: the §7 answers.
+- **Prefer our own app plus an HLS pipeline over Jellyfin:** this keeps upload, documents and video in one UI, and keeps viewing open without per-viewer accounts. Revisit if the owner prefers Jellyfin.
