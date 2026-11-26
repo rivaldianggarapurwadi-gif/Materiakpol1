@@ -2030,7 +2030,7 @@ function wake() {
 }
 function shareVideo() {
   if (!W.item) return;
-  const url = location.origin + location.pathname + '#v=' + W.item.id;
+  const url = location.origin + location.pathname + '?page=courses#v=' + encodeURIComponent(W.item.id);
   if (navigator.share && matchMedia('(pointer: coarse)').matches) { navigator.share({ title: W.item.name, url }).catch(() => {}); return; }
   (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
     () => toast('Link video disalin'),
