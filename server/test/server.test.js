@@ -76,6 +76,11 @@ test('rejects non-JSON and cross-site posts', async () => {
   assert.equal(r.status, 415);
   const o = await api('me', {}, { headers: { Origin: 'https://evil.example' } });
   assert.equal(o.status, 403);
+  const cross = await api('me', {}, { headers: { 'Sec-Fetch-Site': 'cross-site', Origin: 'https://evil.example' } });
+  assert.equal(cross.status, 403);
+  // behind a tunnel that rewrites Host (Tailscale Funnel): the browser still marks it same-origin
+  const tunnel = await api('me', {}, { headers: { 'Sec-Fetch-Site': 'same-origin', Origin: 'https://materi-akpol.tailnet.ts.net' } });
+  assert.equal(tunnel.status, 200);
 });
 
 test('login', async () => {

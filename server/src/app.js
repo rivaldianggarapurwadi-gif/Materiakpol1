@@ -110,11 +110,19 @@ export function createApp() {
   app.post(['/api', '/api/items'], (req, res, next) => {
     // Cross-site requests can't send JSON without a CORS preflight, which this server never allows.
     if (!req.is('application/json')) return res.status(415).json({ ok: false, error: 'Kirim sebagai application/json' });
-    const origin = req.headers.origin;
-    if (origin && origin !== 'null') {
-      let host = '';
-      try { host = new URL(origin).host; } catch { /* invalid */ }
-      if (host !== req.headers.host) return res.status(403).json({ ok: false, error: 'Asal permintaan tidak diizinkan' });
+    const deny = () => res.status(403).json({ ok: false, error: 'Asal permintaan tidak diizinkan' });
+    // Browsers say whether a request comes from the site's own page. Prefer that over comparing
+    // Origin with Host, because tunnels/proxies in front of Caddy (e.g. Tailscale Funnel) may rewrite Host.
+    const site = req.headers['sec-fetch-site'];
+    if (site) {
+      if (site !== 'same-origin' && site !== 'none') return deny();
+    } else {
+      const origin = req.headers.origin;
+      if (origin && origin !== 'null') {
+        let host = '';
+        try { host = new URL(origin).host; } catch { /* invalid */ }
+        if (host !== req.headers.host) return deny();
+      }
     }
     next();
   }, json, async (req, res) => {

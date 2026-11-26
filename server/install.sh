@@ -90,4 +90,5 @@ case "$SITE" in *.*) echo "Alamat publik:           https://${SITE%%,*}/";; esac
 echo
 echo "Langkah berikutnya (lihat PANDUAN.md):"
 echo "  • Atur IP tetap untuk server ini di router (DHCP reservation)."
+echo "    Tidak bisa membuka pengaturan router? Lihat PANDUAN.md bagian 6 (alamat materi-akpol.local + Tailscale)."
 echo "  • Pindahkan materi dari Google Drive:  docker compose exec app node src/cli.js migrate-drive"
