@@ -64,3 +64,18 @@ Upload file video langsung bekerja tanpa perubahan apa pun. Untuk fitur **menamb
 1. Buka proyek di **script.google.com**, ganti seluruh isi `Code.gs` dengan versi terbaru dari [`apps-script/Code.gs`](apps-script/Code.gs), klik 💾.
 2. **Deploy → Manage deployments → ✏️ (Edit) → Version: New version → Deploy**.
    URL Web App **tetap sama**, jadi `index.html` tidak perlu diubah.
+
+## Update: upload cepat & video lancar (versi server 2)
+
+Fitur baru:
+- **Video dikompres otomatis di browser** menjadi MP4 720p + salinan 360p (seperti YouTube). File jadi 3–10× lebih kecil → upload jauh lebih cepat dan video diputar lancar, juga di HP/koneksi lambat.
+- **Upload langsung ke Google Drive** dari browser (tidak lewat Apps Script lagi).
+- **Pilihan kualitas** di pemutar (⚙️ → Kualitas: Otomatis / 720p / 360p). Mode Otomatis turun ke 360p sendiri jika video tersendat.
+
+Agar semua fitur aktif, perbarui server sekali (URL tidak berubah):
+1. Ganti seluruh isi `Code.gs` dengan versi terbaru dari [`apps-script/Code.gs`](apps-script/Code.gs), klik 💾.
+2. **Deploy → Manage deployments → ✏️ → Version: New version → Deploy**.
+
+Sebelum diperbarui, web tetap berfungsi: video tetap dikompres (720p), hanya saja upload masih lewat jalur lama dan belum ada versi 360p.
+
+Catatan: video yang diupload **sebelum** update ini tidak dikompres. Untuk hasil terbaik, hapus lalu upload ulang video besar.

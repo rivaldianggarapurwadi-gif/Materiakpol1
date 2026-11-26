@@ -9,7 +9,8 @@
  */
 
 const SHEET_NAME = 'items';
-const HEADERS = ['id', 'name', 'is_folder', 'folder_id', 'size', 'mime', 'drive_id', 'created_at', 'url'];
+const HEADERS = ['id', 'name', 'is_folder', 'folder_id', 'size', 'mime', 'drive_id', 'created_at', 'url', 'variants'];
+const API_VERSION = 2; // 2 = upload langsung ke Drive + versi video 360p
 
 // ——— Jalankan sekali dari editor (pilih "setup" lalu klik Run) ———
 function setup() {
@@ -21,7 +22,7 @@ function setup() {
 function doGet(e) {
   return handle_(() => {
     const action = (e && e.parameter && e.parameter.action) || 'list';
-    if (action === 'list') return { items: readAll_(getStore_().sheet) };
+    if (action === 'list') return { version: API_VERSION, items: readAll_(getStore_().sheet) };
     throw new Error('Aksi tidak dikenal: ' + action);
   });
 }
@@ -36,6 +37,7 @@ function doPost(e) {
       case 'delete':       return deleteItem_(b);
       case 'move':         return moveItem_(b);
       case 'addLink':      return addLink_(b);
+      case 'finishUpload': return finishUpload_(b);
       default: throw new Error('Aksi tidak dikenal: ' + b.action);
     }
   });
@@ -71,15 +73,18 @@ function addLink_(b) {
 function startUpload_(b) {
   const store = getStore_();
   const mime = b.mime || 'application/octet-stream';
+  const headers = {
+    Authorization: 'Bearer ' + ScriptApp.getOAuthToken(),
+    'X-Upload-Content-Type': mime,
+    'X-Upload-Content-Length': String(b.size || 0)
+  };
+  // Origin web → browser boleh mengirim file LANGSUNG ke Google Drive (jauh lebih cepat)
+  if (/^https?:\/\/[^\/]+$/.test(String(b.origin || ''))) headers.Origin = b.origin;
   const res = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
     method: 'post',
     contentType: 'application/json; charset=UTF-8',
     payload: JSON.stringify({ name: b.name, mimeType: mime, parents: [store.folderId] }),
-    headers: {
-      Authorization: 'Bearer ' + ScriptApp.getOAuthToken(),
-      'X-Upload-Content-Type': mime,
-      'X-Upload-Content-Length': String(b.size || 0)
-    },
+    headers: headers,
     muteHttpExceptions: true
   });
   if (res.getResponseCode() !== 200) throw new Error('Gagal memulai upload: ' + res.getContentText());
@@ -107,6 +112,7 @@ function uploadChunk_(b) {
   if (code !== 200 && code !== 201) throw new Error('Upload gagal (' + code + '): ' + res.getContentText());
 
   const driveId = JSON.parse(res.getContentText()).id;
+  if (b.register === false) return { done: true, drive_id: driveId }; // didaftarkan lewat finishUpload
   const file = DriveApp.getFileById(driveId);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   const item = {
@@ -115,6 +121,35 @@ function uploadChunk_(b) {
   };
   withLock_(() => appendItem_(getStore_().sheet, item));
   return { done: true, item: item };
+}
+
+// Mendaftarkan file yang sudah selesai diupload (langsung dari browser) ke daftar materi.
+// variants: versi video lain, mis. { "360": "<driveId>" } untuk koneksi lambat.
+function finishUpload_(b) {
+  const store = getStore_();
+  const variants = {};
+  Object.keys(b.variants || {}).forEach(k => { if (/^\d{3,4}$/.test(k)) variants[k] = String(b.variants[k]); });
+  const ids = [String(b.drive_id)].concat(Object.keys(variants).map(k => variants[k]));
+  const registered = {};
+  readAll_(store.sheet).forEach(i => {
+    if (i.drive_id) registered[i.drive_id] = true;
+    Object.keys(i.variants || {}).forEach(k => registered[i.variants[k]] = true);
+  });
+  ids.forEach(id => {
+    if (registered[id]) throw new Error('File sudah terdaftar');
+    const f = DriveApp.getFileById(id);
+    // hanya file di folder materi yang boleh didaftarkan
+    if (!f.getParents().hasNext() || f.getParents().next().getId() !== store.folderId) throw new Error('File tidak valid');
+    f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  });
+  const main = DriveApp.getFileById(String(b.drive_id));
+  const item = {
+    id: uid_(), name: String(b.name || main.getName()), is_folder: false, folder_id: b.folder_id || null,
+    size: main.getSize(), mime: b.mime || main.getMimeType(), drive_id: main.getId(),
+    created_at: new Date().toISOString(), variants: variants
+  };
+  withLock_(() => appendItem_(store.sheet, item));
+  return { item: item };
 }
 
 function deleteItem_(b) {
@@ -130,9 +165,9 @@ function deleteItem_(b) {
       items.forEach(i => { if (i.folder_id && ids[i.folder_id] && !ids[i.id]) { ids[i.id] = true; grew = true; } });
     }
     items.forEach(i => {
-      if (ids[i.id] && i.drive_id) {
-        try { DriveApp.getFileById(i.drive_id).setTrashed(true); } catch (err) { /* sudah terhapus */ }
-      }
+      if (!ids[i.id]) return;
+      const files = [i.drive_id].concat(Object.keys(i.variants || {}).map(k => i.variants[k])).filter(Boolean);
+      files.forEach(f => { try { DriveApp.getFileById(f).setTrashed(true); } catch (err) { /* sudah terhapus */ } });
     });
     const col = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues();
     for (let r = col.length - 1; r >= 1; r--) {
@@ -166,7 +201,7 @@ function getStore_() {
     DriveApp.getFileById(ss.getId()).moveTo(DriveApp.getFolderById(folderId));
     const sh = ss.getSheets()[0];
     sh.setName(SHEET_NAME);
-    sh.getRange('A:I').setNumberFormat('@'); // simpan semua sebagai teks
+    sh.getRange('A:J').setNumberFormat('@'); // simpan semua sebagai teks
     sh.appendRow(HEADERS);
     sh.setFrozenRows(1);
     sheetId = ss.getId();
@@ -174,9 +209,12 @@ function getStore_() {
   }
   const sheet = SpreadsheetApp.openById(sheetId).getSheetByName(SHEET_NAME);
   // Sheet lama (sebelum fitur video) belum punya kolom "url"
-  if (sheet.getRange(1, HEADERS.length).getValue() === '') {
-    sheet.getRange(1, HEADERS.length).setValue(HEADERS[HEADERS.length - 1]);
-    sheet.getRange(1, HEADERS.length, sheet.getMaxRows(), 1).setNumberFormat('@');
+  // Sheet lama belum punya kolom baru ("url", "variants")
+  for (let c = 1; c <= HEADERS.length; c++) {
+    if (sheet.getRange(1, c).getValue() === '') {
+      sheet.getRange(1, c).setValue(HEADERS[c - 1]);
+      sheet.getRange(1, c, sheet.getMaxRows(), 1).setNumberFormat('@');
+    }
   }
   return { folderId: folderId, sheet: sheet };
 }
@@ -195,7 +233,8 @@ function readAll_(sheet) {
       mime: String(r[5] || ''),
       drive_id: String(r[6] || ''),
       created_at: r[7] instanceof Date ? r[7].toISOString() : String(r[7]),
-      url: String(r[8] || '')
+      url: String(r[8] || ''),
+      variants: parseJson_(r[9])
     }));
 }
 
@@ -209,8 +248,13 @@ function appendItem_(sheet, i) {
     i.mime || '',
     i.drive_id || '',
     i.created_at,
-    i.url || ''
+    i.url || '',
+    i.variants && Object.keys(i.variants).length ? JSON.stringify(i.variants) : ''
   ]);
+}
+
+function parseJson_(v) {
+  try { return v ? JSON.parse(String(v)) : {}; } catch (e) { return {}; }
 }
 
 function findRow_(sheet, id) {
