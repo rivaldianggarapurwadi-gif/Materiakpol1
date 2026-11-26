@@ -2,7 +2,7 @@
 
 > **Ringkasan (ID):** Pemilik web ingin berhenti bergantung pada Google Drive dan memakai **server sendiri** (komputer disiapkan pemilik). Dokumen ini menjelaskan kondisi web saat ini, rancangan server sendiri, langkah kerja, dan hal yang masih harus ditanyakan ke pemilik sebelum mulai.
 
-Status: **proposal, not started.** Nothing in this document has been built yet. The owner approved the idea in principle; the open questions in §7 must be answered before implementation starts.
+Status: **in progress.** The owner answered the key questions in §7 on 2026-11-26; implementation lives in `server/`.
 
 ---
 
@@ -198,6 +198,19 @@ The owner's answers in §7 decide which of these applies.
 
 ## 7. Open questions for the owner (answer before building)
 
+**Answered 2026-11-26** (the remaining items are still open and do not block the build):
+
+| # | Question | Answer |
+|---|---|---|
+| 1 | Where do cadets watch? | **Both**: campus/dorm Wi-Fi and home/mobile data. Run on the LAN plus a public route (§5 "Both"). |
+| 3 | OS | **Ubuntu Server LTS**, installed with Docker Compose. Exact CPU/RAM/disk still unknown. |
+| 4 | Who may upload and delete? | **Admins only.** Viewing stays open without a login. |
+| 6 | Migration | **Move everything** from Google Drive (keep ids, folders and names). |
+| 7 | Keep Drive as a mirror? | No. Drive is retired after migration (answer to 6 chose "move everything" over "keep as mirror"). |
+| 2, 5 | ISP / public IP / CGNAT, domain | Still open. The build supports both a LAN-only address and a public domain; the owner picks in `.env`. |
+
+Original questions:
+
 1. **Where do cadets watch?** Campus Wi-Fi, home/mobile data, or both? (This is the main deciding factor.)
 2. **Where will the server live?** On the campus network or at home? Which ISP? What upload speed (speedtest.net)? Is there a public IP or CGNAT?
 3. **Computer specs:** CPU model, RAM, disks, OS preference (Ubuntu / Windows).
@@ -220,7 +233,7 @@ The owner's answers in §7 decide which of these applies.
 
 | Phase | Deliverable | Done when |
 |---|---|---|
-| 0 | Owner answers §7; hardware confirmed | Answers recorded in this file |
+| 0 | Owner answers §7; hardware confirmed | Answers recorded in this file (done, except hardware and network details) |
 | 1 | `server/` folder: Docker Compose (Caddy + app + worker), SQLite schema, `/api/items`, folders, move, delete, login | `docker compose up` on a clean Ubuntu VM serves the current UI against the new API with an empty library |
 | 2 | tus uploads plus static file serving with range requests; image thumbs; PDF/Office preview via LibreOffice | Upload a 2 GB file over LAN; it resumes after the network is unplugged mid-upload; PDF/DOCX preview works |
 | 3 | FFmpeg HLS pipeline (hardware encode with libx264 fallback), poster frames, processing status | A 1080p phone video becomes a 4-rung HLS ladder; the gallery shows a poster |

@@ -1,0 +1,71 @@
+# Caddy: HTTPS, the website, media files (with range requests) and the API.
+# SITE_ADDRESS comes from .env:
+#   :80                          LAN only, plain HTTP (http://<server-ip>/)
+#   materi.example.com, :80      public domain with automatic HTTPS, plus plain HTTP on the LAN
+{
+	admin off
+}
+
+(site) {
+	@api path /api /api/*
+	handle @api {
+		reverse_proxy app:3000
+	}
+
+	handle /config.js {
+		header Content-Type "application/javascript"
+		header Cache-Control "no-cache"
+		respond "window.AKPOL_SERVER = true;" 200
+	}
+
+	handle_path /media/* {
+		root * /srv/media
+		header Cache-Control "public, max-age=86400"
+		@files path /files/*
+		header @files Cache-Control "public, max-age=3600"
+		@dl query dl=1
+		header @dl Content-Disposition "attachment"
+		@m3u8 path *.m3u8
+		header @m3u8 Content-Type "application/vnd.apple.mpegurl"
+		@ts path *.ts
+		header @ts Content-Type "video/mp2t"
+		file_server
+	}
+
+	handle /vendor/* {
+		root * /srv/site
+		header Cache-Control "public, max-age=604800"
+		file_server
+	}
+
+	@index path / /index.html
+	handle @index {
+		root * /srv/site
+		header Cache-Control "no-cache"
+		rewrite * /index.html
+		file_server
+	}
+
+	handle {
+		respond "Tidak ditemukan" 404
+	}
+
+	encode {
+		gzip
+		match {
+			header Content-Type text/*
+			header Content-Type application/json*
+			header Content-Type application/javascript*
+			header Content-Type application/vnd.apple.mpegurl*
+		}
+	}
+	log {
+		output stdout
+		format console
+		level ERROR
+	}
+}
+
+{$SITE_ADDRESS::80} {
+	import site
+}

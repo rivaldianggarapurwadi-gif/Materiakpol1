@@ -1,0 +1,9 @@
+# Intel Quick Sync / VAAPI hardware video encoding (Intel Core 7th gen or newer).
+# Used automatically by install.sh when /dev/dri exists:
+#   docker compose -f docker-compose.yml -f docker-compose.intel.yml up -d
+services:
+  worker:
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "${RENDER_GID:-109}"   # group that owns /dev/dri/renderD128 on the host (stat -c %g /dev/dri/renderD128)

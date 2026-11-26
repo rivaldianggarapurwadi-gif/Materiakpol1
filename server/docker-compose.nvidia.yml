@@ -1,0 +1,13 @@
+# NVIDIA GPU video encoding (NVENC). Needs the NVIDIA driver and nvidia-container-toolkit on the host:
+#   docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
+services:
+  worker:
+    environment:
+      NVIDIA_DRIVER_CAPABILITIES: video,compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu, video]
