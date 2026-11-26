@@ -1,0 +1,19 @@
+{
+  "name": "materi-akpol-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-hosted backend for Materi AKPOL: API, resumable uploads, HLS video pipeline.",
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/app.js",
+    "worker": "node --disable-warning=ExperimentalWarning src/worker.js",
+    "cli": "node --disable-warning=ExperimentalWarning src/cli.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/*.test.js"
+  },
+  "dependencies": {
+    "@tus/file-store": "2.1.1",
+    "@tus/server": "2.4.6",
+    "express": "4.22.3"
+  }
+}

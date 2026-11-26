@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Upload Materi AKPOL</title>
 <!-- Library kompresi video (dimuat hanya saat upload video) -->
+<script src="config.js"></script>
 <script type="importmap">{"imports":{"mediabunny":"https://cdn.jsdelivr.net/npm/mediabunny@1.65.2/dist/bundles/mediabunny.min.mjs"}}</script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -407,6 +408,24 @@
     .video-del { opacity: 1; }
     .tab { padding: 10px 10px; font-size: 13px; }
   }
+  /* ——— Server mode: admin login, processing status, previews ——— */
+  body.mode-drive .server-only { display: none !important; }
+  body.mode-server:not(.is-admin) .admin-only { display: none !important; }
+  body.mode-server.is-admin .login-only { display: none !important; }
+  .proc-badge { display: inline-block; margin-top: 3px; font-size: 11px; font-weight: 600; color: #b45309; background: #fef3c7; border-radius: 4px; padding: 1px 6px; }
+  .proc-badge.failed { color: #b91c1c; background: #fee2e2; }
+  .video-src.proc { background: #f59e0b; color: #1f2937; }
+  .video-src.failed { background: #dc2626; color: #fff; }
+  .viewer-msg { max-width: 420px; text-align: center; color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.6; }
+  .viewer-msg .vm-icon { font-size: 40px; margin-bottom: 10px; }
+  .viewer-msg .btn { margin-top: 16px; }
+  .audio-viewer { width: min(560px, 100%); }
+  .pdf-pages { width: 100%; height: 100%; overflow-y: auto; align-self: stretch; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 4px 0 24px; }
+  .pdf-page { width: min(100%, 980px); background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.4); position: relative; flex: none; }
+  .pdf-page canvas { width: 100%; height: 100%; display: block; }
+  .pdf-pagenum { position: sticky; top: 0; z-index: 2; align-self: center; font-size: 12px; color: #fff; background: rgba(0,0,0,0.6); padding: 2px 10px; border-radius: 99px; }
+  .p-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; color: rgba(255,255,255,0.85); font-size: 14px; line-height: 1.6; z-index: 2; background: #000; }
+  .login-err { color: #dc2626; font-size: 13px; min-height: 18px; margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -420,17 +439,25 @@
     </div>
   </div>
   <div class="header-actions">
-    <button class="btn" onclick="showNewFolderModal()" title="Folder baru" aria-label="Folder baru">
+    <button class="btn admin-only" onclick="showNewFolderModal()" title="Folder baru" aria-label="Folder baru">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.5L10 7h9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
       <span class="lbl">Folder baru</span>
     </button>
-    <button class="btn red" onclick="showVideoModal()" title="Tambah Video" aria-label="Tambah Video">
+    <button class="btn red admin-only" onclick="showVideoModal()" title="Tambah Video" aria-label="Tambah Video">
       <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       <span class="lbl">Video</span>
     </button>
-    <button class="btn gold" onclick="document.getElementById('fileInput').click()" title="Upload Materi" aria-label="Upload Materi">
+    <button class="btn gold admin-only" onclick="document.getElementById('fileInput').click()" title="Upload Materi" aria-label="Upload Materi">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
       <span class="lbl">Upload Materi</span>
+    </button>
+    <button class="btn server-only login-only" onclick="showLoginModal()" title="Masuk admin" aria-label="Masuk admin">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <span class="lbl">Masuk admin</span>
+    </button>
+    <button class="btn server-only admin-only" onclick="logoutAdmin()" id="logoutBtn" title="Keluar" aria-label="Keluar">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span class="lbl" id="adminName">Keluar</span>
     </button>
   </div>
 </header>
@@ -449,13 +476,13 @@
   <div class="breadcrumb" id="breadcrumb"></div>
   <div class="stats-bar" id="statsBar"></div>
 
-  <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+  <div class="upload-zone admin-only" id="dropZone" onclick="document.getElementById('fileInput').click()">
     <div class="upload-icon">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
     </div>
     <h3>Seret materi ke sini atau klik untuk memilih</h3>
-    <p>PDF, Word, PPT, gambar, video, audio — tersimpan di Google Drive</p>
-    <label class="compress-opt" onclick="event.stopPropagation()"><input type="checkbox" class="compress-chk" checked onchange="setCompress(this.checked)"> ⚡ Kompres video otomatis — upload lebih cepat &amp; diputar lancar</label>
+    <p data-srv="PDF, Word, PPT, gambar, video, audio — tersimpan di server Materi AKPOL">PDF, Word, PPT, gambar, video, audio — tersimpan di Google Drive</p>
+    <label class="compress-opt" onclick="event.stopPropagation()"><input type="checkbox" class="compress-chk" checked onchange="setCompress(this.checked)"> <span data-srv="⚡ Kompres video di browser dulu — hanya jika internet lambat (server tetap membuat 1080p–360p)">⚡ Kompres video otomatis — upload lebih cepat &amp; diputar lancar</span></label>
     <input type="file" id="fileInput" multiple>
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -464,7 +491,7 @@
   </div>
 
   <!-- Drop zone untuk pindah ke folder parent -->
-  <div class="drop-to-parent" id="dropToParent"
+  <div class="drop-to-parent admin-only" id="dropToParent"
     ondragover="onParentDragOver(event)"
     ondragleave="onParentDragLeave(event)"
     ondrop="onParentDrop(event)">
@@ -477,7 +504,7 @@
       <input type="text" id="searchInput" placeholder="Cari materi..." oninput="renderFiles()">
     </div>
   </div>
-  <div class="drag-hint" id="dragHint" style="display:none">
+  <div class="drag-hint admin-only" id="dragHint" style="display:none">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l3 3 3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
     Seret file ke folder tujuan untuk memindahkan
   </div>
@@ -528,14 +555,14 @@
     <div class="modal-body">
       <div class="vm-option">
         <h4>📤 Upload file video</h4>
-        <p>MP4, MOV, WEBM, dll. Disimpan di Google Drive dan bisa diputar langsung di web.</p>
-        <label class="compress-opt" style="margin:0 0 10px"><input type="checkbox" class="compress-chk" checked onchange="setCompress(this.checked)"> ⚡ Kompres ke 720p + 360p (disarankan: upload 3–10× lebih kecil, diputar lancar di HP)</label>
+        <p data-srv="MP4, MOV, WEBM, dll. Server otomatis membuat versi 1080p–360p agar lancar diputar seperti YouTube.">MP4, MOV, WEBM, dll. Disimpan di Google Drive dan bisa diputar langsung di web.</p>
+        <label class="compress-opt" style="margin:0 0 10px"><input type="checkbox" class="compress-chk" checked onchange="setCompress(this.checked)"> <span data-srv="⚡ Kompres di browser dulu (hanya jika internet lambat)">⚡ Kompres ke 720p + 360p (disarankan: upload 3–10× lebih kecil, diputar lancar di HP)</span></label>
         <button class="btn gold" onclick="hideModal('videoModal');document.getElementById('videoInput').click()">Pilih file video</button>
         <input type="file" id="videoInput" accept="video/*" multiple style="display:none">
       </div>
       <div class="vm-option" style="margin-bottom:0">
         <h4>▶️ Dari YouTube</h4>
-        <p>Tidak memakai kuota Google Drive.</p>
+        <p data-srv="Tidak memakai ruang disk server. Cocok untuk penonton dari luar kampus.">Tidak memakai kuota Google Drive.</p>
         <p style="color:var(--danger);font-weight:500">⚠️ YouTube diblokir di WiFi AKPOL — taruna di jaringan kampus tidak bisa menonton video dari link YouTube. Untuk materi kursus, pakai <b>Upload file video</b> di atas.</p>
         <input type="url" class="form-input" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." onkeydown="if(event.key==='Enter')addYoutube()">
         <input type="text" class="form-input" id="ytTitleInput" placeholder="Judul video (opsional)" onkeydown="if(event.key==='Enter')addYoutube()">
@@ -545,6 +572,31 @@
     <div class="modal-footer" style="padding-top:4px">
       <span style="flex:1;font-size:12px;color:var(--text-muted);align-self:center" id="videoModalFolder"></span>
       <button class="btn" onclick="hideModal('videoModal')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login Modal (server sendiri) -->
+<div class="modal-overlay" id="loginModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🔑 Masuk admin</h2>
+      <button class="icon-btn" style="color:rgba(255,255,255,0.7)" onclick="hideModal('loginModal')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form class="modal-body" id="loginForm" onsubmit="event.preventDefault();loginAdmin()">
+      <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px">Hanya admin yang bisa upload, memindahkan, dan menghapus materi. Semua orang tetap bisa melihat dan mengunduh.</p>
+      <label class="form-label" for="loginUser">Nama admin</label>
+      <input type="text" class="form-input" id="loginUser" autocomplete="username" autocapitalize="off" spellcheck="false">
+      <label class="form-label" for="loginPass">Kata sandi</label>
+      <input type="password" class="form-input" id="loginPass" autocomplete="current-password">
+      <div class="login-err" id="loginErr"></div>
+      <button type="submit" style="display:none"></button>
+    </form>
+    <div class="modal-footer">
+      <button class="btn" onclick="hideModal('loginModal')">Batal</button>
+      <button class="btn primary" id="loginBtn" onclick="loginAdmin()">Masuk</button>
     </div>
   </div>
 </div>
@@ -643,8 +695,13 @@
 </div>
 
 <script>
+// Dua mode backend:
+//  - SERVER: server sendiri (folder server/, lihat server/PANDUAN.md). /config.js dari server mengisi AKPOL_SERVER = true.
+//  - Google Drive lewat Apps Script (GitHub Pages, lihat SETUP.md).
+const SERVER = window.AKPOL_SERVER === true;
 // URL Web App dari Google Apps Script (lihat SETUP.md). Ganti dengan URL milikmu.
-const API_URL = 'https://script.google.com/macros/s/AKfycbyJ1hvlyX0vDeKo_Bf6-tdVnMm2nBfnbAypTVBgTvO-3hx0Fch2K4iksJ80vRTkc8gf/exec';
+const DRIVE_API_URL = 'https://script.google.com/macros/s/AKfycbyJ1hvlyX0vDeKo_Bf6-tdVnMm2nBfnbAypTVBgTvO-3hx0Fch2K4iksJ80vRTkc8gf/exec';
+const API_URL = SERVER ? 'api' : DRIVE_API_URL;
 const CHUNK = 24 * 1024 * 1024; // 24 MB per potongan lewat Apps Script (kelipatan 256 KB, < batas 50 MB setelah base64)
 
 let currentPath = [];
@@ -677,8 +734,10 @@ function parseYoutube(link) {
 }
 function videoThumb(item, w) {
   if (isYoutube(item)) return `https://i.ytimg.com/vi/${ytId(item)}/hqdefault.jpg`;
+  if (SERVER) return item.thumb || 'data:,'; // 'data:,' gagal dimuat → onerror menampilkan ikon
   return `https://drive.google.com/thumbnail?id=${item.drive_id}&sz=w${w||640}`;
 }
+function hasFile(item) { return !!item && (SERVER ? !!item.src : !!item.drive_id); }
 
 function getFileType(item) {
   if (item.is_folder) return 'folder';
@@ -734,34 +793,136 @@ function showNewFolderModal() {
 }
 function hideModal(id) { document.getElementById(id).style.display = 'none'; }
 
-// ——— API (Google Apps Script) ———
-function apiReady() { return /^https:\/\/script\.google\.com\//.test(API_URL); }
+// ——— API (server sendiri atau Google Apps Script) ———
+function apiReady() { return SERVER || /^https:\/\/script\.google\.com\//.test(API_URL); }
 async function apiCall(res) {
   let r;
   try { r = await res; }
   catch (e) { throw new Error('Tidak dapat terhubung ke server. Periksa koneksi internet.'); }
   const data = await r.json().catch(() => { throw new Error('Respon server tidak valid (HTTP ' + r.status + ')'); });
-  if (!data.ok) throw new Error(data.error || 'Terjadi kesalahan di server');
+  if (!data.ok) {
+    if (SERVER && r.status === 401 && isAdmin) setAdmin(false, null);
+    const err = new Error(data.error || 'Terjadi kesalahan di server');
+    err.status = r.status;
+    throw err;
+  }
   return data;
 }
-// Body dikirim sebagai text/plain agar tidak ada preflight CORS
+// Apps Script: body dikirim sebagai text/plain agar tidak ada preflight CORS.
+// Server sendiri: JSON biasa (asal yang sama, cookie sesi admin ikut terkirim).
 function apiPost(action, body) {
-  return apiCall(fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...body }) }));
+  const headers = SERVER ? { 'Content-Type': 'application/json' } : undefined;
+  return apiCall(fetch(API_URL, { method: 'POST', headers, body: JSON.stringify({ action, ...body }) }));
+}
+function sortItems(list) {
+  return list.sort((a, b) => (b.is_folder - a.is_folder) || String(b.created_at).localeCompare(String(a.created_at)));
 }
 async function dbSelect() {
-  const d = await apiCall(fetch(API_URL + '?action=list'));
+  const d = await apiCall(fetch(API_URL + '?action=list', SERVER ? { cache: 'no-store' } : undefined));
   serverVersion = d.version || 1;
-  return d.items.sort((a, b) => (b.is_folder - a.is_folder) || String(b.created_at).localeCompare(String(a.created_at)));
+  if (SERVER) setAdmin(!!d.admin, d.user);
+  return sortItems(d.items);
+}
+
+// ——— Admin (server sendiri): hanya admin yang boleh upload / pindah / hapus ———
+let isAdmin = !SERVER; // mode Google Drive: semua orang boleh (seperti sebelumnya)
+function canEdit() { return isAdmin; }
+function setAdmin(on, user) {
+  const changed = isAdmin !== on;
+  isAdmin = on;
+  document.body.classList.toggle('is-admin', on);
+  if (SERVER) document.getElementById('adminName').textContent = on ? 'Keluar (' + (user || 'admin') + ')' : 'Keluar';
+  if (changed && allItems.length) { renderStats(); renderFiles(); }
+  if (changed && on) checkHealth();
+}
+function needAdmin() {
+  if (canEdit()) return false;
+  toast('Masuk sebagai admin dulu untuk mengubah materi', 'error');
+  showLoginModal();
+  return true;
+}
+function showLoginModal() {
+  document.getElementById('loginErr').textContent = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginModal').style.display = 'flex';
+  setTimeout(() => document.getElementById(document.getElementById('loginUser').value ? 'loginPass' : 'loginUser').focus(), 50);
+}
+async function loginAdmin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  if (!username || !password) { document.getElementById('loginErr').textContent = 'Isi nama dan kata sandi'; return; }
+  btn.disabled = true;
+  try {
+    const { user } = await apiPost('login', { username, password });
+    hideModal('loginModal');
+    setAdmin(true, user);
+    toast('Masuk sebagai ' + user);
+  } catch (e) {
+    document.getElementById('loginErr').textContent = e.message;
+  } finally { btn.disabled = false; }
+}
+async function logoutAdmin() {
+  try { await apiPost('logout', {}); } catch (e) { /* tetap keluar di tampilan */ }
+  setAdmin(false, null);
+  toast('Sudah keluar');
+}
+// Peringatan untuk admin: disk hampir penuh, file gagal diproses
+async function checkHealth() {
+  if (!SERVER || !isAdmin) return;
+  try {
+    const h = await (await fetch('api/health', { cache: 'no-store' })).json();
+    if (h.lowDisk && h.disk) toast('Disk server hampir penuh: sisa ' + fmtSize(h.disk.free), 'error');
+    if (h.failed && h.failed.length) toast(h.failed.length + ' file gagal diproses — lihat tanda ⚠️ di daftar materi', 'error');
+  } catch (e) { /* abaikan */ }
+}
+
+// Selama ada file yang masih diproses server (video → 1080p–360p), perbarui daftar tiap beberapa detik.
+let pollTimer = null;
+function schedulePoll() {
+  clearTimeout(pollTimer);
+  if (!SERVER || !allItems.some(i => i.status === 'processing')) return;
+  pollTimer = setTimeout(async () => {
+    try {
+      const fresh = await dbSelect();
+      const sig = l => JSON.stringify(l.map(i => [i.id, i.status, i.progress, i.thumb, i.hls, i.preview]));
+      const changed = sig(fresh) !== sig(allItems);
+      allItems = fresh;
+      if (changed) {
+        // jangan ganggu pengguna yang sedang menyeret file
+        if (!dragItemId) { renderStats(); renderFiles(); }
+        if (W.item) { const cur = allItems.find(i => i.id === W.item.id); if (cur) { W.item = cur; renderUpnext(); } }
+      }
+    } catch (e) { /* coba lagi nanti */ }
+    schedulePoll();
+  }, document.hidden ? 15000 : 4000);
+}
+// Label status proses untuk satu file
+function procLabel(item) {
+  if (!SERVER || item.is_folder || isYoutube(item)) return '';
+  if (item.status === 'processing') return 'Memproses' + (item.progress ? ' ' + item.progress + '%' : '…');
+  if (item.status === 'failed') return 'Gagal diproses';
+  return '';
+}
+async function retryItem(id) {
+  try {
+    const { item } = await apiPost('retry', { id });
+    const i = allItems.findIndex(x => x.id === id);
+    if (i >= 0) allItems[i] = item;
+    renderFiles(); schedulePoll();
+    toast('"' + item.name + '" diproses ulang');
+  } catch (e) { toast('Gagal: ' + e.message, 'error'); }
 }
 
 async function loadAndRender() {
   if (!apiReady()) {
-    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚙️</div><h3>Server belum diatur</h3><p>Isi <code>API_URL</code> di index.html dengan URL Web App Google Apps Script (lihat SETUP.md).</p></div>`;
+    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚙️</div><h3>Server belum diatur</h3><p>Isi <code>DRIVE_API_URL</code> di index.html dengan URL Web App Google Apps Script (lihat SETUP.md).</p></div>`;
     return;
   }
   try {
     allItems = await dbSelect();
     renderBreadcrumb(); renderStats(); renderFiles();
+    schedulePoll();
     const m = location.hash.match(/^#v=(.+)$/);
     if (m && allItems.some(i => i.id === m[1])) openWatch(m[1], false);
   } catch(e) {
@@ -835,9 +996,9 @@ function renderVideos() {
       <div class="video-thumb">
         <img src="${videoThumb(v)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
         <div class="video-play"><span><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
-        <span class="video-src ${isYoutube(v)?'yt':'drive'}">${isYoutube(v)?'YouTube':'Drive'}</span>
+        ${videoSrcBadge(v)}
         ${durBadge(v.id)}${watchedBar(v.id)}
-        <button class="icon-btn del video-del" title="Hapus" onclick="event.stopPropagation();deleteItem('${v.id}')">
+        <button class="icon-btn del video-del admin-only" title="Hapus" onclick="event.stopPropagation();deleteItem('${v.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
         </button>
       </div>
@@ -848,6 +1009,15 @@ function renderVideos() {
     </div>`).join('');
 }
 
+function videoSrcBadge(v) {
+  if (isYoutube(v)) return '<span class="video-src yt">YouTube</span>';
+  if (!SERVER) return '<span class="video-src drive">Drive</span>';
+  const p = procLabel(v);
+  if (p) return `<span class="video-src ${v.status === 'failed' ? 'failed' : 'proc'}">${p}</span>`;
+  const h = Math.min(v.width || 0, v.height || 0);
+  return h >= 720 ? `<span class="video-src drive">${h >= 1080 ? '1080p' : '720p'} HD</span>` : '';
+}
+
 function renderFiles() {
   if (currentView === 'videos') return renderVideos();
   const items = getVisible();
@@ -855,7 +1025,7 @@ function renderFiles() {
 
   // Tampilkan hint dan drop-to-parent jika ada folder di atasnya
   const hasFolder = items.some(i => i.is_folder);
-  document.getElementById('dragHint').style.display = hasFolder ? 'flex' : 'none';
+  document.getElementById('dragHint').style.display = hasFolder && canEdit() ? 'flex' : 'none';
   const dtp = document.getElementById('dropToParent');
   dtp.classList.toggle('visible', currentPath.length > 0);
 
@@ -868,8 +1038,9 @@ function renderFiles() {
   body.innerHTML = items.map(item => {
     const childCount = item.is_folder ? allItems.filter(c=>c.folder_id===item.id).length : 0;
     const canView = !item.is_folder;
+    const proc = procLabel(item);
     return `<div class="file-item"
-      draggable="true"
+      draggable="${canEdit()}"
       data-id="${item.id}"
       data-is-folder="${item.is_folder}"
       ondragstart="onItemDragStart(event,'${item.id}')"
@@ -882,6 +1053,7 @@ function renderFiles() {
         <div style="min-width:0">
           <div class="file-name ${item.is_folder?'folder-name':''}" onclick="${item.is_folder?`openFolder('${item.id}')`:`openViewer('${item.id}')`}">${esc(item.name)}</div>
           ${item.is_folder?`<div class="file-meta">${childCount} item</div>`:''}
+          ${proc?`<div class="proc-badge ${item.status==='failed'?'failed':''}" title="${esc(item.error||'')}">${item.status==='failed'?'⚠️':'⏳'} ${proc}</div>`:''}
         </div>
       </div>
       <div class="file-meta">${fmtDate(item.created_at)}</div>
@@ -893,7 +1065,10 @@ function renderFiles() {
         ${!item.is_folder && !isYoutube(item)?`<button class="icon-btn" title="Download" onclick="downloadItem('${item.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
         </button>`:''}
-        <button class="icon-btn del" title="Hapus" onclick="deleteItem('${item.id}')">
+        ${SERVER && item.status==='failed'?`<button class="icon-btn admin-only" title="Proses ulang" onclick="retryItem('${item.id}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>`:''}
+        <button class="icon-btn del admin-only" title="Hapus" onclick="deleteItem('${item.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
         </button>
       </div>
@@ -969,14 +1144,16 @@ let serverVersion = 1;   // diisi dari respon "list"
 let directUpload = null; // null = belum dicoba, false = diblokir browser → lewat Apps Script
 let uploading = false;
 
-function compressOn() { return store('akpol_compress', true); }
-function setCompress(on) { storeSet('akpol_compress', on); document.querySelectorAll('.compress-chk').forEach(c => c.checked = on); }
+const COMPRESS_KEY = SERVER ? 'akpol_compress_srv' : 'akpol_compress';
+function compressOn() { return store(COMPRESS_KEY, !SERVER); }
+function setCompress(on) { storeSet(COMPRESS_KEY, on); document.querySelectorAll('.compress-chk').forEach(c => c.checked = on); }
 function isVideoFile(f) { return /^video\//.test(f.type) || /\.(mp4|m4v|mov|webm|mkv|avi|3gp)$/i.test(f.name); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function handleFiles(fileInput) {
   const files = Array.from(fileInput);
   if (!files.length) return;
+  if (needAdmin()) return;
   const pw = document.getElementById('progressWrap');
   const pf = document.getElementById('progressFill');
   const pl = document.getElementById('progressLabel');
@@ -1000,7 +1177,7 @@ async function handleFiles(fileInput) {
       // 1) Kompres video
       if (isVideoFile(file) && compressOn()) {
         try {
-          const out = await compressVideo(file, serverVersion >= 2, (pct, what) => show(pct, `⚡ Mengompres ${what} — ${file.name}${tag} — ${Math.round(pct)}%`));
+          const out = await compressVideo(file, !SERVER && serverVersion >= 2, (pct, what) => show(pct, `⚡ Mengompres ${what} — ${file.name}${tag} — ${Math.round(pct)}%`));
           if (out) {
             if (out.main) { main = { blob: out.main, name: file.name.replace(/\.[^.]+$/, '') + '.mp4', mime: 'video/mp4' }; savedBytes += Math.max(0, file.size - out.main.size); }
             low = out.low;
@@ -1017,11 +1194,16 @@ async function handleFiles(fileInput) {
       const upShow = (sent) => {
         const secs = (Date.now() - t0) / 1000;
         const speed = secs > 1 ? ` · ${(sent / 1048576 / secs).toFixed(1)} MB/s` : '';
-        const route = directUpload === false ? ' · via server (lambat)' : directUpload ? ' · langsung ke Drive' : '';
+        const route = SERVER ? '' : directUpload === false ? ' · via server (lambat)' : directUpload ? ' · langsung ke Drive' : '';
         show(sent / totalBytes * 100, `⬆️ Mengupload ${main.name}${tag} — ${fmtSize(sent)} / ${fmtSize(totalBytes)}${speed}${route}`);
       };
-      const up = await uploadBlob(main.blob, main.name, main.mime, n => upShow(n));
-      let item = up.item;
+      let item;
+      if (SERVER) {
+        item = await tusUpload(main.blob, main.name, main.mime, folderId, n => upShow(n),
+          () => show(pf.style.width.replace('%', ''), `📶 Koneksi terputus — mencoba melanjutkan ${main.name}${tag}...`));
+      }
+      const up = SERVER ? { item } : await uploadBlob(main.blob, main.name, main.mime, n => upShow(n));
+      item = up.item;
       if (!item) {
         const variants = {};
         if (low) {
@@ -1048,6 +1230,7 @@ async function handleFiles(fileInput) {
   renderBreadcrumb(); renderStats(); renderFiles();
 
   if (done > 0) toast(done + ' dari ' + total + ' materi berhasil diupload ✓' + (savedBytes > 1048576 ? ` (hemat ${fmtSize(savedBytes)} berkat kompresi)` : ''));
+  if (done > 0 && SERVER && allItems.some(i => i.status === 'processing')) { toast('Video sedang diproses server agar lancar diputar — bisa ditinggal'); schedulePoll(); }
   if (failed > 0) toast(failed + ' file gagal diupload', 'error');
 }
 window.addEventListener('beforeunload', e => { if (uploading) { e.preventDefault(); e.returnValue = ''; } });
@@ -1080,6 +1263,61 @@ async function uploadBlob(blob, name, mime, onProgress) {
     if (res.done) return res.item ? { item: res.item } : { drive_id: res.drive_id };
   } while (start < blob.size);
   throw new Error('Upload tidak selesai');
+}
+
+// ——— Upload ke server sendiri (protokol tus): bisa dilanjutkan jika koneksi putus, bahkan setelah halaman dimuat ulang ———
+const scriptPromises = {};
+function loadScript(src) {
+  return scriptPromises[src] || (scriptPromises[src] = new Promise((resolve, reject) => {
+    const el = document.createElement('script');
+    el.src = src;
+    el.onload = resolve;
+    el.onerror = () => { delete scriptPromises[src]; reject(new Error('Gagal memuat ' + src)); };
+    document.head.appendChild(el);
+  }));
+}
+const TUS_JS = 'vendor/tus-js-client-4.3.1.min.js';
+const HLS_JS = 'vendor/hls-1.7.3.light.min.js';
+const PDF_JS = 'vendor/pdfjs-6.4.299.min.mjs';
+const PDF_WORKER = 'vendor/pdfjs-6.4.299.worker.min.mjs';
+
+async function tusUpload(blob, name, mime, folderId, onProgress, onRetry) {
+  await loadScript(TUS_JS);
+  return new Promise((resolve, reject) => {
+    const up = new tus.Upload(blob, {
+      endpoint: new URL('api/upload', location.href).href,
+      chunkSize: 50 * 1024 * 1024,
+      // terus mencoba ±10 menit jika koneksi putus (mis. Wi-Fi hilang sebentar)
+      retryDelays: [0, 1000, 3000, 5000, 10000, 15000, 20000, 30000, 30000, 30000, 60000, 60000, 60000, 60000, 60000, 60000, 60000],
+      storeFingerprintForResuming: true,
+      removeFingerprintOnSuccess: true,
+      metadata: { filename: name, filetype: mime || '', folder_id: folderId || '' },
+      onProgress: sent => onProgress(sent),
+      onShouldRetry: err => {
+        const st = err.originalResponse ? err.originalResponse.getStatus() : 0;
+        if ([400, 401, 403, 413].includes(st)) return false;
+        if (onRetry) onRetry();
+        return true;
+      },
+      onError: err => {
+        const res = err.originalResponse;
+        const st = res ? res.getStatus() : 0;
+        if (st === 401) { setAdmin(false, null); reject(new Error('Sesi admin berakhir — silakan masuk lagi')); }
+        else if (st === 413) reject(new Error('File terlalu besar untuk server'));
+        else reject(new Error((res && res.getBody() || '').trim() || 'Koneksi terputus saat upload'));
+      },
+      onSuccess: async () => {
+        try { resolve((await apiPost('uploadedItem', { upload_id: up.url })).item); }
+        catch (e) { reject(e); }
+      },
+    });
+    // Lanjutkan upload yang sempat terputus (file sama, folder sama)
+    up.findPreviousUploads().then(prev => {
+      const same = prev.find(p => (p.metadata && p.metadata.folder_id || '') === (folderId || ''));
+      if (same) up.resumeFromPreviousUpload(same);
+      up.start();
+    }, () => up.start());
+  });
 }
 
 // PUT langsung ke URL sesi resumable Google Drive, per 32 MB, dengan retry otomatis.
@@ -1193,20 +1431,20 @@ function blobToBase64(blob) {
 }
 
 function previewUrl(item) { return `https://drive.google.com/file/d/${item.drive_id}/preview`; }
-function downloadUrl(item) { return `https://drive.google.com/uc?export=download&id=${item.drive_id}`; }
+function downloadUrl(item) { return SERVER ? item.src + '?dl=1' : `https://drive.google.com/uc?export=download&id=${item.drive_id}`; }
 
 function downloadItem(id) {
   const item = allItems.find(i=>i.id===id);
-  if (!item||!item.drive_id) return;
+  if (!hasFile(item)) return;
   const a = document.createElement('a');
   a.href = downloadUrl(item); a.download = item.name; a.target='_blank'; a.click();
 }
 
 async function deleteItem(id) {
   const item = allItems.find(i=>i.id===id);
-  if (!item) return;
+  if (!item || needAdmin()) return;
   const n = item.is_folder ? allItems.filter(i=>isDescendant(i.id, id)).length : 0;
-  const msg = 'Hapus "'+item.name+'"?' + (n ? '\nSemua isi folder ('+n+' item) juga akan dihapus.' : '');
+  const msg = 'Hapus "'+item.name+'"?' + (n ? '\nSemua isi folder ('+n+' item) juga akan dihapus.' : '') + (SERVER ? '\n(File masih bisa dipulihkan admin server selama 30 hari.)' : '');
   if (!confirm(msg)) return;
   try {
     const { deleted } = await apiPost('delete', { id });
@@ -1221,7 +1459,7 @@ async function deleteItem(id) {
 function openViewer(id) {
   const item = allItems.find(i=>i.id===id);
   if (item && getFileType(item) === 'vid') return openWatch(id);
-  if (!item || !item.drive_id) return;
+  if (!hasFile(item)) return;
   viewerCurrentId = id;
 
   const url = previewUrl(item);
@@ -1247,6 +1485,8 @@ function openViewer(id) {
   const body = document.getElementById('viewerBody');
   body.style.alignItems = 'center';
   body.innerHTML = '<div class="viewer-loading"><div class="viewer-spinner"></div><span style="color:rgba(255,255,255,0.5);font-size:13px">Memuat file...</span></div>';
+
+  if (SERVER) return renderServerViewer(item, ft, body);
 
   if (ft === 'img') {
     imgZoom = 1;
@@ -1284,6 +1524,124 @@ function openViewer(id) {
   }
 }
 
+// ——— Pratinjau file dari server sendiri ———
+function viewerMsg(icon, html, item) {
+  return `<div class="viewer-msg"><div class="vm-icon">${icon}</div>${html}${item ? `<div><button class="btn gold" onclick="downloadItem('${item.id}')">⬇ Download file</button></div>` : ''}</div>`;
+}
+function renderServerViewer(item, ft, body) {
+  const id = item.id;
+  const still = () => viewerCurrentId === id;
+  if (ft === 'img') {
+    imgZoom = 1;
+    const img = new Image();
+    img.className = 'img-viewer';
+    img.src = item.src;
+    img.onclick = () => {
+      imgZoom = imgZoom===1 ? 2 : 1;
+      img.style.transform = `scale(${imgZoom})`;
+      img.classList.toggle('zoomed', imgZoom>1);
+      updateZoomLabel();
+    };
+    img.onload = () => {
+      if (!still()) return;
+      body.innerHTML = '';
+      body.appendChild(img);
+      const ctrl = document.createElement('div');
+      ctrl.className = 'zoom-controls';
+      ctrl.innerHTML = `
+        <button class="zoom-btn" onclick="zoomImg(-0.25)">−</button>
+        <span class="zoom-label" id="zoomLabel">100%</span>
+        <button class="zoom-btn" onclick="zoomImg(0.25)">+</button>
+        <button class="zoom-btn" onclick="zoomReset()" title="Reset">⟳</button>`;
+      body.appendChild(ctrl);
+      window._vImg = img;
+    };
+    img.onerror = () => { if (still()) body.innerHTML = viewerMsg('🖼️', 'Gambar ini tidak bisa ditampilkan di browser.', item); };
+  } else if (ft === 'pdf') {
+    renderPdf(body, item.src, item);
+  } else if (ft === 'office') {
+    if (item.preview) renderPdf(body, item.preview, item);
+    else if (item.status === 'processing') body.innerHTML = viewerMsg('⏳', 'Pratinjau sedang dibuat server. Coba buka lagi sebentar lagi.', item);
+    else body.innerHTML = viewerMsg('📄', 'Pratinjau tidak tersedia untuk file ini.', item);
+  } else if (ft === 'aud') {
+    body.innerHTML = `<audio class="audio-viewer" controls autoplay preload="metadata" src="${esc(item.src)}"></audio>`;
+  } else if (ft === 'txt') {
+    fetch(item.src).then(r => { if (!r.ok) throw new Error(); return r.text(); }).then(t => {
+      if (!still()) return;
+      const pre = document.createElement('pre');
+      pre.className = 'txt-viewer';
+      pre.textContent = t.length > 2000000 ? t.slice(0, 2000000) + '\n\n… (terpotong, download untuk melihat seluruhnya)' : t;
+      body.innerHTML = ''; body.style.alignItems = 'flex-start';
+      body.appendChild(pre);
+    }).catch(() => { if (still()) body.innerHTML = viewerMsg('📄', 'File tidak bisa dimuat.', item); });
+  } else {
+    body.innerHTML = viewerMsg('📦', 'Pratinjau tidak tersedia untuk jenis file ini.', item);
+  }
+}
+
+// PDF dirender dengan pdf.js (juga jalan di HP Android yang tidak punya penampil PDF bawaan)
+let pdfLibPromise = null;
+function loadPdfJs() {
+  return pdfLibPromise || (pdfLibPromise = import(new URL(PDF_JS, location.href).href).then(lib => {
+    lib.GlobalWorkerOptions.workerSrc = new URL(PDF_WORKER, location.href).href;
+    return lib;
+  }).catch(e => { pdfLibPromise = null; throw e; }));
+}
+async function renderPdf(body, url, item) {
+  const id = viewerCurrentId;
+  try {
+    const lib = await loadPdfJs();
+    const task = lib.getDocument({ url, isEvalSupported: false });
+    const doc = await task.promise;
+    if (viewerCurrentId !== id) { task.destroy(); return; }
+    const wrap = document.createElement('div');
+    wrap.className = 'pdf-pages';
+    const num = document.createElement('div');
+    num.className = 'pdf-pagenum';
+    num.textContent = `1 / ${doc.numPages}`;
+    wrap.appendChild(num);
+    body.innerHTML = ''; body.style.alignItems = 'stretch';
+    body.appendChild(wrap);
+    window._vPdf = task;
+    const first = await doc.getPage(1);
+    const vp1 = first.getViewport({ scale: 1 });
+    const pages = [];
+    for (let n = 1; n <= doc.numPages; n++) {
+      const el = document.createElement('div');
+      el.className = 'pdf-page';
+      el.dataset.n = n;
+      el.style.aspectRatio = `${vp1.width} / ${vp1.height}`;
+      wrap.appendChild(el);
+      pages.push(el);
+    }
+    const draw = async el => {
+      if (el.dataset.done) return;
+      el.dataset.done = '1';
+      const page = await doc.getPage(Number(el.dataset.n));
+      const vp0 = page.getViewport({ scale: 1 });
+      el.style.aspectRatio = `${vp0.width} / ${vp0.height}`;
+      const scale = el.clientWidth / vp0.width * Math.min(2, window.devicePixelRatio || 1);
+      const vp = page.getViewport({ scale });
+      const c = document.createElement('canvas');
+      c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+      el.appendChild(c);
+      await page.render({ canvas: c, canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    };
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        draw(e.target);
+        num.textContent = `${e.target.dataset.n} / ${doc.numPages}`;
+      }
+    }, { root: wrap, rootMargin: '600px 0px' });
+    pages.forEach(el => io.observe(el));
+    window._vPdfObs = io;
+  } catch (e) {
+    console.warn('pdf.js gagal, memakai penampil bawaan browser:', e);
+    if (viewerCurrentId === id) body.innerHTML = `<iframe class="pdf-frame" src="${esc(url)}"></iframe>`;
+  }
+}
+
 function closeViewer() {
   const ov = document.getElementById('viewerOverlay');
   ov.classList.remove('open');
@@ -1292,6 +1650,8 @@ function closeViewer() {
   b.innerHTML=''; b.style.alignItems='center';
   viewerCurrentId = null;
   window._vImg = null;
+  if (window._vPdfObs) { window._vPdfObs.disconnect(); window._vPdfObs = null; }
+  if (window._vPdf) { const t = window._vPdf; window._vPdf = null; try { t.destroy(); } catch (e) { /* sudah ditutup */ } }
 }
 
 function zoomImg(delta) {
@@ -1320,6 +1680,7 @@ let dragItemId = null;
 let dragGhost = null;
 
 function onItemDragStart(e, id) {
+  if (!canEdit()) { e.preventDefault(); return; }
   dragItemId = id;
   const item = allItems.find(i=>i.id===id);
   if (!item) return;
@@ -1412,7 +1773,7 @@ function isDescendant(targetId, sourceId) {
 
 async function moveItem(itemId, targetFolderId, targetName) {
   const item = allItems.find(i=>i.id===itemId);
-  if (!item) return;
+  if (!item || needAdmin()) return;
   if ((item.folder_id||null) === (targetFolderId||null)) return; // sudah di sana
 
   try {
@@ -1472,7 +1833,11 @@ function watchedBar(id) {
   const pct = Math.min(100, Math.round(p.t / p.d * 100));
   return pct >= 2 ? `<div class="watched-bar"><i style="width:${pct}%"></i></div>` : '';
 }
-function durBadge(id) { const p = getPos(id); return p && p.d ? `<span class="un-dur">${fmtTime(p.d)}</span>` : ''; }
+function durBadge(id) {
+  const p = getPos(id);
+  const d = p && p.d ? p.d : (allItems.find(i => i.id === id) || {}).duration;
+  return d ? `<span class="un-dur">${fmtTime(d)}</span>` : '';
+}
 
 // Adapter: perintah yang sama untuk video Drive (<video>) dan YouTube
 const P = {
@@ -1517,7 +1882,7 @@ function openWatch(id, push = true) {
   $('wTitle').textContent = vTitle(item);
   $('pTitle').textContent = vTitle(item);
   $('wFolder').textContent = '📁 ' + folderPathName(item.folder_id);
-  $('wDescMeta').innerHTML = `<b>Diupload ${fmtDate(item.created_at)}</b>${item.size ? ' · ' + fmtSize(item.size) : ''} · ${isYoutube(item) ? 'Sumber: YouTube' : 'Disimpan di Google Drive'}`;
+  $('wDescMeta').innerHTML = `<b>Diupload ${fmtDate(item.created_at)}</b>${item.size ? ' · ' + fmtSize(item.size) : ''} · ${isYoutube(item) ? 'Sumber: YouTube' : SERVER ? 'Disimpan di server Materi AKPOL' : 'Disimpan di Google Drive'}`;
   $('wDlLabel').textContent = isYoutube(item) ? 'Buka di YouTube' : 'Download';
   $('wDl').onclick = isYoutube(item) ? () => window.open(item.url, '_blank', 'noopener') : () => downloadItem(item.id);
   $('wAuto').classList.toggle('on', autoplayOn());
@@ -1548,9 +1913,11 @@ function teardownPlayer() {
   clearTimeout(W.endTimer); clearTimeout(W.fallbackTimer); clearTimeout(W.idleTimer); clearInterval(W.ytTimer); clearTimeout(W.stallTimer);
   if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
   if (W.yt && W.yt.destroy) { try { W.yt.destroy(); } catch (e) {} }
+  if (W.hls) { try { W.hls.destroy(); } catch (e) {} W.hls = null; }
+  W.levels = []; W.level = -1;
   if (W.video) { W.video.pause(); W.video.removeAttribute('src'); W.video.load(); }
   const pl = $('player');
-  pl.querySelectorAll('video, iframe, #ytHost, .p-fallback').forEach(el => el.remove());
+  pl.querySelectorAll('video, iframe, #ytHost, .p-fallback, .p-msg').forEach(el => el.remove());
   $('pEnd').classList.remove('open');
   $('pMenu').classList.remove('open');
   W.video = null; W.yt = null; W.kind = null;
@@ -1600,6 +1967,7 @@ function setQualityPref(pref) {
 }
 // Deteksi tersendat (mode otomatis): 1× macet > 2.5 dtk atau 2× dalam 30 dtk → 360p
 function onStall() {
+  if (SERVER) return; // server: hls.js memilih kualitas sendiri berdasarkan kecepatan internet
   const v = W.video;
   if (!v || W.switching || W.seekingNow || W.quality !== 'hd' || W.qualityMode !== 'auto' || !hasLow(W.item) || v.currentTime < 0.5) return;
   const now = Date.now();
@@ -1617,10 +1985,15 @@ function loadNative(item) {
   v.playsInline = true;
   v.setAttribute('playsinline', '');
   v.preload = 'auto';
-  W.qualityMode = hasLow(item) ? store('akpol_quality', 'auto') : 'hd';
-  W.quality = pickQuality(item);
   W.stalls = []; W.switching = false;
-  v.src = driveStream(W.quality === '360' ? item.variants['360'] : item.drive_id);
+  if (SERVER) {
+    W.qualityMode = store('akpol_q', 'auto');
+    attachServerSource(v, item);
+  } else {
+    W.qualityMode = hasLow(item) ? store('akpol_quality', 'auto') : 'hd';
+    W.quality = pickQuality(item);
+    v.src = driveStream(W.quality === '360' ? item.variants['360'] : item.drive_id);
+  }
   v.volume = store('akpol_vol', 1);
   v.muted = store('akpol_muted', false);
   pl.prepend(v);
@@ -1653,12 +2026,83 @@ function loadNative(item) {
   on('ratechange', updateSpeedBadge);
   on('ended', onEnded);
   // File tidak bisa diputar langsung (mis. format tidak didukung browser / belum diproses) → pemutar Google Drive
-  on('error', () => fallbackDrive(item));
-  W.fallbackTimer = setTimeout(() => { if (W.video === v && v.readyState < 1) fallbackDrive(item); }, 15000);
+  if (SERVER) on('error', () => { if (!W.hls) serverPlayError(item); });
+  else {
+    on('error', () => fallbackDrive(item));
+    W.fallbackTimer = setTimeout(() => { if (W.video === v && v.readyState < 1) fallbackDrive(item); }, 15000);
+  }
 
   updatePlayBtn(); updateVolUI(); updateFsBtn();
   $('pPip').style.display = document.pictureInPictureEnabled ? '' : 'none';
   v.play().catch(() => { updatePlayBtn(); pl.classList.remove('loading'); });
+}
+
+// ——— Video dari server sendiri: HLS adaptif (1080p/720p/480p/360p) seperti YouTube ———
+// hls.js di Chrome/Firefox/Android; HLS bawaan di iPhone/Safari; file asli selama video masih diproses.
+function levelHeight(l) { return Math.min(l.width || l.height || 0, l.height || l.width || 0); }
+async function attachServerSource(v, item) {
+  W.levels = []; W.level = -1;
+  if (!item.hls) { v.src = item.src; return; } // masih diproses → putar file asli jika browser bisa
+  try { await loadScript(HLS_JS); } catch (e) { /* tanpa hls.js: coba HLS bawaan */ }
+  if (W.video !== v) return;
+  if (window.Hls && Hls.isSupported()) {
+    const hls = new Hls({ capLevelToPlayerSize: true, maxBufferLength: 30, backBufferLength: 60, startFragPrefetch: true });
+    W.hls = hls;
+    let netErrors = 0, mediaErrors = 0;
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      if (W.hls !== hls) return;
+      W.levels = hls.levels.map((l, i) => ({ i, h: levelHeight(l) }));
+      const pref = W.qualityMode;
+      if (pref !== 'auto') {
+        const pick = W.levels.filter(l => l.h <= Number(pref)).sort((a, b) => b.h - a.h)[0] || W.levels[0];
+        if (pick) { hls.startLevel = pick.i; hls.currentLevel = pick.i; }
+      }
+      updateSpeedBadge();
+    });
+    hls.on(Hls.Events.LEVEL_SWITCHED, (e, d) => { if (W.hls !== hls) return; W.level = d.level; updateSpeedBadge(); if ($('pMenu').classList.contains('open') && W.menuPage === 'quality') showMenu('quality'); });
+    hls.on(Hls.Events.FRAG_LOADED, () => { netErrors = 0; });
+    hls.on(Hls.Events.ERROR, (e, d) => {
+      if (W.hls !== hls || !d.fatal) return;
+      if (d.type === Hls.ErrorTypes.NETWORK_ERROR && netErrors++ < 5) { setTimeout(() => W.hls === hls && hls.startLoad(), 1000 * netErrors); return; }
+      if (d.type === Hls.ErrorTypes.MEDIA_ERROR && mediaErrors++ < 2) { if (mediaErrors === 2) hls.swapAudioCodec(); hls.recoverMediaError(); return; }
+      console.warn('HLS gagal, memakai file asli:', d);
+      hls.destroy(); W.hls = null; W.levels = [];
+      v.src = item.src;
+    });
+    hls.loadSource(item.hls);
+    hls.attachMedia(v);
+  } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+    v.src = item.hls; // iPhone / Safari: kualitas dipilih otomatis oleh sistem
+  } else {
+    v.src = item.src;
+  }
+  v.play().catch(() => { updatePlayBtn(); $('player').classList.remove('loading'); });
+}
+function serverPlayError(item) {
+  if (W.item !== item) return;
+  const pl = $('player');
+  pl.classList.remove('loading');
+  pl.querySelector('.p-msg')?.remove();
+  const msg = item.status === 'processing'
+    ? `⏳ Video sedang diproses server agar lancar diputar${item.progress ? ' (' + item.progress + '%)' : ''}.<br>Coba lagi beberapa menit lagi.`
+    : item.status === 'failed'
+      ? '⚠️ Video ini gagal diproses dan formatnya tidak bisa diputar di browser.<br>Silakan download untuk menonton.'
+      : '⚠️ Video tidak bisa diputar. Periksa koneksi lalu coba lagi.';
+  pl.insertAdjacentHTML('beforeend', `<div class="p-msg"><div>${msg}</div></div>`);
+}
+function serverQualityLabel(h) { return h ? h + 'p' : 'Otomatis'; }
+function curServerHeight() {
+  if (W.hls && W.level >= 0 && W.levels[W.level]) return W.levels[W.level].h;
+  const v = W.video;
+  return v && v.videoHeight ? Math.min(v.videoWidth, v.videoHeight) : 0;
+}
+function setServerQuality(pref) {
+  storeSet('akpol_q', pref);
+  W.qualityMode = pref;
+  if (!W.hls) return;
+  if (pref === 'auto') { W.hls.currentLevel = -1; pToast('Kualitas: Otomatis'); return; }
+  const l = W.levels.find(x => x.h === Number(pref));
+  if (l) { W.hls.currentLevel = l.i; pToast('Kualitas: ' + serverQualityLabel(l.h)); }
 }
 
 function fallbackDrive(item) {
@@ -1854,7 +2298,7 @@ function updateVolUI() {
 function updateSpeedBadge() {
   const r = P.rate();
   const b = $('pSpeedBadge');
-  const hd = W.kind === 'native' && hasLow(W.item) && W.quality === 'hd';
+  const hd = W.kind === 'native' && (SERVER ? curServerHeight() >= 720 : hasLow(W.item) && W.quality === 'hd');
   b.textContent = r !== 1 ? r + 'x' : 'HD';
   b.style.display = r !== 1 || hd ? 'block' : 'none';
 }
@@ -1894,11 +2338,18 @@ function toggleSpeedMenu() {
 }
 function showMenu(page) {
   const m = $('pMenu'), cur = P.rate();
+  W.menuPage = page;
   const close = "$('pMenu').classList.remove('open')";
   const rateLbl = cur === 1 ? 'Normal' : cur + 'x';
   if (page === 'speed') {
     m.innerHTML = `<button class="p-menu-back" onclick="showMenu('main')">‹ Kecepatan pemutaran</button>` + SPEEDS.map(r =>
       `<button onclick="setRate(${r});${close}"><span class="chk">${r === cur ? '✓' : ''}</span>${r === 1 ? 'Normal' : r}</button>`).join('');
+  } else if (page === 'quality' && SERVER) {
+    const mode = String(W.qualityMode);
+    const opt = (val, label) => `<button onclick="setServerQuality('${val}');${close}"><span class="chk">${mode === String(val) ? '✓' : ''}</span>${label}</button>`;
+    m.innerHTML = `<button class="p-menu-back" onclick="showMenu('main')">‹ Kualitas</button>` +
+      [...W.levels].sort((a, b) => b.h - a.h).map(l => opt(l.h, serverQualityLabel(l.h) + (l.h >= 720 ? ' <sup class="hd-sup">HD</sup>' : ''))).join('') +
+      opt('auto', `Otomatis <span class="p-menu-val">(${serverQualityLabel(curServerHeight()) })</span>`);
   } else if (page === 'quality') {
     const mode = W.qualityMode;
     const opt = (val, label) => `<button onclick="setQualityPref('${val}');${close}"><span class="chk">${mode === val ? '✓' : ''}</span>${label}</button>`;
@@ -1906,7 +2357,9 @@ function showMenu(page) {
       opt('hd', '720p <sup class="hd-sup">HD</sup>') + opt('360', '360p') +
       opt('auto', `Otomatis <span class="p-menu-val">(${W.quality === '360' ? '360p' : '720p'})</span>`);
   } else {
-    const q = hasLow(W.item)
+    const sq = SERVER && W.levels.length > 1
+      ? `<button onclick="showMenu('quality')"><span class="p-menu-ic">🎚</span>Kualitas<span class="p-menu-val">${W.qualityMode === 'auto' ? 'Otomatis (' + serverQualityLabel(curServerHeight()) + ')' : serverQualityLabel(Number(W.qualityMode))} ›</span></button>` : '';
+    const q = SERVER ? sq : hasLow(W.item)
       ? `<button onclick="showMenu('quality')"><span class="p-menu-ic">🎚</span>Kualitas<span class="p-menu-val">${W.qualityMode === 'auto' ? 'Otomatis (' + (W.quality === '360' ? '360p' : '720p') + ')' : (W.quality === '360' ? '360p' : '720p')} ›</span></button>` : '';
     m.innerHTML = q + `<button onclick="showMenu('speed')"><span class="p-menu-ic">⏱</span>Kecepatan<span class="p-menu-val">${rateLbl} ›</span></button>`;
   }
@@ -2041,6 +2494,14 @@ function initWatch() {
 }
 initWatch();
 
+document.body.classList.add(SERVER ? 'mode-server' : 'mode-drive');
+if (SERVER) {
+  document.querySelectorAll('[data-srv]').forEach(el => { el.textContent = el.dataset.srv; });
+  loadScript(HLS_JS).catch(() => {}); // siapkan pemutar video lebih awal
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) schedulePoll(); });
+} else {
+  document.body.classList.add('is-admin');
+}
 document.querySelectorAll('.compress-chk').forEach(c => c.checked = compressOn());
 loadAndRender();
 </script>

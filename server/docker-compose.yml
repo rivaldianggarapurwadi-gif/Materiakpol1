@@ -1,0 +1,51 @@
+# Materi AKPOL — self-hosted server.  Start:  docker compose up -d --build
+# Settings live in .env (copy .env.example). Data lives in ${DATA_DIR} (default ./data).
+name: materi-akpol
+
+x-common: &common
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    DATA_DIR: /data
+    SERVE_STATIC: "0"
+  volumes:
+    - ${DATA_DIR:-./data}:/data
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "3" }
+
+services:
+  app:
+    <<: *common
+    build: { context: ., target: app }
+    image: materi-akpol-app:local
+
+  worker:
+    <<: *common
+    build: { context: ., target: worker }
+    image: materi-akpol-worker:local
+    init: true
+
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ..:/srv/site:ro                        # the repo: only index.html and vendor/ are served
+      - ${DATA_DIR:-./data}/media:/srv/media:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  caddy_data:
+  caddy_config:

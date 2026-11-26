@@ -1,5 +1,7 @@
 # Pasang server Google Drive (gratis, ±5 menit)
 
+> Ingin pakai **komputer sendiri** tanpa Google Drive? Lihat [server/PANDUAN.md](server/PANDUAN.md).
+
 Web ini menyimpan materi di **Google Drive** milikmu (gratis 15 GB, tanpa batas download bulanan).
 Daftar file & folder disimpan di **Google Sheet**. Penghubungnya adalah **Google Apps Script**.
 
@@ -34,7 +36,7 @@ Gunakan akun Google yang akan menjadi "pemilik" semua materi.
 Buka `index.html`, cari baris ini:
 
 ```js
-const API_URL = 'PASTE_URL_WEB_APP_DI_SINI';
+const DRIVE_API_URL = 'PASTE_URL_WEB_APP_DI_SINI';
 ```
 
 Ganti dengan URL dari langkah 3, simpan, lalu upload/commit `index.html` seperti biasa. Selesai ✅
