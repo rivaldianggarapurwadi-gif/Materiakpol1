@@ -81,3 +81,22 @@ Agar semua fitur aktif, perbarui server sekali (URL tidak berubah):
 Sebelum diperbarui, web tetap berfungsi: video tetap dikompres (720p), hanya saja upload masih lewat jalur lama dan belum ada versi 360p.
 
 Catatan: video yang diupload **sebelum** update ini tidak dikompres. Untuk hasil terbaik, hapus lalu upload ulang video besar.
+
+## Update: upload video LANGSUNG lewat Google Drive (versi server 3)
+
+Untuk video besar, upload lewat Google Drive jauh lebih stabil daripada lewat web (bisa dilanjutkan otomatis bila koneksi putus, dan bisa ditinggal).
+
+**Perbarui server sekali** (URL tidak berubah):
+1. Ganti seluruh isi `Code.gs` dengan versi terbaru dari [`apps-script/Code.gs`](apps-script/Code.gs), klik 💾.
+2. **Deploy → Manage deployments → ✏️ → Version: New version → Deploy**.
+
+**Cara pakai:**
+1. Di web, buka **Upload**, lalu buat/pilih folder kursus (mis. `Hukum Pidana`). Folder yang sama otomatis dibuat di Google Drive, di dalam folder **"Materi AKPOL (jangan dihapus)"**.
+2. Klik **Buka folder "…" di Google Drive ↗**, lalu seret video ke folder itu (atau pakai aplikasi Google Drive di HP/laptop). Tunggu sampai upload selesai.
+3. Kembali ke web, klik **🔄 Ambil file baru dari Drive**. Video langsung muncul di halaman **Kursus**. (Web juga memeriksa Drive otomatis setiap dibuka.)
+
+Catatan:
+- Subfolder baru yang dibuat langsung di Drive juga muncul sebagai folder kursus di web.
+- Folder Drive hanya bisa dibuka akun Google pemilik web. Agar pengajar lain bisa upload lewat Drive, bagikan folder "Materi AKPOL (jangan dihapus)" ke akun mereka sebagai **Editor**.
+- Video yang diupload lewat Drive disimpan dalam kualitas aslinya (tidak dikompres). Agar lancar ditonton di HP, sebaiknya rekam/ekspor video dalam 720p.
+- Jangan ubah nama atau hapus file "Materi AKPOL - Database" di folder tersebut.

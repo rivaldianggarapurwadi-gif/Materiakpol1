@@ -428,6 +428,12 @@
   .p-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; color: rgba(255,255,255,0.85); font-size: 14px; line-height: 1.6; z-index: 2; background: #000; }
   .login-err { color: #dc2626; font-size: 13px; min-height: 18px; margin-top: 6px; }
 
+.drive-box { margin:20px 0 4px; padding:18px 20px; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+.drive-box h3 { font-size:16px; margin-bottom:6px; }
+.drive-box ol { margin:10px 0 0 20px; line-height:1.8; color:var(--text-sec); font-size:14px; }
+.drive-box .upload-actions { margin:14px 0 6px; }
+.drive-note { font-size:12px; color:var(--text-muted); }
+
 /* Course catalogue, focused lessons, and a separate upload route. */
 [hidden] { display:none!important; }
 .nav-link[aria-current="page"] { outline:2px solid #7b9471; outline-offset:3px; }
@@ -517,6 +523,20 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
     <h2>Tambahkan materi belajar</h2>
     <p>Pilih folder di bawah sebagai tujuan upload. Video dalam folder yang sama akan tampil sebagai satu kursus. Gunakan nama seperti “01 Pengantar” untuk mengatur urutan pelajaran.</p>
     <div class="upload-actions"><button class="btn" onclick="showNewFolderModal()">Buat folder kursus</button><button class="btn" onclick="showVideoModal()">Tambah video / link YouTube</button></div>
+    <div class="drive-box" id="driveBox" hidden>
+      <h3>📁 Video besar? Upload lewat Google Drive</h3>
+      <p>Lebih stabil untuk file besar: upload tetap jalan walau koneksi putus-sambung, dan bisa ditinggal.</p>
+      <ol>
+        <li>Buka folder Google Drive di bawah (folder kursus yang sedang dipilih).</li>
+        <li>Seret video ke sana, atau pakai aplikasi <b>Google Drive</b> di HP / laptop. Tunggu sampai selesai.</li>
+        <li>Kembali ke sini dan klik <b>Ambil file baru dari Drive</b>. File juga muncul otomatis setiap web dibuka.</li>
+      </ol>
+      <div class="upload-actions">
+        <a class="btn primary" id="driveOpenBtn" target="_blank" rel="noopener">Buka folder di Google Drive ↗</a>
+        <button class="btn" id="driveSyncBtn" onclick="syncFromDrive(true)">🔄 Ambil file baru dari Drive</button>
+      </div>
+      <p class="drive-note">Folder Drive hanya bisa dibuka akun Google pemilik web (dan akun yang diberi akses <b>Editor</b> ke folder “Materi AKPOL (jangan dihapus)”).</p>
+    </div>
     <p class="destination-label">Tujuan upload</p>
   </section>
   <div class="breadcrumb" id="breadcrumb"></div>
@@ -870,6 +890,7 @@ function sortItems(list) {
 async function dbSelect() {
   const d = await apiCall(fetch(API_URL + '?action=list', SERVER ? { cache: 'no-store' } : undefined));
   serverVersion = d.version || 1;
+  driveRootId = d.drive_folder || null;
   if (SERVER) setAdmin(!!d.admin, d.user);
   return sortItems(d.items);
 }
@@ -973,6 +994,7 @@ async function loadAndRender() {
     allItems = await dbSelect();
     renderBreadcrumb(); renderStats(); renderFiles();
     schedulePoll();
+    if (!SERVER && serverVersion >= 3) syncFromDrive(false);
     const m = location.hash.match(/^#v=(.+)$/);
     if (m && allItems.some(i => i.id === decodeURIComponent(m[1]))) openWatch(decodeURIComponent(m[1]), false);
   } catch(e) {
@@ -1098,7 +1120,44 @@ function videoSrcBadge(v) {
   return h >= 720 ? `<span class="video-src drive">${h >= 1080 ? '1080p' : '720p'} HD</span>` : '';
 }
 
+// ——— Upload lewat Google Drive (mode Drive, server v3) ———
+let driveRootId = null, syncing = false;
+function renderDriveBox() {
+  const box = document.getElementById('driveBox');
+  if (!box) return;
+  const show = !SERVER && currentView === 'upload' && serverVersion >= 3 && !!driveRootId;
+  box.hidden = !show;
+  if (!show) return;
+  const cur = currentFolderId() ? allItems.find(i => i.id === currentFolderId()) : null;
+  const id = (cur && cur.drive_id) || driveRootId;
+  const btn = document.getElementById('driveOpenBtn');
+  btn.href = 'https://drive.google.com/drive/folders/' + encodeURIComponent(id);
+  btn.textContent = 'Buka folder “' + (cur ? cur.name : 'Materi AKPOL') + '” di Google Drive ↗';
+}
+async function syncFromDrive(manual) {
+  if (SERVER || syncing) return;
+  syncing = true;
+  const btn = document.getElementById('driveSyncBtn');
+  if (manual && btn) { btn.disabled = true; btn.textContent = '⏳ Memeriksa Google Drive...'; }
+  try {
+    const r = await apiPost('syncDrive', { force: !!manual });
+    if (r.added > 0 || manual) {
+      allItems = await dbSelect();
+      renderBreadcrumb(); renderStats(); renderFiles();
+    }
+    if (r.added > 0) toast(r.added + ' file baru dari Google Drive ditambahkan');
+    else if (manual) toast('Tidak ada file baru di Google Drive');
+    if (r.partial) toast('Masih ada file lain — klik "Ambil file baru dari Drive" lagi');
+  } catch (e) {
+    if (manual) toast('Gagal memeriksa Google Drive: ' + e.message, 'error');
+  } finally {
+    syncing = false;
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Ambil file baru dari Drive'; }
+  }
+}
+
 function renderFiles() {
+  renderDriveBox();
   if (currentView === 'videos') return renderVideos();
   const items = getVisible();
   const body = document.getElementById('fileListBody');
@@ -1223,6 +1282,7 @@ const DIRECT_CHUNK = 32 * 1024 * 1024; // kelipatan 256 KB
 let serverVersion = 1;   // diisi dari respon "list"
 let directUpload = null; // null = belum dicoba, false = diblokir browser → lewat Apps Script
 let uploading = false;
+let uploadFolderId = null; // folder tujuan upload yang sedang berjalan (file ditaruh di folder Drive yang sama)
 
 const COMPRESS_KEY = SERVER ? 'akpol_compress_srv' : 'akpol_compress';
 function compressOn() { return store(COMPRESS_KEY, !SERVER); }
@@ -1240,6 +1300,7 @@ async function handleFiles(fileInput) {
   const pl = document.getElementById('progressLabel');
   pw.style.display = 'block';
   const folderId = currentView === 'videos' ? null : currentFolderId();
+  uploadFolderId = folderId;
   const dz = document.getElementById('dropZone');
   const dzWasHidden = dz.style.display === 'none';
   if (dzWasHidden) dz.style.display = '';
@@ -1319,7 +1380,7 @@ window.addEventListener('beforeunload', e => { if (uploading) { e.preventDefault
 // Upload satu file ke Drive. Hasil: { drive_id } (server v2) atau { item } (server lama).
 async function uploadBlob(blob, name, mime, onProgress) {
   if (serverVersion >= 2 && directUpload !== false) {
-    const { session } = await apiPost('startUpload', { name, mime, size: blob.size, origin: location.origin });
+    const { session } = await apiPost('startUpload', { name, mime, size: blob.size, origin: location.origin, folder_id: uploadFolderId });
     try {
       const id = await directPut(session, blob, onProgress);
       directUpload = true;
@@ -1331,14 +1392,14 @@ async function uploadBlob(blob, name, mime, onProgress) {
       toast('Upload langsung ke Google Drive ditolak — memakai jalur server (lebih lambat)', 'error');
     }
   }
-  const { session } = await apiPost('startUpload', { name, mime, size: blob.size });
+  const { session } = await apiPost('startUpload', { name, mime, size: blob.size, folder_id: uploadFolderId });
   let start = 0;
   let nextData = blobToBase64(blob.slice(0, CHUNK));
   do {
     const part = blob.slice(start, start + CHUNK);
     const data = await nextData;
     if (start + part.size < blob.size) nextData = blobToBase64(blob.slice(start + part.size, start + part.size + CHUNK));
-    const res = await apiPost('uploadChunk', { session, start, total: blob.size, data, name, mime, folder_id: currentView === 'videos' ? null : currentFolderId(), register: serverVersion >= 2 ? false : undefined });
+    const res = await apiPost('uploadChunk', { session, start, total: blob.size, data, name, mime, folder_id: uploadFolderId, register: serverVersion >= 2 ? false : undefined });
     start += part.size;
     onProgress(start);
     if (res.done) return res.item ? { item: res.item } : { drive_id: res.drive_id };

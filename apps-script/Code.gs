@@ -10,7 +10,7 @@
 
 const SHEET_NAME = 'items';
 const HEADERS = ['id', 'name', 'is_folder', 'folder_id', 'size', 'mime', 'drive_id', 'created_at', 'url', 'variants'];
-const API_VERSION = 2; // 2 = upload langsung ke Drive + versi video 360p
+const API_VERSION = 3; // 2 = upload langsung ke Drive + versi 360p; 3 = sinkron dengan folder Google Drive
 
 // ——— Jalankan sekali dari editor (pilih "setup" lalu klik Run) ———
 function setup() {
@@ -22,7 +22,7 @@ function setup() {
 function doGet(e) {
   return handle_(() => {
     const action = (e && e.parameter && e.parameter.action) || 'list';
-    if (action === 'list') return { version: API_VERSION, items: readAll_(getStore_().sheet) };
+    if (action === 'list') { const st = getStore_(); return { version: API_VERSION, drive_folder: st.folderId, items: readAll_(st.sheet) }; }
     throw new Error('Aksi tidak dikenal: ' + action);
   });
 }
@@ -38,6 +38,7 @@ function doPost(e) {
       case 'move':         return moveItem_(b);
       case 'addLink':      return addLink_(b);
       case 'finishUpload': return finishUpload_(b);
+      case 'syncDrive':    return syncDrive_(b);
       default: throw new Error('Aksi tidak dikenal: ' + b.action);
     }
   });
@@ -54,8 +55,12 @@ function handle_(fn) {
 function createFolder_(b) {
   const name = String(b.name || '').trim();
   if (!name) throw new Error('Nama folder kosong');
-  const item = { id: uid_(), name: name, is_folder: true, folder_id: b.folder_id || null, size: 0, mime: '', drive_id: '', created_at: new Date().toISOString() };
-  withLock_(() => appendItem_(getStore_().sheet, item));
+  const store = getStore_();
+  // Folder yang sama juga dibuat di Google Drive, supaya video bisa diupload langsung lewat Drive
+  const parent = driveFolderFor_(store, readAll_(store.sheet), b.folder_id || null);
+  const df = parent.createFolder(name);
+  const item = { id: uid_(), name: name, is_folder: true, folder_id: b.folder_id || null, size: 0, mime: '', drive_id: df.getId(), created_at: new Date().toISOString() };
+  withLock_(() => appendItem_(store.sheet, item));
   return { item: item };
 }
 
@@ -83,7 +88,7 @@ function startUpload_(b) {
   const res = UrlFetchApp.fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
     method: 'post',
     contentType: 'application/json; charset=UTF-8',
-    payload: JSON.stringify({ name: b.name, mimeType: mime, parents: [store.folderId] }),
+    payload: JSON.stringify({ name: b.name, mimeType: mime, description: WEB_UPLOAD_TAG, parents: [driveFolderFor_(store, readAll_(store.sheet), b.folder_id || null).getId()] }),
     headers: headers,
     muteHttpExceptions: true
   });
@@ -139,7 +144,7 @@ function finishUpload_(b) {
     if (registered[id]) throw new Error('File sudah terdaftar');
     const f = DriveApp.getFileById(id);
     // hanya file di folder materi yang boleh didaftarkan
-    if (!f.getParents().hasNext() || f.getParents().next().getId() !== store.folderId) throw new Error('File tidak valid');
+    if (!inAppTree_(f, store.folderId)) throw new Error('File tidak valid');
     f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   });
   const main = DriveApp.getFileById(String(b.drive_id));
@@ -166,6 +171,10 @@ function deleteItem_(b) {
     }
     items.forEach(i => {
       if (!ids[i.id]) return;
+      if (i.is_folder) {
+        if (i.drive_id) try { DriveApp.getFolderById(i.drive_id).setTrashed(true); } catch (err) { /* sudah terhapus */ }
+        return;
+      }
       const files = [i.drive_id].concat(Object.keys(i.variants || {}).map(k => i.variants[k])).filter(Boolean);
       files.forEach(f => { try { DriveApp.getFileById(f).setTrashed(true); } catch (err) { /* sudah terhapus */ } });
     });
@@ -183,8 +192,106 @@ function moveItem_(b) {
     const row = findRow_(sheet, b.id);
     if (!row) throw new Error('Item tidak ditemukan');
     sheet.getRange(row, 4).setValue(b.folder_id || '');
+    // Pindahkan juga di Google Drive (tidak wajib berhasil)
+    try {
+      const store = getStore_();
+      const items = readAll_(sheet);
+      const it = items.find(i => i.id === b.id);
+      const target = driveFolderFor_(store, items, b.folder_id || null);
+      if (it && it.drive_id) (it.is_folder ? DriveApp.getFolderById(it.drive_id) : DriveApp.getFileById(it.drive_id)).moveTo(target);
+    } catch (err) { /* abaikan */ }
     return {};
   });
+}
+
+// ——— Sinkron dengan Google Drive ———
+// File yang diupload LANGSUNG ke folder "Materi AKPOL (jangan dihapus)" di Google Drive (web / aplikasi Drive)
+// otomatis muncul di web. Subfolder Drive = folder kursus di web.
+function syncDrive_(b) {
+  const p = PropertiesService.getScriptProperties();
+  const last = Number(p.getProperty('LAST_SYNC') || 0);
+  if (!(b && b.force) && Date.now() - last < 60 * 1000) return { added: 0, skipped: true };
+  return withLock_(() => {
+    p.setProperty('LAST_SYNC', String(Date.now()));
+    const store = getStore_();
+    const started = Date.now();
+    let items = readAll_(store.sheet);
+    // 1) Folder web yang belum punya folder Drive → buat (induk dulu)
+    let pending = items.filter(i => i.is_folder && !i.drive_id);
+    for (let guard = 0; pending.length && guard < 50; guard++) {
+      pending.forEach(f => {
+        const parent = f.folder_id ? items.find(i => i.id === f.folder_id) : null;
+        if (parent && !parent.drive_id) return; // induk belum punya, tunggu putaran berikutnya
+        const df = (parent ? DriveApp.getFolderById(parent.drive_id) : DriveApp.getFolderById(store.folderId)).createFolder(f.name);
+        f.drive_id = df.getId();
+        const row = findRow_(store.sheet, f.id);
+        if (row) store.sheet.getRange(row, 7).setValue(f.drive_id);
+      });
+      pending = pending.filter(f => !f.drive_id);
+    }
+    // 2) Telusuri Drive, daftarkan yang baru
+    const known = {};
+    items.forEach(i => {
+      if (i.drive_id) known[i.drive_id] = i;
+      Object.keys(i.variants || {}).forEach(k => known[i.variants[k]] = i);
+    });
+    const sheetId = PropertiesService.getScriptProperties().getProperty('SHEET_ID');
+    let added = 0, timedOut = false;
+    const walk = (folder, siteFolderId) => {
+      const subs = folder.getFolders();
+      while (subs.hasNext()) {
+        const sub = subs.next();
+        if (sub.isTrashed()) continue;
+        let it = known[sub.getId()];
+        if (!it) {
+          it = { id: uid_(), name: sub.getName(), is_folder: true, folder_id: siteFolderId, size: 0, mime: '', drive_id: sub.getId(), created_at: sub.getDateCreated().toISOString() };
+          appendItem_(store.sheet, it); known[it.drive_id] = it; added++;
+        }
+        if (it.is_folder) walk(sub, it.id);
+      }
+      const files = folder.getFiles();
+      while (files.hasNext()) {
+        if (Date.now() - started > 25000) { timedOut = true; return; }
+        const f = files.next();
+        const id = f.getId();
+        if (known[id] || id === sheetId || f.isTrashed()) continue;
+        const mime = f.getMimeType();
+        if (/^application\/vnd\.google-apps\./.test(mime)) continue; // Google Docs/Sheets tidak didukung
+        // Upload lewat web didaftarkan sendiri oleh finishUpload — jangan didahului (kecuali sudah lama terbengkalai)
+        if (f.getDescription() === WEB_UPLOAD_TAG && Date.now() - f.getDateCreated().getTime() < 60 * 60 * 1000) continue;
+        try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (err) { /* kebijakan domain */ }
+        const it = { id: uid_(), name: f.getName(), is_folder: false, folder_id: siteFolderId, size: f.getSize(), mime: mime, drive_id: id, created_at: f.getDateCreated().toISOString() };
+        appendItem_(store.sheet, it); known[id] = it; added++;
+      }
+    };
+    walk(DriveApp.getFolderById(store.folderId), null);
+    return { added: added, partial: timedOut };
+  });
+}
+
+const WEB_UPLOAD_TAG = 'akpol-web-upload';
+
+// Folder Drive untuk folder web (null = folder utama). Dibuat bila belum ada.
+function driveFolderFor_(store, items, siteFolderId) {
+  if (!siteFolderId) return DriveApp.getFolderById(store.folderId);
+  const it = items.find(i => i.id === siteFolderId);
+  if (!it) return DriveApp.getFolderById(store.folderId);
+  if (it.drive_id) { try { return DriveApp.getFolderById(it.drive_id); } catch (err) { /* dihapus di Drive → buat ulang */ } }
+  const df = driveFolderFor_(store, items, it.folder_id).createFolder(it.name);
+  it.drive_id = df.getId();
+  const row = findRow_(store.sheet, it.id);
+  if (row) store.sheet.getRange(row, 7).setValue(it.drive_id);
+  return df;
+}
+
+function inAppTree_(fileOrFolder, rootId) {
+  let parents = fileOrFolder.getParents();
+  for (let depth = 0; depth < 20 && parents.hasNext(); depth++) {
+    const p = parents.next();
+    if (p.getId() === rootId) return true;
+    parents = p.getParents();
+  }
+  return false;
 }
 
 // ——— Storage helpers ———
