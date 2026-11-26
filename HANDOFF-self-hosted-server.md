@@ -2,7 +2,17 @@
 
 > **Ringkasan (ID):** Pemilik web ingin berhenti bergantung pada Google Drive dan memakai **server sendiri** (komputer disiapkan pemilik). Dokumen ini menjelaskan kondisi web saat ini, rancangan server sendiri, langkah kerja, dan hal yang masih harus ditanyakan ke pemilik sebelum mulai.
 
-Status: **in progress.** The owner answered the key questions in §7 on 2026-11-26; implementation lives in `server/`.
+Status: **built and tested, not yet installed on the owner's machine.** The owner answered the key questions in §7 on 2026-11-26. Phases 1–6 of §9 are implemented in `server/` (owner guide: `server/PANDUAN.md`). Remaining: install on the real hardware, run the Drive migration there, pick the public-access route (§5) once the ISP/CGNAT answer is known.
+
+### Implementation notes (2026-11-26)
+
+- **Layout:** `server/src/` — `app.js` (Express API + tus at `/api/upload`), `worker.js` (job queue in SQLite), `media.js` (FFmpeg/LibreOffice), `migrate.js`, `cli.js`. Docker Compose runs `caddy`, `app`, `worker`; Intel/NVIDIA overrides are selected by `install.sh` through `COMPOSE_FILE` in `.env`.
+- **API** keeps the §2.2 contract at `GET/POST /api` (POST now JSON, same-origin, admin cookie). New actions: `login`, `logout`, `me`, `rename`, `uploadedItem`, `retry`. Items gain `src`, `thumb`, `hls`, `preview`, `status`, `progress`, `duration`, `width`, `height`. `version` is 3.
+- **Frontend** keeps both backends: `config.js` in the repo sets `AKPOL_SERVER = false` (GitHub Pages → Drive); Caddy/the app answer `/config.js` with `true`. hls.js, tus-js-client and pdf.js are vendored in `vendor/` so a LAN without internet works.
+- **Video:** HLS (MPEG-TS, 4 s segments) with rungs ≤ the source's short side, so portrait phone videos get the right ladder. Hardware encoder auto-detected (NVENC → VAAPI → QSV), libx264 fallback, and a failed hardware encode retries on libx264. The original file plays while processing.
+- **Deleting** moves originals to `data/trash/` (purged after `TRASH_DAYS`); generated media is removed.
+- **Tests:** `npm test` (API, auth, uploads, real FFmpeg/LibreOffice processing, migration with a fake Drive) and `test/e2e-browser.cjs` (Playwright: login, uploads, pdf.js, HLS playback and the quality menu, phone layout). Both pass; the Docker stack was also tested end to end (Caddy headers, resumed tus upload, worker restart mid-transcode, backup/restore with `reprocess --missing`).
+- **Not verified:** hardware encoders (no GPU in the test environment) and the real Drive migration (the test environment could not reach `script.google.com`); run `migrate-drive --dry-run` on the owner's server first.
 
 ---
 
@@ -234,6 +244,7 @@ Original questions:
 | Phase | Deliverable | Done when |
 |---|---|---|
 | 0 | Owner answers §7; hardware confirmed | Answers recorded in this file (done, except hardware and network details) |
+| — | **Status 2026-11-26:** phases 1–6 below are implemented and tested; installation on the owner's hardware is next | |
 | 1 | `server/` folder: Docker Compose (Caddy + app + worker), SQLite schema, `/api/items`, folders, move, delete, login | `docker compose up` on a clean Ubuntu VM serves the current UI against the new API with an empty library |
 | 2 | tus uploads plus static file serving with range requests; image thumbs; PDF/Office preview via LibreOffice | Upload a 2 GB file over LAN; it resumes after the network is unplugged mid-upload; PDF/DOCX preview works |
 | 3 | FFmpeg HLS pipeline (hardware encode with libx264 fallback), poster frames, processing status | A 1080p phone video becomes a 4-rung HLS ladder; the gallery shows a poster |

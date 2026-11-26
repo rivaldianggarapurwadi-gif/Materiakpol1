@@ -13,8 +13,8 @@ const HELP = `Materi AKPOL — perintah admin
   remove-admin <nama>       Hapus admin
   list-admins               Daftar admin
   backup [file]             Salin database ke file (bawaan: data/backups/akpol-<tanggal>.sqlite)
-  reprocess <id|--failed|--all-videos>
-                            Proses ulang file (mis. setelah memasang GPU / jika gagal)
+  reprocess <id|--failed|--missing|--all-videos>
+                            Proses ulang file (gagal / hasil proses hilang setelah pemulihan / semua video)
   migrate-drive [URL]       Pindahkan semua materi dari Google Drive (URL Web App Apps Script)
   purge-trash [hari]        Hapus permanen isi sampah yang lebih lama dari [hari] (bawaan ${config.trashDays})
   status                    Ringkasan: jumlah materi, antrean proses, sisa disk
@@ -82,8 +82,20 @@ async function main([cmd, ...args]) {
       let list;
       if (sel === '--failed') list = db.prepare("SELECT * FROM items WHERE status = 'failed'").all();
       else if (sel === '--all-videos') list = items.all().filter(i => !i.is_folder && i.file && kindOf(i.name, i.mime) === 'video');
+      else if (sel === '--missing') {
+        // after restoring a backup: generated media (HLS, thumbnails, previews) isn't backed up
+        const gone = rel => !rel || !fs.existsSync(path.join(config.mediaDir, rel));
+        list = items.all().filter(i => {
+          const kind = !i.is_folder && i.file && kindOf(i.name, i.mime);
+          if (!kind || i.status === 'processing') return false;
+          if (kind === 'video') return gone(i.hls);
+          if (kind === 'office') return gone(i.preview);
+          return gone(i.thumb);
+        });
+        for (const i of list) items.update(i.id, { hls: null, thumb: null, preview: null });
+      }
       else if (sel) list = [items.get(sel)].filter(Boolean);
-      else throw new Error('Pakai: reprocess <id|--failed|--all-videos>');
+      else throw new Error('Pakai: reprocess <id|--failed|--missing|--all-videos>');
       let n = 0;
       for (const it of list) {
         const kind = it.file && kindOf(it.name, it.mime);
