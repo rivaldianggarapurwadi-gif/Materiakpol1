@@ -408,51 +408,6 @@
     .tab { padding: 10px 10px; font-size: 13px; }
   }
 
-/* Pastoral learning space */
-:root { --navy:#383838; --navy-mid:#555b50; --gold:#e7d998; --gold-light:#f3e8bb; --gold-bg:#f7f4e8; --gold-border:#dcd4b6; --bg:#f5f5f2; --surface:#fbfbf8; --border:#e7e7e3; --border-strong:#cecec7; --text:#4f4d4c; --text-sec:#646261; --text-muted:#8e8c8b; --accent:#55765a; --accent-bg:#eff2eb; --accent-border:#d5dfcf; }
-html { scroll-behavior:smooth; scroll-padding-top:100px; }
-body { font-family:Inter,'Segoe UI',Arial,sans-serif; }
-header { height:80px; background:rgba(245,245,242,.95); border-bottom:1px solid #e8e7e6; box-shadow:none; padding:0 max(24px,calc((100vw - 1280px)/2)); backdrop-filter:blur(16px); }
-.logo-title { color:#383838; font-family:Georgia,serif; font-size:21px; font-weight:400; }
-.logo-sub { color:#8e8c8b; font-size:9px; margin-top:5px; }
-.logo-emblem { background:transparent; color:#55765a; font-size:35px; border-radius:0; width:32px; }
-.btn { min-height:41px; border-radius:8px; background:#f5f5f2; box-shadow:inset 0 2px 0 #fff,0 2px 3px #00000008; font-weight:400; padding:0 14px; text-decoration:none; justify-content:center; }
-.btn.gold,.btn.primary { background:linear-gradient(#4f4f4f,#30322f); color:#fff; border-color:#383838; box-shadow:inset 0 2px 0 #ffffff30,0 3px 4px #00000020; }
-.btn.gold:hover,.btn.primary:hover { background:#51594d; }
-.header-actions .btn.red { background:#f5f5f2; color:#4f4d4c; border-color:#cecec7; }
-.hero { position:relative; min-height:670px; padding:90px max(32px,calc((100vw - 1170px)/2)); text-align:left; border:0; background:#79bdeb url('assets/learning-landscape.svg') center bottom/cover no-repeat; image-rendering:pixelated; }
-.hero-copy { position:relative; z-index:1; max-width:640px; }
-.hero .hero-kicker { font:11px/1.5 ui-monospace,monospace; letter-spacing:.14em; color:#244d67; margin-bottom:20px; }
-.hero h1 { font-size:46px; line-height:1.1; font-weight:400; color:#fff; letter-spacing:-.02em; margin-bottom:20px; text-shadow:0 1px 12px #365a7230; }
-.hero p { font-size:15px; line-height:1.65; color:#244d67; }
-.hero-actions { display:flex; gap:12px; margin-top:26px; }
-.hero-secondary { background:#ffffff25; border-color:#ffffff70; box-shadow:inset 0 1px #ffffff40; color:#244d67; }
-.scene-caption { position:absolute; bottom:28px; left:max(32px,calc((100vw - 1170px)/2)); font:11px ui-monospace,monospace; letter-spacing:.08em; color:#f5f5f2; }
-.container { max-width:1100px; padding:78px 24px 96px; }
-.library-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:40px; }
-.eyebrow { font:11px/1.5 ui-monospace,monospace; letter-spacing:.12em; color:#8e8c8b; margin-bottom:16px; }
-.library-heading h2 { font-size:38px; line-height:1.15; font-weight:400; }
-.library-heading h2 span { color:#8e8c8b; }
-.library-heading>p { font-size:14px; line-height:1.65; color:#8e8c8b; }
-.tabs { border-bottom:1px solid var(--border); padding-bottom:12px; }
-.tab.active { color:#4f4d4c; background:#fbfbf8; border-color:#cecec7; box-shadow:inset 0 2px #fff,0 2px 3px #00000008; }
-.upload-zone { background:#f1f1ee; border:1px dashed #c9cec2; padding:24px; }
-.upload-icon { border-radius:8px; background:#fbfbf8; border-color:#deded6; box-shadow:inset 0 2px #fff,0 2px 3px #00000008; }
-.file-list { box-shadow:inset 0 2px #fff,0 0 0 4px #e8e7e652; }
-.file-list-header { background:#efefeb; color:#8e8c8b; border-bottom:1px solid var(--border); padding-top:15px; padding-bottom:15px; font-weight:400; }
-.file-item { min-height:68px; }
-.file-item:hover { background:#f3f4ee; }
-.file-item:focus-within .file-actions { opacity:1; }
-.search-box { min-height:44px; }
-button:focus-visible,a:focus-visible,input:focus-visible { outline:2px solid #3778ac; outline-offset:3px; }
-@media(max-width:700px) {
- header { height:72px; padding:0 16px; }.logo-title { font-size:18px; }.logo-sub { font-size:8px; }.header-actions { gap:5px; }.header-actions .btn { padding:0 10px; }.header-actions .lbl { display:none; }
- .hero { min-height:610px; padding:48px 24px; background-size:auto 610px; background-position:58% bottom; }.hero h1 { font-size:34px; color:#244d67; text-shadow:none; }.hero p { font-size:14px; }.hero p br { display:none; }.hero-actions { flex-wrap:wrap; gap:8px; }.hero-actions .btn { font-size:12px; }.scene-caption { left:24px; }
- .container { padding:48px 16px 64px; }.library-heading { display:block; }.library-heading h2 { font-size:30px; }.library-heading>p { margin-top:18px; }.library-heading>p br { display:none; }.tab { font-size:12px; }.upload-zone { padding:22px 14px; }
-}
-@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none!important; animation:none!important; } }
-
-
 /* Course catalogue, focused lessons, and a separate upload route. */
 [hidden] { display:none!important; }
 .nav-link[aria-current="page"] { outline:2px solid #7b9471; outline-offset:3px; }
@@ -464,7 +419,7 @@ body[data-page="files"] .file-actions { display:none; }
 .upload-actions,.lesson-actions { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0; }
 .upload-tools .destination-label { margin-top:24px; font-weight:600; }
 .course-card { overflow:hidden; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:0 3px 10px #38383806; }
-.course-cover { display:block; position:relative; aspect-ratio:16/9; background:#dbe5d5 url('assets/learning-landscape.svg') center/cover; overflow:hidden; }
+.course-cover { display:block; position:relative; aspect-ratio:16/9; background:#edf8e4; overflow:hidden; }
 .course-cover img { width:100%;height:100%;object-fit:cover; }
 .course-cover-label { position:absolute;bottom:12px;left:12px;background:#fbfbf8;padding:6px 10px;border-radius:6px;font-size:12px;color:var(--text); }
 .course-play { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:12px 16px;border-radius:50%;background:#fbfbf8e8;color:#3f5942; }
@@ -491,12 +446,13 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 @media(max-width:700px) { .video-grid { grid-template-columns:1fr; }.library-heading > p { max-width:100%; } }
 
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 <body>
 
 <header>
   <div class="logo">
-    <div class="logo-emblem" aria-hidden="true">▥</div>
+    <div class="logo-emblem" aria-hidden="true"><span></span></div>
     <div>
       <div class="logo-title">Materi AKPOL</div>
       <div class="logo-sub">Akademi Kepolisian RI</div>
@@ -510,17 +466,20 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 </header>
 
 <section class="hero" aria-labelledby="heroTitle">
+  <img class="hero-art" src="assets/learning-buddy.svg" width="520" height="460" alt="Karakter buku ceria bersama simbol video dan belajar">
   <div class="hero-copy">
     <p class="hero-kicker">RUANG BELAJAR TARUNA</p>
-    <h1 id="heroTitle">Bekal ilmu hari ini.<br>Siap mengabdi esok hari.</h1>
-    <p>Temukan materi, pelajari bersama, dan bagikan pengetahuan.<br>Satu ruang untuk perjalanan belajar taruna AKPOL.</p>
-    <div class="hero-actions"><a class="btn" href="#library">Jelajahi materi</a><button class="btn hero-secondary" onclick="setView('videos')">Video pembelajaran</button></div>
+    <h1 id="heroTitle">Langkah kecil hari ini.<br>Bekal besar untuk mengabdi.</h1>
+    <p>Materi dan video untuk menemani belajarmu. <br>Pilih topik, mulai belajar, dan maju bersama.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="?page=courses">Mulai belajar</a>
+      <a class="btn" href="#library">Jelajahi materi</a>
+    </div>
   </div>
-  <span class="scene-caption">Belajar. Berbagi. Mengabdi.</span>
 </section>
 
 <div class="container" id="library">
-  <div class="library-heading"><div><p class="eyebrow">PERPUSTAKAAN BERSAMA</p><h2>Semua bekal belajar.<br><span>Dalam satu tempat.</span></h2></div><p>Buka materi pilihanmu atau tambahkan<br>pengetahuan untuk teman satu angkatan.</p></div>
+  <div class="library-heading"><div><p class="eyebrow">PERPUSTAKAAN BERSAMA</p><h2>temukan bekal belajarmu.<br><span>Satu topik, satu langkah maju.</span></h2></div><p>Buka materi pilihanmu atau tambahkan<br>pengetahuan untuk teman satu angkatan.</p></div>
 
   <div class="tabs" hidden>
     <button class="tab active" id="tabFiles" onclick="setView('files')">📄 Materi</button>
@@ -640,7 +599,7 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
     <button class="w-icon" onclick="closeWatch()" title="Kembali (Esc)" aria-label="Kembali">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     </button>
-    <div class="wt-title"><div class="logo-emblem" aria-hidden="true">▥</div><span>Kembali ke daftar kursus</span></div>
+    <div class="wt-title"><div class="logo-emblem" aria-hidden="true"><span></span></div><span>Kembali ke daftar kursus</span></div>
   </div>
   <div class="watch-main">
     <div class="watch-primary">
@@ -679,7 +638,7 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
         <p id="lessonPosition" class="eyebrow"></p><h1 class="watch-title" id="wTitle"></h1><div class="lesson-actions"><button class="btn" id="previousLesson" onclick="previousLesson()">Pelajaran sebelumnya</button><button class="btn primary" id="completeLesson" onclick="toggleLessonComplete()">Tandai selesai</button><button class="btn" id="nextLesson" onclick="playNext()">Pelajaran berikutnya</button></div>
         <div class="watch-row">
           <div class="watch-chan">
-            <div class="logo-emblem" aria-hidden="true">▥</div>
+            <div class="logo-emblem" aria-hidden="true"><span></span></div>
             <div><b>Materi AKPOL</b><span id="wFolder"></span></div>
           </div>
           <button class="w-pill" onclick="shareVideo()"><svg viewBox="0 0 24 24"><path d="M15 5.63 20.66 12 15 18.37V14h-1c-3.96 0-7.14 1-9.75 3.09 1.84-4.07 5.11-6.4 9.89-7.1l.86-.13V5.63M14 3v6C6.22 10.13 3.11 15.33 2 21c2.78-3.97 6.44-6 12-6v6l8-9-8-9z"/></svg>Bagikan</button>
@@ -907,7 +866,8 @@ function configurePage() {
   if (isVideo || isUpload) {
     const heading = document.querySelector('.library-heading');
     heading.querySelector('.eyebrow').textContent = isVideo ? 'RUANG BELAJAR' : 'BERBAGI PENGETAHUAN';
-    heading.querySelector('h2').innerHTML = isVideo ? 'Belajar selangkah demi selangkah.<br><span>Pilih kursus untuk memulai.</span>' : 'Upload materi.<br><span>Bagikan ilmu untuk sesama.</span>';
+    heading.querySelector('h2').innerHTML = isVideo ? 'siap belajar hal baru?<br><span>Pilih kursus, mulai langkahmu.</span>' : 'ilmu makin seru dibagikan.<br><span>Tambahkan materi untuk sesama.</span>';
+    heading.insertAdjacentHTML('beforeend', '<img class="page-buddy" src="assets/learning-buddy.svg" alt="" width="170" height="150">');
     heading.querySelector(':scope > p').textContent = isVideo ? 'Tonton video, ikuti urutan pelajaran, dan lanjutkan kapan saja.' : 'Simpan dokumen dan video di folder yang sesuai.';
     document.title = (isVideo ? 'Kursus' : 'Upload materi') + ' — Materi AKPOL';
   }
@@ -958,7 +918,7 @@ function renderVideos() {
     const next = course.lessons.find(item => !lessonComplete(item.id)) || course.lessons[0];
     const first = course.lessons[0];
     return `<article class="course-card">
-      <a class="course-cover" href="#v=${encodeURIComponent(next.id)}" aria-label="Buka kursus ${esc(course.name)}"><img src="${videoThumb(first)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="course-cover-label">${course.lessons.length} pelajaran</span><span class="course-play" aria-hidden="true">▶</span></a>
+      <a class="course-cover" href="#v=${encodeURIComponent(next.id)}" aria-label="Buka kursus ${esc(course.name)}"><img src="${videoThumb(first)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="course-cover-label">${course.lessons.length} pelajaran</span><span class="course-play" aria-hidden="true"></span></a>
       <div class="course-details"><h2>${esc(course.name)}</h2><p>${done} dari ${course.lessons.length} pelajaran selesai</p><progress value="${done}" max="${course.lessons.length}" aria-label="Progres ${esc(course.name)}"></progress><a class="btn" href="#v=${encodeURIComponent(next.id)}">${done === course.lessons.length ? 'Pelajari kembali' : done ? 'Lanjutkan belajar' : 'Mulai belajar'}</a></div>
     </article>`;
   }).join('');
