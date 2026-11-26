@@ -35,7 +35,12 @@ fi
 DATA_DIR=$(grep '^DATA_DIR=' .env | cut -d= -f2-)
 case "$DATA_DIR" in /*) ;; *) DATA_DIR="$HERE/${DATA_DIR#./}";; esac
 mkdir -p "$DATA_DIR"
-chown 1000:1000 "$DATA_DIR"   # pengguna "node" (uid 1000) di dalam container
+# Buat semua folder lebih dulu dan serahkan ke pengguna "node" (uid 1000) di dalam container.
+# Jika tidak, Docker membuat data/media sebagai root (untuk Caddy) dan aplikasi gagal menulis ke sana.
+for d in "" db media media/files media/hls media/thumbs media/previews uploads trash backups; do
+  mkdir -p "$DATA_DIR/$d"
+  [ "$(stat -c %u "$DATA_DIR/$d")" = 1000 ] || chown -R 1000:1000 "$DATA_DIR/$d"
+done
 
 say "3/6 Mendeteksi GPU untuk mempercepat proses video"
 FILES="docker-compose.yml"
