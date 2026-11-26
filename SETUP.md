@@ -56,3 +56,11 @@ Bisa dilakukan setelah project Supabase bisa diakses lagi (misalnya setelah kuot
 1. Di editor Apps Script, pilih fungsi **`migrateFromSupabase`** → **▶ Run**.
 2. Lihat **Execution log**. Jika muncul "klik Run lagi", jalankan lagi sampai selesai (aman diulang, file yang sudah pindah dilewati).
 3. File di atas 50 MB tidak bisa dipindah otomatis — namanya ditampilkan di log; upload ulang lewat web.
+
+## Update: fitur Video Pembelajaran (link YouTube)
+
+Upload file video langsung bekerja tanpa perubahan apa pun. Untuk fitur **menambahkan video dari link YouTube**, server perlu diperbarui sekali:
+
+1. Buka proyek di **script.google.com**, ganti seluruh isi `Code.gs` dengan versi terbaru dari [`apps-script/Code.gs`](apps-script/Code.gs), klik 💾.
+2. **Deploy → Manage deployments → ✏️ (Edit) → Version: New version → Deploy**.
+   URL Web App **tetap sama**, jadi `index.html` tidak perlu diubah.

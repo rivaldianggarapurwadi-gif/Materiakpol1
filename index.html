@@ -196,6 +196,187 @@
   .unsup-name { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 8px; }
   .unsup-desc { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 28px; }
 
+  /* ——— TABS ——— */
+  .tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--border); }
+  .tab { background: none; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; color: var(--text-sec); cursor: pointer; font-family: inherit; border-bottom: 3px solid transparent; margin-bottom: -2px; display: inline-flex; align-items: center; gap: 6px; }
+  .tab:hover { color: var(--navy); }
+  .tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+  .tab-count { background: var(--accent-bg); color: var(--accent); font-size: 11px; padding: 1px 7px; border-radius: 99px; }
+  .btn.red { background: #b91c1c; color: #fff; border-color: #b91c1c; font-weight: 600; }
+  .btn.red:hover { background: #dc2626; }
+
+  /* ——— VIDEO GALLERY ——— */
+  .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .video-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; position: relative; }
+  .video-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,27,62,0.12); }
+  .video-thumb { position: relative; aspect-ratio: 16/9; background: linear-gradient(135deg, var(--navy), var(--navy-mid)); overflow: hidden; }
+  .video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .video-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .video-play span { width: 52px; height: 52px; border-radius: 50%; background: rgba(13,27,62,0.75); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+  .video-card:hover .video-play span { transform: scale(1.1); background: var(--gold); }
+  .video-card:hover .video-play svg { color: var(--navy); }
+  .video-play svg { color: #fff; margin-left: 3px; }
+  .video-src { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .video-src.yt { background: #dc2626; color: #fff; }
+  .video-src.drive { background: rgba(255,255,255,0.9); color: var(--navy); }
+  .video-info { padding: 10px 12px 12px; }
+  .video-title { font-size: 14px; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .video-meta { font-size: 12px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .video-del { position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.92); opacity: 0; }
+  .video-card:hover .video-del { opacity: 1; }
+  .file-icon.thumb { padding: 0; overflow: hidden; background: #000; }
+  .file-icon.thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+
+  /* Video modal */
+  .vm-option { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .vm-option h4 { font-size: 14px; margin-bottom: 4px; }
+  .vm-option p { font-size: 12px; color: var(--text-sec); margin-bottom: 10px; }
+  .vm-option .form-input { margin-bottom: 8px; }
+  .modal.wide { max-width: 480px; }
+
+  /* ——— WATCH PAGE (pemutar video) ——— */
+  .watch { position: fixed; inset: 0; z-index: 450; background: #0b0f1c; color: #f1f1f1; display: none; overflow-y: auto; }
+  .watch.open { display: block; }
+  .watch-top { position: sticky; top: 0; z-index: 5; height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: rgba(11,15,28,0.96); border-bottom: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(6px); }
+  .watch-top .wt-title { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .watch-top .wt-title .logo-emblem { width: 28px; height: 28px; font-size: 14px; }
+  .w-icon { width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: #f1f1f1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .w-icon:hover { background: rgba(255,255,255,0.1); }
+  .watch-main { display: flex; gap: 24px; max-width: 1760px; margin: 0 auto; padding: 24px; }
+  .watch-primary { flex: 1; min-width: 0; }
+  .watch-secondary { width: 402px; flex-shrink: 0; }
+  .watch.theater .watch-main { flex-direction: column; padding-top: 0; }
+  .watch.theater .watch-primary { margin: 0 -24px; }
+  .watch.theater .player { border-radius: 0; max-height: calc(100vh - 56px - 120px); aspect-ratio: auto; height: min(56.25vw, calc(100vh - 176px)); }
+  .watch.theater .watch-info { padding: 0 24px; max-width: 1280px; }
+  .watch.theater .watch-secondary { width: auto; max-width: 1280px; padding: 0; }
+  .watch.theater .upnext-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 8px 16px; }
+
+  /* Player */
+  .player { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; outline: none; user-select: none; -webkit-user-select: none; }
+  .player video, .player iframe, .player #ytHost { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  .player.hide-cursor { cursor: none; }
+  .p-controls { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 12px 4px; background: linear-gradient(transparent, rgba(0,0,0,0.75)); transition: opacity 0.25s; z-index: 3; }
+  .player.idle .p-controls, .player.idle .p-title { opacity: 0; pointer-events: none; }
+  .player.is-yt .p-controls, .player.is-yt .p-center, .player.is-yt .p-title, .player.is-drive .p-controls, .player.is-drive .p-center { display: none; }
+  .p-title { position: absolute; top: 0; left: 0; right: 0; padding: 14px 16px 30px; background: linear-gradient(rgba(0,0,0,0.6), transparent); font-size: 17px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.25s; z-index: 3; display: none; }
+  .player.fs .p-title { display: block; }
+  .p-progress { position: relative; height: 16px; display: flex; align-items: center; cursor: pointer; touch-action: none; }
+  .p-track { position: relative; width: 100%; height: 3px; background: rgba(255,255,255,0.25); transition: height 0.1s; }
+  .p-progress:hover .p-track, .p-progress.drag .p-track { height: 5px; }
+  .p-buf, .p-played, .p-hoverbar { position: absolute; left: 0; top: 0; bottom: 0; width: 0; }
+  .p-buf { background: rgba(255,255,255,0.4); }
+  .p-hoverbar { background: rgba(255,255,255,0.5); display: none; }
+  .p-progress:hover .p-hoverbar { display: block; }
+  .p-played { background: var(--gold); z-index: 1; }
+  .p-knob { position: absolute; top: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: var(--gold); transform: scale(0); transition: transform 0.1s; z-index: 2; }
+  .p-progress:hover .p-knob, .p-progress.drag .p-knob { transform: scale(1); }
+  .p-tip { position: absolute; bottom: 22px; transform: translateX(-50%); background: rgba(28,28,28,0.9); padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; display: none; white-space: nowrap; }
+  .p-progress:hover .p-tip, .p-progress.drag .p-tip { display: block; }
+  .p-row { display: flex; align-items: center; height: 44px; gap: 2px; }
+  .p-btn { width: 44px; height: 44px; border: none; background: transparent; color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; opacity: 0.92; flex-shrink: 0; position: relative; }
+  .p-btn:hover { opacity: 1; }
+  .p-btn svg { width: 24px; height: 24px; fill: currentColor; }
+  .p-btn[data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(28,28,28,0.9); padding: 5px 9px; border-radius: 4px; font-size: 12px; white-space: nowrap; pointer-events: none; }
+  .p-row .p-btn:last-child[data-tip]:hover::after { left: auto; right: 0; transform: none; }
+  .p-vol { display: flex; align-items: center; }
+  .p-vol input { width: 0; opacity: 0; transition: width 0.2s, opacity 0.2s; accent-color: #fff; cursor: pointer; }
+  .p-vol:hover input, .p-vol input:focus { width: 64px; opacity: 1; margin-right: 8px; }
+  .p-time { font-size: 13px; padding: 0 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .p-spacer { flex: 1; }
+  .p-speed-badge { position: absolute; bottom: 8px; right: 6px; font-size: 9px; font-weight: 700; background: var(--gold); color: var(--navy); border-radius: 3px; padding: 0 3px; line-height: 13px; display: none; }
+  .p-menu { position: absolute; right: 12px; bottom: 60px; background: rgba(28,28,28,0.95); border-radius: 12px; padding: 8px 0; min-width: 200px; display: none; z-index: 4; max-height: 70%; overflow-y: auto; }
+  .p-menu.open { display: block; }
+  .p-menu-h { padding: 6px 16px 8px; font-size: 13px; color: rgba(255,255,255,0.6); border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 6px; }
+  .p-menu button { display: flex; width: 100%; align-items: center; gap: 10px; background: none; border: none; color: #fff; font-size: 14px; padding: 9px 16px; cursor: pointer; font-family: inherit; text-align: left; }
+  .p-menu button:hover { background: rgba(255,255,255,0.1); }
+  .p-menu button .chk { width: 16px; color: var(--gold); }
+  .p-center { position: absolute; top: 50%; left: 50%; width: 68px; height: 68px; margin: -34px 0 0 -34px; border-radius: 50%; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; z-index: 2; }
+  .p-center svg { width: 34px; height: 34px; fill: #fff; }
+  .p-center.flash { animation: pflash 0.6s ease-out; }
+  .p-center.show { opacity: 1; }
+  @keyframes pflash { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.6); } }
+  .p-spinner { position: absolute; top: 50%; left: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; z-index: 2; pointer-events: none; }
+  .player.loading .p-spinner { display: block; }
+  .p-seek { position: absolute; top: 0; bottom: 0; width: 35%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; z-index: 2; background: radial-gradient(ellipse at center, rgba(255,255,255,0.15), transparent 70%); }
+  .p-seek.left { left: 0; } .p-seek.right { right: 0; }
+  .p-seek.show { animation: pseek 0.7s ease-out; }
+  @keyframes pseek { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+  .p-toast { position: absolute; top: 12%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 8px 14px; border-radius: 6px; font-size: 14px; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 3; white-space: nowrap; }
+  .p-toast.show { opacity: 1; }
+  .p-end { position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; z-index: 4; text-align: center; padding: 16px; }
+  .p-end.open { display: flex; }
+  .p-end .pe-label { font-size: 14px; color: rgba(255,255,255,0.7); }
+  .p-end .pe-title { font-size: 18px; font-weight: 600; max-width: 480px; }
+  .p-end img { width: 280px; max-width: 70%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; background: #222; }
+  .p-end .pe-acts { display: flex; gap: 10px; }
+  .p-end .btn { border-radius: 99px; }
+  .p-end-ring { font-size: 40px; font-weight: 700; color: var(--gold); }
+  .p-fallback { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 3; font-size: 12px; color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 99px; }
+  .p-fallback a { color: var(--gold-light); cursor: pointer; }
+
+  /* Info di bawah video */
+  .watch-info { padding-top: 12px; }
+  .watch-title { font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 10px; word-break: break-word; }
+  .watch-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .watch-chan { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px; }
+  .watch-chan .logo-emblem { width: 40px; height: 40px; }
+  .watch-chan b { font-size: 16px; display: block; }
+  .watch-chan span { font-size: 12px; color: #aaa; }
+  .w-pill { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 99px; background: rgba(255,255,255,0.1); color: #f1f1f1; border: none; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .w-pill:hover { background: rgba(255,255,255,0.2); }
+  .w-pill svg { width: 20px; height: 20px; fill: currentColor; }
+  .watch-desc { margin-top: 12px; background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; font-size: 14px; line-height: 1.6; }
+  .watch-desc b { font-weight: 600; }
+  .watch-desc .kbd-list { margin-top: 8px; color: #aaa; font-size: 13px; display: none; }
+  .watch-desc.expanded .kbd-list { display: block; }
+  .watch-desc .more { color: #fff; font-weight: 600; cursor: pointer; margin-top: 4px; display: inline-block; }
+  kbd { background: rgba(255,255,255,0.15); border-radius: 4px; padding: 0 5px; font-family: inherit; font-size: 12px; }
+
+  /* Up next */
+  .upnext-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .upnext-head b { font-size: 16px; }
+  .autoplay-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #aaa; cursor: pointer; }
+  .switch { width: 36px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.3); position: relative; transition: background 0.15s; }
+  .switch::after { content: ''; position: absolute; top: -3px; left: -2px; width: 20px; height: 20px; border-radius: 50%; background: #ddd; transition: transform 0.15s, background 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+  .switch.on { background: rgba(201,162,39,0.6); }
+  .switch.on::after { transform: translateX(20px); background: var(--gold); }
+  .upnext-item { display: flex; gap: 8px; padding: 4px; border-radius: 10px; cursor: pointer; margin-bottom: 4px; }
+  .upnext-item:hover { background: rgba(255,255,255,0.08); }
+  .upnext-item.current { background: rgba(201,162,39,0.15); }
+  .un-thumb { position: relative; width: 168px; flex-shrink: 0; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: linear-gradient(135deg, var(--navy), var(--navy-mid)); }
+  .un-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .un-thumb .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; opacity: 0.6; }
+  .un-dur { position: absolute; right: 4px; bottom: 4px; background: rgba(0,0,0,0.8); font-size: 11px; font-weight: 600; padding: 1px 4px; border-radius: 4px; }
+  .watched-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,0.3); }
+  .watched-bar i { display: block; height: 100%; background: var(--gold); }
+  .un-info { min-width: 0; padding-top: 2px; }
+  .un-title { font-size: 14px; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .un-meta { font-size: 12px; color: #aaa; margin-top: 4px; line-height: 1.5; }
+  .un-empty { color: #aaa; font-size: 14px; padding: 16px 0; }
+  .video-thumb .watched-bar { z-index: 1; }
+
+  @media (max-width: 1000px) {
+    .watch-main { flex-direction: column; padding: 0; gap: 0; }
+    .watch-primary { margin: 0; }
+    .player { border-radius: 0; }
+    .watch-info { padding: 12px 12px 0; }
+    .watch-secondary { width: auto; padding: 16px 12px 24px; }
+    .watch.theater .watch-primary { margin: 0; }
+    .watch.theater .player { height: auto; aspect-ratio: 16/9; }
+    .p-theater-btn { display: none !important; }
+  }
+  @media (max-width: 600px) {
+    .watch-title { font-size: 17px; }
+    .un-thumb { width: 150px; }
+    .p-vol input { display: none; }
+    .p-btn { width: 40px; }
+    .p-time { font-size: 12px; padding: 0 4px; }
+    .watch-top .wt-title span { display: none; }
+    .watch-chan { flex-basis: 100%; }
+  }
+
   /* ——— RESPONSIVE ——— */
   @media (max-width: 600px) {
     .file-list-header { grid-template-columns: 1fr 80px; }
@@ -212,6 +393,9 @@
     .logo-sub { display: none; }
     .header-actions .btn { padding: 8px 10px; }
     .header-actions .btn .lbl { display: none; }
+    .video-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .video-del { opacity: 1; }
+    .tab { padding: 10px 10px; font-size: 13px; }
   }
 </style>
 </head>
@@ -230,6 +414,10 @@
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.5L10 7h9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
       <span class="lbl">Folder baru</span>
     </button>
+    <button class="btn red" onclick="showVideoModal()" title="Tambah Video" aria-label="Tambah Video">
+      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <span class="lbl">Video</span>
+    </button>
     <button class="btn gold" onclick="document.getElementById('fileInput').click()" title="Upload Materi" aria-label="Upload Materi">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
       <span class="lbl">Upload Materi</span>
@@ -244,6 +432,10 @@
 </div>
 
 <div class="container">
+  <div class="tabs">
+    <button class="tab active" id="tabFiles" onclick="setView('files')">📄 Materi</button>
+    <button class="tab" id="tabVideos" onclick="setView('videos')">🎬 Video Pembelajaran <span class="tab-count" id="videoCount">0</span></button>
+  </div>
   <div class="breadcrumb" id="breadcrumb"></div>
   <div class="stats-bar" id="statsBar"></div>
 
@@ -279,7 +471,9 @@
     Seret file ke folder tujuan untuk memindahkan
   </div>
 
-  <div class="file-list">
+  <div class="video-grid" id="videoGrid" style="display:none"></div>
+
+  <div class="file-list" id="fileList">
     <div class="file-list-header">
       <span>Nama Materi</span><span>Tanggal</span><span>Ukuran</span><span>Aksi</span>
     </div>
@@ -311,6 +505,111 @@
   </div>
 </div>
 
+<!-- Video Modal -->
+<div class="modal-overlay" id="videoModal" style="display:none">
+  <div class="modal wide">
+    <div class="modal-header">
+      <h2>🎬 Tambah video pembelajaran</h2>
+      <button class="icon-btn" style="color:rgba(255,255,255,0.7)" onclick="hideModal('videoModal')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="vm-option">
+        <h4>📤 Upload file video</h4>
+        <p>MP4, MOV, WEBM, dll. Disimpan di Google Drive dan bisa diputar langsung di web.</p>
+        <button class="btn gold" onclick="hideModal('videoModal');document.getElementById('videoInput').click()">Pilih file video</button>
+        <input type="file" id="videoInput" accept="video/*" multiple style="display:none">
+      </div>
+      <div class="vm-option" style="margin-bottom:0">
+        <h4>▶️ Dari YouTube</h4>
+        <p>Cocok untuk video besar. Tidak memakai kuota Google Drive.</p>
+        <input type="url" class="form-input" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." onkeydown="if(event.key==='Enter')addYoutube()">
+        <input type="text" class="form-input" id="ytTitleInput" placeholder="Judul video (opsional)" onkeydown="if(event.key==='Enter')addYoutube()">
+        <button class="btn primary" onclick="addYoutube()">Tambahkan video</button>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding-top:4px">
+      <span style="flex:1;font-size:12px;color:var(--text-muted);align-self:center" id="videoModalFolder"></span>
+      <button class="btn" onclick="hideModal('videoModal')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ——— WATCH PAGE: pemutar video ——— -->
+<div class="watch" id="watch" aria-hidden="true">
+  <div class="watch-top">
+    <button class="w-icon" onclick="closeWatch()" title="Kembali (Esc)" aria-label="Kembali">
+      <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <div class="wt-title"><div class="logo-emblem">⭐</div><span>Video Pembelajaran AKPOL</span></div>
+  </div>
+  <div class="watch-main">
+    <div class="watch-primary">
+      <div class="player" id="player" tabindex="0">
+        <div class="p-title" id="pTitle"></div>
+        <div class="p-spinner"></div>
+        <div class="p-center" id="pCenter"></div>
+        <div class="p-seek left" id="pSeekL"><svg width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6 8.5 6V6l-8.5 6z"/></svg><span>10 detik</span></div>
+        <div class="p-seek right" id="pSeekR"><svg width="28" height="28" fill="#fff" viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg><span>10 detik</span></div>
+        <div class="p-toast" id="pToast"></div>
+        <div class="p-end" id="pEnd"></div>
+        <div class="p-menu" id="pMenu"></div>
+        <div class="p-controls" id="pControls">
+          <div class="p-progress" id="pProg">
+            <div class="p-track"><div class="p-buf" id="pBuf"></div><div class="p-hoverbar" id="pHoverBar"></div><div class="p-played" id="pPlayed"></div></div>
+            <div class="p-knob" id="pKnob"></div>
+            <div class="p-tip" id="pTip">0:00</div>
+          </div>
+          <div class="p-row">
+            <button class="p-btn" id="pPlay" data-tip="Putar (k)"></button>
+            <button class="p-btn" id="pNext" data-tip="Berikutnya (Shift+N)"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+            <div class="p-vol">
+              <button class="p-btn" id="pMute" data-tip="Bisukan (m)"></button>
+              <input type="range" id="pVol" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+            </div>
+            <div class="p-time"><span id="pCur">0:00</span> / <span id="pDur">0:00</span></div>
+            <div class="p-spacer"></div>
+            <button class="p-btn" id="pSettings" data-tip="Kecepatan"><svg viewBox="0 0 24 24"><path d="M19.14 12.94a7.07 7.07 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.49.42l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.71 8.84a.49.49 0 0 0 .12.64l2.03 1.58a7.07 7.07 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.12.22.37.31.61.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.25.42.49.42h3.84c.24 0 .45-.18.49-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.09.49 0 .61-.22l1.92-3.32a.49.49 0 0 0-.12-.64l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg><span class="p-speed-badge" id="pSpeedBadge"></span></button>
+            <button class="p-btn" id="pPip" data-tip="Mini player (i)"><svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3c-1.1 0-2 .88-2 1.98V19c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V4.97h18v14.05z"/></svg></button>
+            <button class="p-btn p-theater-btn" id="pTheater" data-tip="Mode bioskop (t)"><svg viewBox="0 0 24 24"><path d="M19 6H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H5V8h14v8z"/></svg></button>
+            <button class="p-btn" id="pFs" data-tip="Layar penuh (f)"></button>
+          </div>
+        </div>
+      </div>
+      <div class="watch-info">
+        <h1 class="watch-title" id="wTitle"></h1>
+        <div class="watch-row">
+          <div class="watch-chan">
+            <div class="logo-emblem">⭐</div>
+            <div><b>Materi AKPOL</b><span id="wFolder"></span></div>
+          </div>
+          <button class="w-pill" onclick="shareVideo()"><svg viewBox="0 0 24 24"><path d="M15 5.63 20.66 12 15 18.37V14h-1c-3.96 0-7.14 1-9.75 3.09 1.84-4.07 5.11-6.4 9.89-7.1l.86-.13V5.63M14 3v6C6.22 10.13 3.11 15.33 2 21c2.78-3.97 6.44-6 12-6v6l8-9-8-9z"/></svg>Bagikan</button>
+          <button class="w-pill" id="wDl"><svg viewBox="0 0 24 24"><path d="M17 18v1H6v-1h11zm-.5-6.6-.7-.7-3.8 3.7V4h-1v10.4l-3.8-3.8-.7.7 5 5 5-4.9z"/></svg><span id="wDlLabel">Download</span></button>
+        </div>
+        <div class="watch-desc" id="wDesc">
+          <div id="wDescMeta"></div>
+          <div class="kbd-list">
+            <b>Pintasan keyboard</b><br>
+            <kbd>k</kbd>/<kbd>Spasi</kbd> putar/jeda · <kbd>j</kbd>/<kbd>l</kbd> mundur/maju 10 dtk · <kbd>←</kbd>/<kbd>→</kbd> 5 dtk ·
+            <kbd>↑</kbd>/<kbd>↓</kbd> volume · <kbd>m</kbd> bisukan · <kbd>f</kbd> layar penuh · <kbd>t</kbd> mode bioskop · <kbd>i</kbd> mini player ·
+            <kbd>Shift</kbd>+<kbd>.</kbd>/<kbd>,</kbd> kecepatan · <kbd>0</kbd>–<kbd>9</kbd> lompat ke 0–90% · <kbd>Shift</kbd>+<kbd>N</kbd> video berikutnya ·
+            Ketuk 2× di kiri/kanan video (HP) untuk mundur/maju 10 detik
+          </div>
+          <span class="more" onclick="this.parentNode.classList.toggle('expanded');this.textContent=this.parentNode.classList.contains('expanded')?'Lebih sedikit':'...selengkapnya'">...selengkapnya</span>
+        </div>
+      </div>
+    </div>
+    <aside class="watch-secondary">
+      <div class="upnext-head">
+        <b>Berikutnya</b>
+        <label class="autoplay-toggle" onclick="toggleAutoplay()"><span>Putar otomatis</span><span class="switch" id="wAuto"></span></label>
+      </div>
+      <div class="upnext-list" id="wUpnext"></div>
+    </aside>
+  </div>
+</div>
+
 <!-- ——— FULLSCREEN VIEWER ——— -->
 <div class="viewer-overlay" id="viewerOverlay">
   <div class="viewer-header">
@@ -318,8 +617,8 @@
     <div class="viewer-type-badge" id="viewerBadge"></div>
     <div class="viewer-acts">
       <button class="btn ghost" id="viewerDlBtn" onclick="">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
-        <span>Download</span>
+        <svg id="viewerDlIcon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
+        <span id="viewerDlLabel">Download</span>
       </button>
       <button class="btn ghost" onclick="closeViewer()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -339,6 +638,7 @@ let currentPath = [];
 let allItems = [];
 let imgZoom = 1;
 let viewerCurrentId = null;
+let currentView = 'files';
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 function currentFolderId() { return currentPath.length ? currentPath[currentPath.length-1].id : null; }
@@ -353,8 +653,23 @@ function fmtSize(b) {
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function getExt(n) { return (n.split('.').pop()||'').toLowerCase(); }
 
+// Judul video tanpa ekstensi file (.mp4, .webm, ...)
+function vTitle(item) { return isYoutube(item) ? item.name : item.name.replace(/\.(mp4|m4v|mov|webm|mkv|avi|ogv)$/i, ''); }
+function isYoutube(item) { return !!item.url && item.mime === 'video/youtube'; }
+function ytId(item) { const m = String(item.url||'').match(/[?&]v=([A-Za-z0-9_-]{11})/); return m ? m[1] : ''; }
+// Ambil ID video dari berbagai bentuk link YouTube
+function parseYoutube(link) {
+  const m = String(link).trim().match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function videoThumb(item, w) {
+  if (isYoutube(item)) return `https://i.ytimg.com/vi/${ytId(item)}/hqdefault.jpg`;
+  return `https://drive.google.com/thumbnail?id=${item.drive_id}&sz=w${w||640}`;
+}
+
 function getFileType(item) {
   if (item.is_folder) return 'folder';
+  if (isYoutube(item) || String(item.mime||'').startsWith('video/')) return 'vid';
   const e = getExt(item.name);
   if (['jpg','jpeg','png','gif','webp','svg','bmp','ico'].includes(e)) return 'img';
   if (e === 'pdf') return 'pdf';
@@ -382,7 +697,7 @@ function getIconLabel(item) {
   const t = getFileType(item);
   if (t === 'img') return 'IMG';
   if (t === 'pdf') return 'PDF';
-  if (t === 'vid') return 'VID';
+  if (t === 'vid') return isYoutube(item) ? '▶' : 'VID';
   if (t === 'aud') return '🎵';
   if (['doc','docx'].includes(e)) return 'DOC';
   if (['ppt','pptx'].includes(e)) return 'PPT';
@@ -433,6 +748,8 @@ async function loadAndRender() {
   try {
     allItems = await dbSelect();
     renderBreadcrumb(); renderStats(); renderFiles();
+    const m = location.hash.match(/^#v=(.+)$/);
+    if (m && allItems.some(i => i.id === m[1])) openWatch(m[1], false);
   } catch(e) {
     document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat</h3><p>${esc(e.message)}</p></div>`;
   }
@@ -454,6 +771,8 @@ function renderStats() {
   const files = vis.filter(i=>!i.is_folder);
   const folders = vis.filter(i=>i.is_folder);
   const total = files.reduce((a,f)=>a+(f.size||0),0);
+  document.getElementById('videoCount').textContent = allItems.filter(i=>getFileType(i)==='vid').length;
+  if (currentView === 'videos') { document.getElementById('statsBar').innerHTML = ''; return; }
   document.getElementById('statsBar').innerHTML = `
     <div class="stat">📁 <strong>${folders.length}</strong> folder</div>
     <div class="stat">📄 <strong>${files.length}</strong> materi</div>
@@ -467,7 +786,56 @@ function getVisible() {
   return allItems.filter(i => (i.folder_id||null)===fid && (!search || i.name.toLowerCase().includes(search)));
 }
 
+function setView(v) {
+  currentView = v;
+  document.getElementById('tabFiles').classList.toggle('active', v==='files');
+  document.getElementById('tabVideos').classList.toggle('active', v==='videos');
+  const isVid = v === 'videos';
+  document.getElementById('fileList').style.display = isVid ? 'none' : '';
+  document.getElementById('videoGrid').style.display = isVid ? '' : 'none';
+  document.getElementById('breadcrumb').style.display = isVid ? 'none' : '';
+  document.getElementById('dropZone').style.display = isVid ? 'none' : '';
+  document.getElementById('searchInput').placeholder = isVid ? 'Cari video...' : 'Cari materi...';
+  renderStats(); renderFiles();
+}
+
+function folderPathName(folderId) {
+  const parts = [];
+  let f = allItems.find(i=>i.id===folderId);
+  while (f) { parts.unshift(f.name); f = allItems.find(i=>i.id===f.folder_id); }
+  return parts.length ? parts.join(' › ') : 'Semua Materi';
+}
+
+function renderVideos() {
+  const grid = document.getElementById('videoGrid');
+  const search = document.getElementById('searchInput').value.trim().toLowerCase();
+  const vids = allItems.filter(i => getFileType(i)==='vid' && (!search || i.name.toLowerCase().includes(search)));
+  document.getElementById('dragHint').style.display = 'none';
+  document.getElementById('dropToParent').classList.remove('visible');
+  if (!vids.length) {
+    grid.innerHTML = `<div class="file-list" style="grid-column:1/-1"><div class="empty"><div class="empty-icon">🎬</div><h3>${search?'Tidak ada video untuk "'+esc(search)+'"':'Belum ada video'}</h3><p>${search?'Coba kata kunci lain.':'Klik tombol <b>Video</b> di atas untuk upload video atau menambahkan link YouTube.'}</p><div style="margin-top:14px">${search?'':'<button class="btn red" onclick="showVideoModal()">+ Tambah video</button>'}</div></div></div>`;
+    return;
+  }
+  grid.innerHTML = vids.map(v => `
+    <div class="video-card" onclick="openViewer('${v.id}')">
+      <div class="video-thumb">
+        <img src="${videoThumb(v)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+        <div class="video-play"><span><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
+        <span class="video-src ${isYoutube(v)?'yt':'drive'}">${isYoutube(v)?'YouTube':'Drive'}</span>
+        ${durBadge(v.id)}${watchedBar(v.id)}
+        <button class="icon-btn del video-del" title="Hapus" onclick="event.stopPropagation();deleteItem('${v.id}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        </button>
+      </div>
+      <div class="video-info">
+        <div class="video-title">${esc(vTitle(v))}</div>
+        <div class="video-meta">📁 ${esc(folderPathName(v.folder_id))} · ${fmtDate(v.created_at)}${v.size?' · '+fmtSize(v.size):''}</div>
+      </div>
+    </div>`).join('');
+}
+
 function renderFiles() {
+  if (currentView === 'videos') return renderVideos();
   const items = getVisible();
   const body = document.getElementById('fileListBody');
 
@@ -494,7 +862,9 @@ function renderFiles() {
       ondragend="onItemDragEnd(event)"
       ${item.is_folder?`ondragover="onFolderDragOver(event,'${item.id}')" ondragleave="onFolderDragLeave(event)" ondrop="onFolderDrop(event,'${item.id}')"`:''}>
       <div class="file-name-cell">
-        <div class="file-icon ${getIconClass(item)}">${getIconLabel(item)}</div>
+        ${getFileType(item)==='vid'
+          ? `<div class="file-icon vid thumb"><img src="${videoThumb(item,120)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('thumb');this.parentNode.textContent='${getIconLabel(item)}'"></div>`
+          : `<div class="file-icon ${getIconClass(item)}">${getIconLabel(item)}</div>`}
         <div style="min-width:0">
           <div class="file-name ${item.is_folder?'folder-name':''}" onclick="${item.is_folder?`openFolder('${item.id}')`:`openViewer('${item.id}')`}">${esc(item.name)}</div>
           ${item.is_folder?`<div class="file-meta">${childCount} item</div>`:''}
@@ -506,7 +876,7 @@ function renderFiles() {
         ${canView?`<button class="icon-btn" title="Lihat" onclick="openViewer('${item.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>`:''}
-        ${!item.is_folder?`<button class="icon-btn" title="Download" onclick="downloadItem('${item.id}')">
+        ${!item.is_folder && !isYoutube(item)?`<button class="icon-btn" title="Download" onclick="downloadItem('${item.id}')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
         </button>`:''}
         <button class="icon-btn del" title="Hapus" onclick="deleteItem('${item.id}')">
@@ -529,6 +899,39 @@ function openFolder(id) {
   currentPath.push({id, name: f.name});
   document.getElementById('searchInput').value='';
   renderBreadcrumb(); renderStats(); renderFiles();
+}
+
+function showVideoModal() {
+  document.getElementById('ytUrlInput').value = '';
+  document.getElementById('ytTitleInput').value = '';
+  const where = currentView === 'videos' ? 'Semua Materi' : folderPathName(currentFolderId());
+  document.getElementById('videoModalFolder').textContent = '📁 Disimpan di: ' + where;
+  document.getElementById('videoModal').style.display = 'flex';
+}
+
+async function addYoutube() {
+  const link = document.getElementById('ytUrlInput').value;
+  const id = parseYoutube(link);
+  if (!id) { toast('Link YouTube tidak valid', 'error'); return; }
+  let name = document.getElementById('ytTitleInput').value.trim();
+  if (!name) {
+    // Ambil judul asli dari YouTube (oEmbed); kalau gagal pakai judul default
+    try {
+      const r = await fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent('https://www.youtube.com/watch?v='+id)}`);
+      if (r.ok) name = (await r.json()).title || '';
+    } catch (e) { /* abaikan */ }
+  }
+  try {
+    const folder_id = currentView === 'videos' ? null : currentFolderId();
+    const { item } = await apiPost('addLink', { url: 'https://www.youtube.com/watch?v=' + id, name: name || 'Video YouTube', folder_id });
+    allItems.unshift(item);
+    hideModal('videoModal');
+    renderStats(); renderFiles();
+    toast('Video "' + item.name + '" ditambahkan');
+  } catch (e) {
+    const old = /Aksi tidak dikenal/.test(e.message);
+    toast(old ? 'Server perlu diperbarui: deploy ulang Apps Script (lihat SETUP.md)' : 'Gagal: ' + e.message, 'error');
+  }
 }
 
 async function createFolder() {
@@ -556,7 +959,10 @@ async function handleFiles(fileInput) {
   let done = 0;
   let failed = 0;
   const total = files.length;
-  const folderId = currentFolderId();
+  const folderId = currentView === 'videos' ? null : currentFolderId();
+  const dz = document.getElementById('dropZone');
+  const dzWasHidden = dz.style.display === 'none';
+  if (dzWasHidden) dz.style.display = '';
 
   for (let i = 0; i < total; i++) {
     const file = files[i];
@@ -580,7 +986,7 @@ async function handleFiles(fileInput) {
       if (!item) throw new Error('Upload tidak selesai');
       allItems.unshift(item);
       done++;
-      if (folderId === currentFolderId()) { renderStats(); renderFiles(); }
+      renderStats(); renderFiles();
     } catch(e) {
       console.error('Upload error:', e);
       toast('Gagal upload ' + file.name + ': ' + e.message, 'error');
@@ -589,10 +995,11 @@ async function handleFiles(fileInput) {
   }
 
   pf.style.width = '100%';
-  setTimeout(() => { pw.style.display = 'none'; pf.style.width = '0%'; }, 600);
+  setTimeout(() => { pw.style.display = 'none'; pf.style.width = '0%'; if (dzWasHidden && currentView==='videos') dz.style.display = 'none'; }, 600);
   renderBreadcrumb(); renderStats(); renderFiles();
 
   if (done > 0) toast(done + ' dari ' + total + ' materi berhasil diupload ✓');
+  if (files.some(f => (f.type||'').startsWith('video/')) && done > 0) toast('Video baru perlu beberapa menit diproses Google Drive sebelum bisa diputar');
   if (failed > 0) toast(failed + ' file gagal diupload', 'error');
 }
 
@@ -633,6 +1040,7 @@ async function deleteItem(id) {
 // ——— VIEWER ———
 function openViewer(id) {
   const item = allItems.find(i=>i.id===id);
+  if (item && getFileType(item) === 'vid') return openWatch(id);
   if (!item || !item.drive_id) return;
   viewerCurrentId = id;
 
@@ -691,7 +1099,7 @@ function openViewer(id) {
     img.onerror = () => { if (viewerCurrentId===id) body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; };
 
   } else {
-    // PDF, Word, PPT, Excel, video, audio, teks: pratinjau bawaan Google Drive
+    // PDF, Word, PPT, Excel, audio, teks: pratinjau bawaan Google Drive
     body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
   }
 }
@@ -847,8 +1255,527 @@ dz.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();dz.classLi
 // Cegah browser membuka file saat file dari komputer dijatuhkan di luar upload zone; upload saja
 window.addEventListener('dragover',e=>{if(!dragItemId)e.preventDefault();});
 window.addEventListener('drop',e=>{if(dragItemId)return;e.preventDefault();if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+document.getElementById('videoInput').addEventListener('change',e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value='';});
 document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value='';});
 document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.style.display='none';}));
+
+// ——— WATCH PAGE: pemutar video ———
+const ICON = {
+  play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>',
+  replay: '<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>',
+  vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>',
+  volLow: '<svg viewBox="0 0 24 24"><path d="M18.5 12A4.5 4.5 0 0 0 16 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg>',
+  mute: '<svg viewBox="0 0 24 24"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>',
+  fs: '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>',
+  fsExit: '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>',
+};
+const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+const W = { item: null, kind: null, video: null, yt: null, ytTimer: null, idleTimer: null, clickTimer: null, endTimer: null, fallbackTimer: null, lastTap: 0, ptype: 'mouse', drag: false, saveAt: 0 };
+const $ = id => document.getElementById(id);
+
+// Penyimpanan lokal (posisi tonton, volume, kecepatan, putar otomatis)
+function store(k, def) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? def; } catch (e) { return def; } }
+function storeSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function getPos(id) { return store('akpol_pos', {})[id]; }
+function setPos(id, t, d) { const p = store('akpol_pos', {}); p[id] = { t, d }; storeSet('akpol_pos', p); }
+function autoplayOn() { return store('akpol_autoplay', true); }
+
+function fmtTime(s) {
+  s = Math.max(0, Math.floor(s || 0));
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0');
+}
+function watchedBar(id) {
+  const p = getPos(id);
+  if (!p || !p.d) return '';
+  const pct = Math.min(100, Math.round(p.t / p.d * 100));
+  return pct >= 2 ? `<div class="watched-bar"><i style="width:${pct}%"></i></div>` : '';
+}
+function durBadge(id) { const p = getPos(id); return p && p.d ? `<span class="un-dur">${fmtTime(p.d)}</span>` : ''; }
+
+// Adapter: perintah yang sama untuk video Drive (<video>) dan YouTube
+const P = {
+  ok() { return W.kind === 'native' || (W.kind === 'yt' && W.yt && W.yt.getPlayerState); },
+  play() { if (W.kind === 'native') W.video.play().catch(() => {}); else if (P.ok()) W.yt.playVideo(); },
+  pause() { if (W.kind === 'native') W.video.pause(); else if (P.ok()) W.yt.pauseVideo(); },
+  paused() { return W.kind === 'native' ? W.video.paused : !(P.ok() && W.yt.getPlayerState() === 1); },
+  time() { return W.kind === 'native' ? W.video.currentTime : (P.ok() ? W.yt.getCurrentTime() : 0); },
+  dur() { return W.kind === 'native' ? (W.video.duration || 0) : (P.ok() ? W.yt.getDuration() : 0); },
+  seek(t) {
+    const d = P.dur(); t = Math.max(0, d ? Math.min(d - 0.05, t) : t);
+    if (W.kind === 'native') W.video.currentTime = t; else if (P.ok()) W.yt.seekTo(t, true);
+  },
+  vol(v) {
+    if (v === undefined) return W.kind === 'native' ? W.video.volume : (P.ok() ? W.yt.getVolume() / 100 : 1);
+    if (W.kind === 'native') { W.video.volume = v; W.video.muted = v === 0; }
+    else if (P.ok()) { W.yt.setVolume(v * 100); v > 0 ? W.yt.unMute() : W.yt.mute(); }
+  },
+  muted() { return W.kind === 'native' ? (W.video.muted || W.video.volume === 0) : (P.ok() && W.yt.isMuted()); },
+  setMuted(m) { if (W.kind === 'native') W.video.muted = m; else if (P.ok()) m ? W.yt.mute() : W.yt.unMute(); },
+  rate(r) {
+    if (r === undefined) return W.kind === 'native' ? W.video.playbackRate : (P.ok() ? W.yt.getPlaybackRate() : 1);
+    if (W.kind === 'native') W.video.playbackRate = r; else if (P.ok()) W.yt.setPlaybackRate(r);
+  },
+};
+
+function openWatch(id, push = true) {
+  const item = allItems.find(i => i.id === id);
+  if (!item) return;
+  savePos();
+  teardownPlayer();
+  W.item = item;
+  const w = $('watch');
+  w.classList.add('open');
+  w.setAttribute('aria-hidden', 'false');
+  w.classList.toggle('theater', store('akpol_theater', false));
+  w.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  if (push) { const h = '#v=' + id; if (location.hash !== h) history.pushState({ v: id }, '', h); }
+  document.title = vTitle(item) + ' - Video Pembelajaran AKPOL';
+
+  $('wTitle').textContent = vTitle(item);
+  $('pTitle').textContent = vTitle(item);
+  $('wFolder').textContent = '📁 ' + folderPathName(item.folder_id);
+  $('wDescMeta').innerHTML = `<b>Diupload ${fmtDate(item.created_at)}</b>${item.size ? ' · ' + fmtSize(item.size) : ''} · ${isYoutube(item) ? 'Sumber: YouTube' : 'Disimpan di Google Drive'}`;
+  $('wDlLabel').textContent = isYoutube(item) ? 'Buka di YouTube' : 'Download';
+  $('wDl').onclick = isYoutube(item) ? () => window.open(item.url, '_blank', 'noopener') : () => downloadItem(item.id);
+  $('wAuto').classList.toggle('on', autoplayOn());
+  renderUpnext();
+
+  if (isYoutube(item)) loadYT(item); else loadNative(item);
+  setTimeout(() => $('player').focus({ preventScroll: true }), 50);
+}
+
+function closeWatch(fromPop = false) {
+  if (!$('watch').classList.contains('open')) return;
+  savePos();
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  teardownPlayer();
+  W.item = null;
+  $('watch').classList.remove('open');
+  $('watch').setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  document.title = 'Upload Materi AKPOL';
+  if (!fromPop && location.hash.startsWith('#v=')) {
+    if (history.state && history.state.v) history.back();
+    else history.replaceState(null, '', location.pathname + location.search);
+  }
+  renderFiles(); // perbarui bar "sudah ditonton"
+}
+
+function teardownPlayer() {
+  clearTimeout(W.endTimer); clearTimeout(W.fallbackTimer); clearTimeout(W.idleTimer); clearInterval(W.ytTimer);
+  if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
+  if (W.yt && W.yt.destroy) { try { W.yt.destroy(); } catch (e) {} }
+  if (W.video) { W.video.pause(); W.video.removeAttribute('src'); W.video.load(); }
+  const pl = $('player');
+  pl.querySelectorAll('video, iframe, #ytHost, .p-fallback').forEach(el => el.remove());
+  $('pEnd').classList.remove('open');
+  $('pMenu').classList.remove('open');
+  W.video = null; W.yt = null; W.kind = null;
+}
+
+function savePos() {
+  if (!W.item || !(W.kind === 'native' || W.kind === 'yt')) return;
+  const d = P.dur(), t = P.time();
+  if (d) setPos(W.item.id, t, d);
+}
+
+// ——— Video Drive: pemutar sendiri ———
+function loadNative(item) {
+  const pl = $('player');
+  pl.className = 'player loading';
+  const v = document.createElement('video');
+  v.playsInline = true;
+  v.setAttribute('playsinline', '');
+  v.preload = 'auto';
+  v.src = `https://drive.usercontent.google.com/download?id=${encodeURIComponent(item.drive_id)}&export=download&confirm=t`;
+  v.volume = store('akpol_vol', 1);
+  v.muted = store('akpol_muted', false);
+  pl.prepend(v);
+  W.video = v; W.kind = 'native';
+  v.playbackRate = store('akpol_rate', 1);
+  // Abaikan event dari video sebelumnya yang sudah ditutup
+  const on = (ev, fn) => v.addEventListener(ev, e => { if (W.video === v) fn(e); });
+  updateSpeedBadge();
+
+  on('loadedmetadata', () => {
+    clearTimeout(W.fallbackTimer);
+    const p = getPos(item.id);
+    if (p && p.t > 5 && p.t < v.duration - 10) { v.currentTime = p.t; pToast('Melanjutkan dari ' + fmtTime(p.t)); }
+    v.playbackRate = store('akpol_rate', 1);
+    updateProgress();
+  });
+  on('play', () => { updatePlayBtn(); wake(); });
+  on('pause', () => { updatePlayBtn(); wake(); savePos(); });
+  on('waiting', () => pl.classList.add('loading'));
+  ['playing', 'canplay', 'seeked'].forEach(ev => on(ev, () => pl.classList.remove('loading')));
+  on('timeupdate', () => {
+    if (!W.drag) updateProgress();
+    if (Date.now() - W.saveAt > 2000) { W.saveAt = Date.now(); savePos(); }
+  });
+  on('progress', updateBuffered);
+  on('volumechange', () => { updateVolUI(); storeSet('akpol_vol', v.volume); storeSet('akpol_muted', v.muted); });
+  on('ratechange', updateSpeedBadge);
+  on('ended', onEnded);
+  // File tidak bisa diputar langsung (mis. format tidak didukung browser / belum diproses) → pemutar Google Drive
+  on('error', () => fallbackDrive(item));
+  W.fallbackTimer = setTimeout(() => { if (W.video === v && v.readyState < 1) fallbackDrive(item); }, 15000);
+
+  updatePlayBtn(); updateVolUI(); updateFsBtn();
+  $('pPip').style.display = document.pictureInPictureEnabled ? '' : 'none';
+  v.play().catch(() => { updatePlayBtn(); pl.classList.remove('loading'); });
+}
+
+function fallbackDrive(item) {
+  if (W.item !== item || W.kind === 'drive') return;
+  teardownPlayer();
+  W.item = item; W.kind = 'drive';
+  const pl = $('player');
+  pl.className = 'player is-drive';
+  pl.insertAdjacentHTML('afterbegin', `<iframe src="${previewUrl(item)}" allow="autoplay; fullscreen" allowfullscreen></iframe>`);
+  pl.insertAdjacentHTML('beforeend', `<div class="p-fallback">Memakai pemutar Google Drive. Video baru perlu beberapa menit diproses.</div>`);
+  setTimeout(() => pl.querySelector('.p-fallback')?.remove(), 8000);
+}
+
+// ——— YouTube ———
+let ytApiPromise = null;
+function loadYTApi() {
+  if (window.YT && window.YT.Player) return Promise.resolve();
+  if (ytApiPromise) return ytApiPromise;
+  ytApiPromise = new Promise((resolve, reject) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => { prev && prev(); resolve(); };
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    s.onerror = () => { ytApiPromise = null; reject(); };
+    document.head.appendChild(s);
+    setTimeout(() => reject(new Error('timeout')), 10000);
+  });
+  return ytApiPromise;
+}
+
+function loadYT(item) {
+  const pl = $('player');
+  pl.className = 'player is-yt';
+  const host = document.createElement('div');
+  host.id = 'ytHost';
+  pl.prepend(host);
+  W.kind = 'yt';
+  const p = getPos(item.id);
+  const start = p && p.t > 5 && p.t < p.d - 10 ? Math.floor(p.t) : 0;
+  loadYTApi().then(() => {
+    if (W.item !== item) return;
+    W.yt = new YT.Player('ytHost', {
+      host: 'https://www.youtube-nocookie.com',
+      videoId: ytId(item),
+      playerVars: { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1, start },
+      events: {
+        onReady: e => { e.target.setPlaybackRate(store('akpol_rate', 1)); e.target.playVideo(); },
+        onStateChange: e => { if (e.data === 0) onEnded(); },
+      },
+    });
+    W.ytTimer = setInterval(savePos, 3000);
+  }).catch(() => {
+    if (W.item !== item) return;
+    host.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${ytId(item)}?autoplay=1&rel=0&start=${start}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  });
+}
+
+// ——— Antrean "Berikutnya" ———
+function upNextQueue() {
+  const cur = W.item;
+  if (!cur) return [];
+  const coll = new Intl.Collator('id', { numeric: true, sensitivity: 'base' });
+  const vids = allItems.filter(i => getFileType(i) === 'vid');
+  const sameF = v => (v.folder_id || null) === (cur.folder_id || null);
+  const same = vids.filter(sameF).sort((a, b) => coll.compare(a.name, b.name));
+  const idx = same.findIndex(v => v.id === cur.id);
+  const others = vids.filter(v => !sameF(v)).sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+  return [...same.slice(idx + 1), ...others, ...same.slice(0, Math.max(0, idx))];
+}
+
+function renderUpnext() {
+  const q = upNextQueue();
+  $('wUpnext').innerHTML = q.length ? q.map(v => `
+    <div class="upnext-item" onclick="openWatch('${v.id}')">
+      <div class="un-thumb">
+        <div class="ph">🎬</div>
+        <img src="${videoThumb(v, 400)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+        ${durBadge(v.id)}${watchedBar(v.id)}
+      </div>
+      <div class="un-info">
+        <div class="un-title">${esc(vTitle(v))}</div>
+        <div class="un-meta">${esc(folderPathName(v.folder_id))}<br>${fmtDate(v.created_at)}</div>
+      </div>
+    </div>`).join('') : '<div class="un-empty">Belum ada video lain.</div>';
+  $('pNext').style.display = q.length ? '' : 'none';
+}
+
+function playNext() { const n = upNextQueue()[0]; if (n) openWatch(n.id); }
+
+function onEnded() {
+  if (!W.item) return;
+  const d = P.dur();
+  if (d) setPos(W.item.id, d, d);
+  updatePlayBtn();
+  const next = upNextQueue()[0];
+  if (!next || !autoplayOn()) { if (W.kind === 'native') { $('pCenter').innerHTML = ICON.replay; $('pCenter').className = 'p-center show'; } return; }
+  let n = 5;
+  const end = $('pEnd');
+  end.innerHTML = `
+    <div class="pe-label">Berikutnya dalam <span class="p-end-ring" id="peCount">${n}</span></div>
+    <img src="${videoThumb(next, 640)}" alt="" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
+    <div class="pe-title">${esc(vTitle(next))}</div>
+    <div class="pe-acts"><button class="btn ghost" onclick="cancelAutoNext()">Batal</button><button class="btn gold" onclick="playNext()">Putar sekarang</button></div>`;
+  end.classList.add('open');
+  const tick = () => {
+    n--;
+    if (n <= 0) return playNext();
+    const c = $('peCount'); if (c) c.textContent = n;
+    W.endTimer = setTimeout(tick, 1000);
+  };
+  W.endTimer = setTimeout(tick, 1000);
+}
+function cancelAutoNext() {
+  clearTimeout(W.endTimer);
+  $('pEnd').classList.remove('open');
+  if (W.kind === 'native') { $('pCenter').innerHTML = ICON.replay; $('pCenter').className = 'p-center show'; }
+}
+function toggleAutoplay() {
+  const on = !autoplayOn();
+  storeSet('akpol_autoplay', on);
+  $('wAuto').classList.toggle('on', on);
+  pToast('Putar otomatis ' + (on ? 'aktif' : 'nonaktif'));
+}
+
+// ——— Kontrol ———
+function togglePlay() {
+  if (!P.ok()) return;
+  if ($('pEnd').classList.contains('open')) cancelAutoNext();
+  const willPlay = P.paused();
+  if (W.kind === 'native' && willPlay && W.video.ended) W.video.currentTime = 0;
+  willPlay ? P.play() : P.pause();
+  flashCenter(willPlay ? ICON.play : ICON.pause);
+}
+function flashCenter(svg) {
+  const c = $('pCenter');
+  c.innerHTML = svg;
+  c.className = 'p-center';
+  void c.offsetWidth;
+  c.className = 'p-center flash';
+}
+function seekBy(s) {
+  if (!P.ok()) return;
+  P.seek(P.time() + s);
+  const el = s < 0 ? $('pSeekL') : $('pSeekR');
+  el.querySelector('span').textContent = Math.abs(s) + ' detik';
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  updateProgress();
+  wake();
+}
+function updatePlayBtn() {
+  if (W.kind !== 'native') return;
+  const v = W.video;
+  $('pPlay').innerHTML = v.ended ? ICON.replay : v.paused ? ICON.play : ICON.pause;
+  $('pPlay').dataset.tip = v.paused ? 'Putar (k)' : 'Jeda (k)';
+  if (!v.paused) $('pCenter').className = 'p-center';
+}
+function updateProgress() {
+  if (W.kind !== 'native') return;
+  const d = P.dur(), t = P.time();
+  const pct = d ? t / d * 100 : 0;
+  $('pPlayed').style.width = pct + '%';
+  $('pKnob').style.left = pct + '%';
+  $('pCur').textContent = fmtTime(t);
+  $('pDur').textContent = fmtTime(d);
+  updateBuffered();
+}
+function updateBuffered() {
+  const v = W.video;
+  if (!v || !v.duration) return;
+  let end = 0;
+  for (let i = 0; i < v.buffered.length; i++) if (v.buffered.start(i) <= v.currentTime + 0.5) end = Math.max(end, v.buffered.end(i));
+  $('pBuf').style.width = (end / v.duration * 100) + '%';
+}
+function updateVolUI() {
+  if (W.kind !== 'native') return;
+  const m = P.muted(), v = P.vol();
+  $('pMute').innerHTML = m ? ICON.mute : v < 0.5 ? ICON.volLow : ICON.vol;
+  $('pMute').dataset.tip = m ? 'Bunyikan (m)' : 'Bisukan (m)';
+  $('pVol').value = m ? 0 : v;
+}
+function updateSpeedBadge() {
+  const r = P.rate();
+  const b = $('pSpeedBadge');
+  b.textContent = r + 'x';
+  b.style.display = r !== 1 ? 'block' : 'none';
+}
+function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function updateFsBtn() {
+  $('pFs').innerHTML = isFs() ? ICON.fsExit : ICON.fs;
+  $('pFs').dataset.tip = isFs() ? 'Keluar layar penuh (f)' : 'Layar penuh (f)';
+  $('player').classList.toggle('fs', isFs());
+}
+function toggleFs() {
+  const pl = $('player');
+  if (isFs()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+  if (pl.requestFullscreen) pl.requestFullscreen().then(() => { screen.orientation?.lock?.('landscape').catch(() => {}); }).catch(() => {});
+  else if (pl.webkitRequestFullscreen) pl.webkitRequestFullscreen();
+  else if (W.video && W.video.webkitEnterFullscreen) W.video.webkitEnterFullscreen(); // iPhone
+}
+function toggleTheater() {
+  const on = !$('watch').classList.contains('theater');
+  $('watch').classList.toggle('theater', on);
+  storeSet('akpol_theater', on);
+}
+function togglePip() {
+  if (W.kind !== 'native' || !document.pictureInPictureEnabled) return;
+  if (document.pictureInPictureElement) document.exitPictureInPicture().catch(() => {});
+  else W.video.requestPictureInPicture().catch(() => {});
+}
+function setRate(r) {
+  P.rate(r);
+  storeSet('akpol_rate', r);
+  updateSpeedBadge();
+  pToast(r === 1 ? 'Normal' : r + 'x');
+}
+function toggleSpeedMenu() {
+  const m = $('pMenu');
+  if (m.classList.contains('open')) { m.classList.remove('open'); return; }
+  const cur = P.rate();
+  m.innerHTML = '<div class="p-menu-h">Kecepatan pemutaran</div>' + SPEEDS.map(r =>
+    `<button onclick="setRate(${r});$('pMenu').classList.remove('open')"><span class="chk">${r === cur ? '✓' : ''}</span>${r === 1 ? 'Normal' : r}</button>`).join('');
+  m.classList.add('open');
+  wake();
+}
+let pToastTimer;
+function pToast(msg) {
+  const t = $('pToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(pToastTimer);
+  pToastTimer = setTimeout(() => t.classList.remove('show'), 1200);
+}
+function wake() {
+  const pl = $('player');
+  pl.classList.remove('idle', 'hide-cursor');
+  clearTimeout(W.idleTimer);
+  W.idleTimer = setTimeout(() => {
+    if (W.kind === 'native' && !P.paused() && !W.drag && !$('pMenu').classList.contains('open')) pl.classList.add('idle', 'hide-cursor');
+  }, 2500);
+}
+function shareVideo() {
+  if (!W.item) return;
+  const url = location.origin + location.pathname + '#v=' + W.item.id;
+  if (navigator.share && matchMedia('(pointer: coarse)').matches) { navigator.share({ title: W.item.name, url }).catch(() => {}); return; }
+  (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
+    () => toast('Link video disalin'),
+    () => prompt('Salin link video:', url));
+}
+
+function initWatch() {
+  const pl = $('player'), prog = $('pProg');
+  $('pPlay').onclick = togglePlay;
+  $('pNext').onclick = playNext;
+  $('pMute').onclick = () => P.setMuted(!P.muted());
+  $('pVol').oninput = e => P.vol(Number(e.target.value));
+  $('pSettings').onclick = toggleSpeedMenu;
+  $('pPip').onclick = togglePip;
+  $('pTheater').onclick = toggleTheater;
+  $('pFs').onclick = toggleFs;
+  document.addEventListener('fullscreenchange', updateFsBtn);
+  document.addEventListener('webkitfullscreenchange', updateFsBtn);
+
+  pl.addEventListener('mousemove', wake);
+  pl.addEventListener('pointerdown', e => { W.ptype = e.pointerType; });
+  pl.addEventListener('click', e => {
+    if (W.kind !== 'native' || e.target.closest('.p-controls, .p-menu, .p-end')) return;
+    if ($('pMenu').classList.contains('open')) { $('pMenu').classList.remove('open'); return; }
+    const r = pl.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, now = Date.now();
+    if (W.ptype === 'touch') {
+      // HP: ketuk 2× kiri/kanan = mundur/maju 10 dtk, ketuk 1× = tampilkan/sembunyikan kontrol
+      if (now - W.lastTap < 300 && (x < 0.35 || x > 0.65)) { clearTimeout(W.clickTimer); W.lastTap = now; seekBy(x < 0.5 ? -10 : 10); return; }
+      W.lastTap = now;
+      clearTimeout(W.clickTimer);
+      W.clickTimer = setTimeout(() => {
+        if (P.paused()) togglePlay();
+        else if (pl.classList.contains('idle')) wake();
+        else togglePlay();
+      }, 300);
+      return;
+    }
+    clearTimeout(W.clickTimer);
+    W.clickTimer = setTimeout(togglePlay, 200);
+  });
+  pl.addEventListener('dblclick', e => {
+    if (W.kind !== 'native' || W.ptype === 'touch' || e.target.closest('.p-controls, .p-menu, .p-end')) return;
+    clearTimeout(W.clickTimer);
+    toggleFs();
+  });
+
+  // Seret progress bar
+  const ratio = e => { const r = prog.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); };
+  const seekTo = e => { const d = P.dur(); if (!d) return; P.seek(ratio(e) * d); const pct = ratio(e) * 100; $('pPlayed').style.width = pct + '%'; $('pKnob').style.left = pct + '%'; $('pCur').textContent = fmtTime(ratio(e) * d); };
+  prog.addEventListener('pointerdown', e => { if (W.kind !== 'native') return; prog.setPointerCapture(e.pointerId); W.drag = true; prog.classList.add('drag'); seekTo(e); });
+  prog.addEventListener('pointermove', e => {
+    const d = P.dur(), x = ratio(e);
+    $('pTip').style.left = Math.max(24, Math.min(prog.clientWidth - 24, x * prog.clientWidth)) + 'px';
+    $('pTip').textContent = fmtTime(x * d);
+    $('pHoverBar').style.width = x * 100 + '%';
+    if (W.drag) seekTo(e);
+  });
+  const endDrag = () => { if (!W.drag) return; W.drag = false; prog.classList.remove('drag'); wake(); };
+  prog.addEventListener('pointerup', endDrag);
+  prog.addEventListener('pointercancel', endDrag);
+
+  // Pintasan keyboard ala YouTube
+  document.addEventListener('keydown', e => {
+    if (!$('watch').classList.contains('open')) return;
+    if (e.target.matches('input:not([type=range]), textarea, select')) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const k = e.key;
+    if (k === 'Escape') {
+      if (isFs()) return;
+      if ($('pMenu').classList.contains('open')) $('pMenu').classList.remove('open'); else closeWatch();
+      return;
+    }
+    if (W.kind === 'drive') return;
+    let done = true;
+    if (k === ' ' || k === 'k' || k === 'K' && !e.shiftKey) togglePlay();
+    else if (k === 'j' || k === 'J') seekBy(-10);
+    else if (k === 'l' || k === 'L') seekBy(10);
+    else if (k === 'ArrowLeft') seekBy(-5);
+    else if (k === 'ArrowRight') seekBy(5);
+    else if (k === 'ArrowUp' || k === 'ArrowDown') {
+      const v = Math.max(0, Math.min(1, Math.round((P.muted() ? 0 : P.vol()) * 100 + (k === 'ArrowUp' ? 5 : -5)) / 100));
+      P.vol(v); pToast(Math.round(v * 100) + '%');
+    }
+    else if (k === 'm' || k === 'M') { const m = !P.muted(); P.setMuted(m); pToast(m ? 'Dibisukan' : 'Suara aktif'); }
+    else if (k === 'f' || k === 'F') toggleFs();
+    else if (k === 't' || k === 'T') toggleTheater();
+    else if (k === 'i' || k === 'I') togglePip();
+    else if (k === 'N' && e.shiftKey) playNext();
+    else if (k === '>') { const i = SPEEDS.indexOf(P.rate()); setRate(SPEEDS[Math.min(SPEEDS.length - 1, (i < 0 ? 3 : i) + 1)]); }
+    else if (k === '<') { const i = SPEEDS.indexOf(P.rate()); setRate(SPEEDS[Math.max(0, (i < 0 ? 3 : i) - 1)]); }
+    else if ((k === '.' || k === ',') && W.kind === 'native' && P.paused()) P.seek(P.time() + (k === '.' ? 1 / 30 : -1 / 30));
+    else if (/^[0-9]$/.test(k)) P.seek(P.dur() * Number(k) / 10);
+    else if (k === 'Home') P.seek(0);
+    else if (k === 'End') P.seek(P.dur());
+    else done = false;
+    if (done) { e.preventDefault(); wake(); updateProgress(); }
+  });
+
+  // Tombol Back browser menutup / membuka video
+  window.addEventListener('popstate', () => {
+    const m = location.hash.match(/^#v=(.+)$/);
+    if (m && allItems.some(i => i.id === m[1])) openWatch(m[1], false);
+    else closeWatch(true);
+  });
+  window.addEventListener('pagehide', savePos);
+}
+initWatch();
 
 loadAndRender();
 </script>

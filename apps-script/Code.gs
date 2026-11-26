@@ -9,7 +9,7 @@
  */
 
 const SHEET_NAME = 'items';
-const HEADERS = ['id', 'name', 'is_folder', 'folder_id', 'size', 'mime', 'drive_id', 'created_at'];
+const HEADERS = ['id', 'name', 'is_folder', 'folder_id', 'size', 'mime', 'drive_id', 'created_at', 'url'];
 
 // ——— Jalankan sekali dari editor (pilih "setup" lalu klik Run) ———
 function setup() {
@@ -35,6 +35,7 @@ function doPost(e) {
       case 'uploadChunk':  return uploadChunk_(b);
       case 'delete':       return deleteItem_(b);
       case 'move':         return moveItem_(b);
+      case 'addLink':      return addLink_(b);
       default: throw new Error('Aksi tidak dikenal: ' + b.action);
     }
   });
@@ -52,6 +53,16 @@ function createFolder_(b) {
   const name = String(b.name || '').trim();
   if (!name) throw new Error('Nama folder kosong');
   const item = { id: uid_(), name: name, is_folder: true, folder_id: b.folder_id || null, size: 0, mime: '', drive_id: '', created_at: new Date().toISOString() };
+  withLock_(() => appendItem_(getStore_().sheet, item));
+  return { item: item };
+}
+
+// Video YouTube: disimpan sebagai link, diputar langsung di web (tidak memakai kuota Drive)
+function addLink_(b) {
+  const m = String(b.url || '').match(/^https:\/\/www\.youtube\.com\/watch\?v=([A-Za-z0-9_-]{11})$/);
+  if (!m) throw new Error('Link YouTube tidak valid');
+  const name = String(b.name || '').trim() || 'Video YouTube';
+  const item = { id: uid_(), name: name, is_folder: false, folder_id: b.folder_id || null, size: 0, mime: 'video/youtube', drive_id: '', created_at: new Date().toISOString(), url: m[0] };
   withLock_(() => appendItem_(getStore_().sheet, item));
   return { item: item };
 }
@@ -155,13 +166,19 @@ function getStore_() {
     DriveApp.getFileById(ss.getId()).moveTo(DriveApp.getFolderById(folderId));
     const sh = ss.getSheets()[0];
     sh.setName(SHEET_NAME);
-    sh.getRange('A:H').setNumberFormat('@'); // simpan semua sebagai teks
+    sh.getRange('A:I').setNumberFormat('@'); // simpan semua sebagai teks
     sh.appendRow(HEADERS);
     sh.setFrozenRows(1);
     sheetId = ss.getId();
     p.setProperty('SHEET_ID', sheetId);
   }
-  return { folderId: folderId, sheet: SpreadsheetApp.openById(sheetId).getSheetByName(SHEET_NAME) };
+  const sheet = SpreadsheetApp.openById(sheetId).getSheetByName(SHEET_NAME);
+  // Sheet lama (sebelum fitur video) belum punya kolom "url"
+  if (sheet.getRange(1, HEADERS.length).getValue() === '') {
+    sheet.getRange(1, HEADERS.length).setValue(HEADERS[HEADERS.length - 1]);
+    sheet.getRange(1, HEADERS.length, sheet.getMaxRows(), 1).setNumberFormat('@');
+  }
+  return { folderId: folderId, sheet: sheet };
 }
 
 function readAll_(sheet) {
@@ -177,7 +194,8 @@ function readAll_(sheet) {
       size: Number(r[4]) || 0,
       mime: String(r[5] || ''),
       drive_id: String(r[6] || ''),
-      created_at: r[7] instanceof Date ? r[7].toISOString() : String(r[7])
+      created_at: r[7] instanceof Date ? r[7].toISOString() : String(r[7]),
+      url: String(r[8] || '')
     }));
 }
 
@@ -190,7 +208,8 @@ function appendItem_(sheet, i) {
     String(i.size || 0),
     i.mime || '',
     i.drive_id || '',
-    i.created_at
+    i.created_at,
+    i.url || ''
   ]);
 }
 
