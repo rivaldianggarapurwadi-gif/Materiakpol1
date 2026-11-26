@@ -644,7 +644,7 @@
 <script>
 // URL Web App dari Google Apps Script (lihat SETUP.md). Ganti dengan URL milikmu.
 const API_URL = 'https://script.google.com/macros/s/AKfycbyJ1hvlyX0vDeKo_Bf6-tdVnMm2nBfnbAypTVBgTvO-3hx0Fch2K4iksJ80vRTkc8gf/exec';
-const CHUNK = 8 * 1024 * 1024; // 8 MB per potongan upload (kelipatan 256 KB)
+const CHUNK = 24 * 1024 * 1024; // 24 MB per potongan lewat Apps Script (kelipatan 256 KB, < batas 50 MB setelah base64)
 
 let currentPath = [];
 let allItems = [];
@@ -1016,7 +1016,8 @@ async function handleFiles(fileInput) {
       const upShow = (sent) => {
         const secs = (Date.now() - t0) / 1000;
         const speed = secs > 1 ? ` · ${(sent / 1048576 / secs).toFixed(1)} MB/s` : '';
-        show(sent / totalBytes * 100, `⬆️ Mengupload ${main.name}${tag} — ${fmtSize(sent)} / ${fmtSize(totalBytes)}${speed}`);
+        const route = directUpload === false ? ' · via server (lambat)' : directUpload ? ' · langsung ke Drive' : '';
+        show(sent / totalBytes * 100, `⬆️ Mengupload ${main.name}${tag} — ${fmtSize(sent)} / ${fmtSize(totalBytes)}${speed}${route}`);
       };
       const up = await uploadBlob(main.blob, main.name, main.mime, n => upShow(n));
       let item = up.item;
@@ -1061,14 +1062,17 @@ async function uploadBlob(blob, name, mime, onProgress) {
     } catch (e) {
       if (!e.blocked) throw e;
       directUpload = false; // browser tidak diizinkan → pakai jalur Apps Script
-      console.warn('Upload langsung ke Drive diblokir, memakai jalur Apps Script');
+      console.warn('Upload langsung ke Drive diblokir, memakai jalur Apps Script:', e);
+      toast('Upload langsung ke Google Drive ditolak — memakai jalur server (lebih lambat)', 'error');
     }
   }
   const { session } = await apiPost('startUpload', { name, mime, size: blob.size });
   let start = 0;
+  let nextData = blobToBase64(blob.slice(0, CHUNK));
   do {
     const part = blob.slice(start, start + CHUNK);
-    const data = await blobToBase64(part);
+    const data = await nextData;
+    if (start + part.size < blob.size) nextData = blobToBase64(blob.slice(start + part.size, start + part.size + CHUNK));
     const res = await apiPost('uploadChunk', { session, start, total: blob.size, data, name, mime, folder_id: currentView === 'videos' ? null : currentFolderId(), register: serverVersion >= 2 ? false : undefined });
     start += part.size;
     onProgress(start);
