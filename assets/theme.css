@@ -263,3 +263,35 @@ input[type="checkbox"] { accent-color: #7a2236; }
   .hero { min-height: 380px; padding-top: 38px; border-radius: 0 0 20px 20px; }
   .logo-title { font-size: 17px; }
 }
+
+/* Manggala Satya crest on all page shells. */
+.brand-crest { display: block; object-fit: contain; flex-shrink: 0; }
+header .brand-crest { width: 56px; height: 56px; }
+.compact-crest { width: 38px; height: 38px; }
+.hero { grid-template-columns: 340px minmax(0, 1fr); gap: 40px; padding: 46px 56px; }
+.hero-crest { width: 100%; height: auto; max-width: 340px; margin: auto; }
+.course-cover,
+.course-card:nth-child(3n+2) .course-cover,
+.course-card:nth-child(3n) .course-cover {
+  background-image: url('manggala-satya.png'), linear-gradient(145deg, #631327, #8b3041);
+  background-size: auto 88%, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+}
+.course-card:nth-child(3n+2) .course-cover { background-image: url('manggala-satya.png'), linear-gradient(145deg, #735321, #b38a45); }
+.course-card:nth-child(3n) .course-cover { background-image: url('manggala-satya.png'), linear-gradient(145deg, #342b27, #6d5c49); }
+@media (max-width: 800px) {
+  .hero { grid-template-columns: 250px minmax(0, 1fr); gap: 20px; padding: 36px 24px; }
+}
+@media (max-width: 600px) {
+  header .brand-crest { width: 42px; height: 42px; }
+  .hero { grid-template-columns: 1fr; gap: 18px; padding: 24px 24px 40px; }
+  .hero-crest { max-width: 230px; }
+  .viewer-header { gap: 8px; }
+  .viewer-header .compact-crest { width: 30px; height: 30px; }
+}
+@media (max-width: 360px) {
+  header .brand-crest { width: 32px; height: 32px; }
+  .logo { gap: 5px; }
+  .logo-title { font-size: 15px; }
+}
