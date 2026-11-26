@@ -239,6 +239,8 @@ export function createApp() {
       fallthrough: false, maxAge: '7d',
       setHeaders(res, p) { if (p.endsWith('.mjs')) res.setHeader('Content-Type', 'text/javascript'); },
     }));
+    // Tema, lambang dan font tampilan (folder assets/ di repo)
+    app.use('/assets', express.static(path.join(config.siteDir, 'assets'), { fallthrough: false, maxAge: '1d' }));
     app.get(['/', '/index.html'], (req, res) => {
       res.set('Cache-Control', 'no-cache').sendFile(path.join(config.siteDir, 'index.html'));
     });

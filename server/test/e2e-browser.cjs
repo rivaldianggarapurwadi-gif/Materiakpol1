@@ -44,8 +44,11 @@ const step = async (name, fn) => { process.stdout.write(`• ${name} ... `); awa
   await step('viewer sees materials, no admin buttons', async () => {
     await page.goto(BASE + '/');
     await page.waitForSelector('#fileListBody .file-item, #fileListBody .empty');
-    assert.equal(await page.locator('button[title="Upload Materi"]').isVisible(), false);
+    assert.equal(await page.locator('a.nav-link[data-page="upload"]').isVisible(), false);
+    await page.goto(BASE + '/?page=upload');
+    await page.waitForSelector('#fileListBody .file-item, #fileListBody .empty');
     assert.equal(await page.locator('#dropZone').isVisible(), false);
+    assert.equal(await page.locator('#uploadTools').isVisible(), false);
     assert.equal(await page.locator('button[title="Masuk admin"]').isVisible(), true);
   });
 
@@ -58,12 +61,14 @@ const step = async (name, fn) => { process.stdout.write(`• ${name} ... `); awa
     await page.waitForFunction(() => document.getElementById('loginErr').textContent.length > 0);
     await page.fill('#loginPass', PASS);
     await page.press('#loginPass', 'Enter');
-    await page.waitForSelector('button[title="Upload Materi"]', { state: 'visible' });
+    await page.waitForSelector('a.nav-link[data-page="upload"]', { state: 'visible' });
     assert.match(await page.textContent('#adminName'), new RegExp(USER));
   });
 
   await step('create a folder and open it', async () => {
-    await page.click('button[title="Folder baru"]');
+    await page.click('a.nav-link[data-page="upload"]');
+    await page.waitForSelector('#dropZone', { state: 'visible' });
+    await page.click('#uploadTools button:has-text("Buat folder kursus")');
     await page.fill('#folderNameInput', folderName);
     await page.press('#folderNameInput', 'Enter');
     await page.click(`.file-name.folder-name:text-is("${folderName}")`);
@@ -109,13 +114,13 @@ const step = async (name, fn) => { process.stdout.write(`• ${name} ... `); awa
   });
 
   let videoId;
-  await step('video tab shows a poster; watch page plays HLS with a quality menu', async () => {
-    await page.click('#tabVideos');
-    const card = page.locator('.video-card:has(.video-title:text-is("Latihan Baris"))');
+  await step('course page shows a poster; watch page plays HLS with a quality menu', async () => {
+    await page.click('a.nav-link[data-page="videos"]');
+    const card = page.locator(`.course-card:has(h2:text-is("${folderName}"))`);
     await card.waitFor();
-    await page.waitForFunction(() => [...document.querySelectorAll('.video-card img')].some(i => i.complete && i.naturalWidth > 0));
-    await page.screenshot({ path: path.join(SHOTS, '3-videos.png') });
-    await card.click();
+    await page.waitForFunction(() => [...document.querySelectorAll('.course-card img')].some(i => i.complete && i.naturalWidth > 0));
+    await page.screenshot({ path: path.join(SHOTS, '3-courses.png') });
+    await card.locator('a.btn').click();
     await page.waitForFunction(() => { const v = document.querySelector('#player video'); return v && v.currentTime > 1; }, null, { timeout: 30000 });
     videoId = await page.evaluate(() => location.hash.slice(3));
     assert.ok(await page.evaluate(() => !!(W.hls && W.levels.length === 3)), 'hls.js with 720/480/360');
@@ -153,13 +158,13 @@ const step = async (name, fn) => { process.stdout.write(`• ${name} ... `); awa
   });
 
   await step('delete the test folder (recursive), then log out', async () => {
-    await page.click('#tabFiles');
-    await page.click('.breadcrumb-item:has-text("Semua Materi")');
+    await page.goto(BASE + '/?page=upload');
+    await page.waitForSelector('#fileListBody .file-item');
     await page.locator(`.file-item:has(.file-name:text-is("${folderName}")) button[title="Hapus"]`).click();
     await page.waitForSelector(`.file-name:text-is("${folderName}")`, { state: 'detached' });
     await page.click('#logoutBtn');
     await page.waitForSelector('button[title="Masuk admin"]', { state: 'visible' });
-    assert.equal(await page.locator('button[title="Upload Materi"]').isVisible(), false);
+    assert.equal(await page.locator('a.nav-link[data-page="upload"]').isVisible(), false);
   });
 
   await browser.close();

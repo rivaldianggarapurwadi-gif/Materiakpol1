@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload Materi AKPOL</title>
+<title>Materi AKPOL — Ruang belajar taruna</title>
+<link rel="icon" type="image/png" href="assets/manggala-satya.png">
 <!-- Library kompresi video (dimuat hanya saat upload video) -->
 <script src="config.js"></script>
 <script type="importmap">{"imports":{"mediabunny":"https://cdn.jsdelivr.net/npm/mediabunny@1.65.2/dist/bundles/mediabunny.min.mjs"}}</script>
@@ -426,31 +427,61 @@
   .pdf-pagenum { position: sticky; top: 0; z-index: 2; align-self: center; font-size: 12px; color: #fff; background: rgba(0,0,0,0.6); padding: 2px 10px; border-radius: 99px; }
   .p-msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; color: rgba(255,255,255,0.85); font-size: 14px; line-height: 1.6; z-index: 2; background: #000; }
   .login-err { color: #dc2626; font-size: 13px; min-height: 18px; margin-top: 6px; }
+
+/* Course catalogue, focused lessons, and a separate upload route. */
+[hidden] { display:none!important; }
+.nav-link[aria-current="page"] { outline:2px solid #7b9471; outline-offset:3px; }
+body[data-page="videos"] .container,body[data-page="upload"] .container { padding-top:52px; }
+body[data-page="files"] .file-actions { display:none; }
+.upload-tools { margin-bottom:20px; }
+.upload-tools h2 { font-size:20px; font-weight:500; margin-bottom:12px; }
+.upload-tools p { max-width:720px; line-height:1.7; color:var(--text-sec); }
+.upload-actions,.lesson-actions { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0; }
+.upload-tools .destination-label { margin-top:24px; font-weight:600; }
+.course-card { overflow:hidden; border:1px solid var(--border); border-radius:12px; background:var(--surface); box-shadow:0 3px 10px #38383806; }
+.course-cover { display:block; position:relative; aspect-ratio:16/9; background:#edf8e4; overflow:hidden; }
+.course-cover img { width:100%;height:100%;object-fit:cover; }
+.course-cover-label { position:absolute;bottom:12px;left:12px;background:#fbfbf8;padding:6px 10px;border-radius:6px;font-size:12px;color:var(--text); }
+.course-play { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:12px 16px;border-radius:50%;background:#fbfbf8e8;color:#3f5942; }
+.course-details { padding:22px; }.course-details h2 { font-size:20px;line-height:1.4;font-weight:500;overflow-wrap:anywhere; }.course-details p { margin:12px 0;color:var(--text-sec);font-size:13px; }.course-details .btn { width:100%;margin-top:18px; }
+.course-details progress { width:100%;height:6px;accent-color:#55765a;display:block; }
+.course-empty { grid-column:1/-1; }.course-empty .btn { margin-top:20px; }
+.watch { background:var(--bg);color:var(--text); }.watch-top { background:#f5f5f2ed;border-color:var(--border); }.watch-top .wt-title { font-size:14px;font-weight:400; }.w-icon { color:var(--text); }
+.watch-main { max-width:1440px;padding:32px;gap:28px; }.watch-secondary { width:340px;background:var(--surface);border:1px solid var(--border);border-radius:12px;align-self:flex-start;padding:20px; }.watch-title { font-size:26px;font-weight:500; }.watch-info { padding-top:24px; }.watch-info .eyebrow { line-height:1.7; }
+.watch-desc { background:#eeeee9; }.watch-desc .more { color:var(--text); }.watch-desc .kbd-list,.watch-chan span { color:var(--text-sec); }.w-pill { color:var(--text);background:#e7e7e3;border-radius:8px; }.w-pill:hover { background:#deded7; }
+.upnext-head { flex-wrap:wrap;gap:16px; }.autoplay-toggle { color:var(--text-sec); }.course-progress { padding:16px 0;font-size:13px;color:var(--text-sec); }.progress-note { font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:18px; }
+.lesson-row { display:flex;align-items:center;gap:12px;width:100%;padding:14px 10px;text-align:left;font:inherit;background:transparent;border:1px solid transparent;border-radius:8px;color:var(--text);cursor:pointer; }.lesson-row:hover { background:#f1f1ed; }.lesson-row.selected { background:#edf2e8;border-color:#cedbc6; }.lesson-number { flex-shrink:0;width:28px;height:28px;display:grid;place-items:center;border:1px solid #d6ddcf;border-radius:6px;font-size:12px; }.lesson-row strong { display:block;font-size:13px;line-height:1.5;font-weight:500;overflow-wrap:anywhere; }.lesson-row small { display:block;margin-top:3px;font-size:11px;color:var(--text-sec); }
+.btn:disabled { opacity:.45;cursor:default; }.lesson-actions .btn { font-size:12px; }
+@media(max-width:1000px) { .watch-main { flex-direction:column;padding:20px; }.watch-secondary { width:100%; }.watch-primary { width:100%; }.watch-info { padding:20px 0 0; } }
+@media(max-width:700px) { header { padding:0 12px; }.logo-sub { display:none; }.logo-emblem { width:22px;font-size:26px; }.logo { gap:5px; }.logo-title { font-size:16px; }.header-actions .btn { padding:0 8px;font-size:12px; }.watch-main { padding:12px; }.watch-title { font-size:22px; }.watch-top .wt-title span { display:inline; }.watch-top .wt-title .logo-emblem { display:none; }.course-details { padding:18px; }.lesson-actions { gap:8px; }.lesson-actions .btn { flex:1;white-space:normal;padding:8px; }.watch.theater .upnext-list { display:block; } }
+
+
+.player { color:#f1f1f1; }
+.autoplay-toggle { border:0;background:transparent;font-family:inherit;padding:0; }
+.switch { background:#c7c9c1; }.switch.on { background:#809c75; }.switch.on::after { background:#e4edde; }
+.library-heading > div { flex:1;min-width:0; }.library-heading > p { flex:0 0 260px; }
+.video-grid { grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:24px; }
+.course-details { display:flex;flex-direction:column; }.course-details h2 { min-height:56px; }
+body[data-page="files"] .file-list-header > span:last-child { visibility:hidden; }
+@media(max-width:700px) { .video-grid { grid-template-columns:1fr; }.library-heading > p { max-width:100%; } }
+
 </style>
+<link rel="stylesheet" href="assets/theme.css?v=office-preview">
 </head>
 <body>
 
 <header>
   <div class="logo">
-    <div class="logo-emblem">⭐</div>
+    <img class="brand-crest" src="assets/manggala-satya.png" alt="Lambang Manggala Satya" width="56" height="56">
     <div>
-      <div class="logo-title">Upload Materi AKPOL</div>
-      <div class="logo-sub">Akademi Kepolisian RI</div>
+      <div class="logo-title">Materi AKPOL</div>
+      <div class="logo-sub">MANGGALA SATYA</div>
     </div>
   </div>
-  <div class="header-actions">
-    <button class="btn admin-only" onclick="showNewFolderModal()" title="Folder baru" aria-label="Folder baru">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h3.5L10 7h9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-      <span class="lbl">Folder baru</span>
-    </button>
-    <button class="btn red admin-only" onclick="showVideoModal()" title="Tambah Video" aria-label="Tambah Video">
-      <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      <span class="lbl">Video</span>
-    </button>
-    <button class="btn gold admin-only" onclick="document.getElementById('fileInput').click()" title="Upload Materi" aria-label="Upload Materi">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-      <span class="lbl">Upload Materi</span>
-    </button>
+  <nav class="header-actions" aria-label="Navigasi utama">
+    <a class="btn nav-link" data-page="files" href="?page=files#library">Materi</a>
+    <a class="btn nav-link" data-page="videos" href="?page=courses">Kursus</a>
+    <a class="btn primary nav-link admin-only" data-page="upload" href="?page=upload">Upload</a>
     <button class="btn server-only login-only" onclick="showLoginModal()" title="Masuk admin" aria-label="Masuk admin">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
       <span class="lbl">Masuk admin</span>
@@ -459,24 +490,39 @@
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       <span class="lbl" id="adminName">Keluar</span>
     </button>
-  </div>
+  </nav>
 </header>
 
-<div class="hero">
-  <div class="hero-badge">⚖️ Tribrata · Catur Prasetya · Kebhayangkaraan</div>
-  <h1>Pusat Materi Taruna AKPOL</h1>
-  <p>Upload, simpan, dan bagikan materi — dapat diakses semua taruna dari device manapun</p>
-</div>
+<section class="hero" aria-labelledby="heroTitle">
+  <img class="hero-crest" src="assets/manggala-satya.png" alt="Lambang Manggala Satya" width="340" height="340" fetchpriority="high">
+  <div class="hero-copy">
+    <p class="hero-kicker">RUANG BELAJAR TARUNA</p>
+    <h1 id="heroTitle">Langkah kecil hari ini.<br>Bekal besar untuk mengabdi.</h1>
+    <p>Materi dan video untuk menemani belajarmu. <br>Pilih topik, mulai belajar, dan maju bersama.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="?page=courses">Mulai belajar</a>
+      <a class="btn" href="#library">Jelajahi materi</a>
+    </div>
+  </div>
+</section>
 
-<div class="container">
-  <div class="tabs">
+<div class="container" id="library">
+  <div class="library-heading"><div><p class="eyebrow">PERPUSTAKAAN BERSAMA</p><h2>temukan bekal belajarmu.<br><span>Satu topik, satu langkah maju.</span></h2></div><p>Buka materi pilihanmu atau tambahkan<br>pengetahuan untuk teman satu angkatan.</p></div>
+
+  <div class="tabs" hidden>
     <button class="tab active" id="tabFiles" onclick="setView('files')">📄 Materi</button>
     <button class="tab" id="tabVideos" onclick="setView('videos')">🎬 Video Pembelajaran <span class="tab-count" id="videoCount">0</span></button>
   </div>
+  <section class="upload-tools admin-only" id="uploadTools" hidden>
+    <h2>Tambahkan materi belajar</h2>
+    <p>Pilih folder di bawah sebagai tujuan upload. Video dalam folder yang sama akan tampil sebagai satu kursus. Gunakan nama seperti “01 Pengantar” untuk mengatur urutan pelajaran.</p>
+    <div class="upload-actions"><button class="btn" onclick="showNewFolderModal()">Buat folder kursus</button><button class="btn" onclick="showVideoModal()">Tambah video / link YouTube</button></div>
+    <p class="destination-label">Tujuan upload</p>
+  </section>
   <div class="breadcrumb" id="breadcrumb"></div>
   <div class="stats-bar" id="statsBar"></div>
 
-  <div class="upload-zone admin-only" id="dropZone" onclick="document.getElementById('fileInput').click()">
+  <div class="upload-zone admin-only" id="dropZone" role="button" tabindex="0" aria-label="Pilih file untuk diupload" onkeydown="if(event.target===this && (event.key==='Enter'||event.key===' ')){event.preventDefault();document.getElementById('fileInput').click()}" onclick="document.getElementById('fileInput').click()">
     <div class="upload-icon">
       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
     </div>
@@ -509,7 +555,7 @@
     Seret file ke folder tujuan untuk memindahkan
   </div>
 
-  <div class="video-grid" id="videoGrid" style="display:none"></div>
+  <div class="video-grid" id="videoGrid" style="display:none"><p role="status">Memuat kursus...</p></div>
 
   <div class="file-list" id="fileList">
     <div class="file-list-header">
@@ -607,7 +653,7 @@
     <button class="w-icon" onclick="closeWatch()" title="Kembali (Esc)" aria-label="Kembali">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     </button>
-    <div class="wt-title"><div class="logo-emblem">⭐</div><span>Video Pembelajaran AKPOL</span></div>
+    <div class="wt-title"><img class="brand-crest compact-crest" src="assets/manggala-satya.png" alt="" width="38" height="38"><span>Kembali ke daftar kursus</span></div>
   </div>
   <div class="watch-main">
     <div class="watch-primary">
@@ -643,11 +689,11 @@
         </div>
       </div>
       <div class="watch-info">
-        <h1 class="watch-title" id="wTitle"></h1>
+        <p id="lessonPosition" class="eyebrow"></p><h1 class="watch-title" id="wTitle"></h1><div class="lesson-actions"><button class="btn" id="previousLesson" onclick="previousLesson()">Pelajaran sebelumnya</button><button class="btn primary" id="completeLesson" onclick="toggleLessonComplete()">Tandai selesai</button><button class="btn" id="nextLesson" onclick="playNext()">Pelajaran berikutnya</button></div>
         <div class="watch-row">
           <div class="watch-chan">
-            <div class="logo-emblem">⭐</div>
-            <div><b>Materi AKPOL</b><span id="wFolder"></span></div>
+            <img class="brand-crest" src="assets/manggala-satya.png" alt="" width="48" height="48">
+            <div><b>Manggala Satya</b><span id="wFolder"></span></div>
           </div>
           <button class="w-pill" onclick="shareVideo()"><svg viewBox="0 0 24 24"><path d="M15 5.63 20.66 12 15 18.37V14h-1c-3.96 0-7.14 1-9.75 3.09 1.84-4.07 5.11-6.4 9.89-7.1l.86-.13V5.63M14 3v6C6.22 10.13 3.11 15.33 2 21c2.78-3.97 6.44-6 12-6v6l8-9-8-9z"/></svg>Bagikan</button>
           <button class="w-pill" id="wDl"><svg viewBox="0 0 24 24"><path d="M17 18v1H6v-1h11zm-.5-6.6-.7-.7-3.8 3.7V4h-1v10.4l-3.8-3.8-.7.7 5 5 5-4.9z"/></svg><span id="wDlLabel">Download</span></button>
@@ -667,25 +713,26 @@
     </div>
     <aside class="watch-secondary">
       <div class="upnext-head">
-        <b>Berikutnya</b>
-        <label class="autoplay-toggle" onclick="toggleAutoplay()"><span>Putar otomatis</span><span class="switch" id="wAuto"></span></label>
+        <b>Daftar pelajaran</b>
+        <button type="button" class="autoplay-toggle" id="autoplayButton" role="switch" aria-checked="true" onclick="toggleAutoplay()"><span>Putar otomatis</span><span class="switch" id="wAuto" aria-hidden="true"></span></button>
       </div>
-      <div class="upnext-list" id="wUpnext"></div>
+      <div id="courseProgress" class="course-progress" aria-live="polite"></div><div class="upnext-list" id="wUpnext"></div><p class="progress-note">Progres tersimpan di perangkat ini.</p>
     </aside>
   </div>
 </div>
 
 <!-- ——— FULLSCREEN VIEWER ——— -->
-<div class="viewer-overlay" id="viewerOverlay">
+<div class="viewer-overlay" id="viewerOverlay" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
   <div class="viewer-header">
+    <img class="brand-crest compact-crest" src="assets/manggala-satya.png" alt="Manggala Satya" width="38" height="38">
     <div class="viewer-title" id="viewerTitle"></div>
     <div class="viewer-type-badge" id="viewerBadge"></div>
     <div class="viewer-acts">
-      <button class="btn ghost" id="viewerDlBtn" onclick="">
+      <button class="btn ghost" id="viewerDlBtn" aria-label="Download materi">
         <svg id="viewerDlIcon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
         <span id="viewerDlLabel">Download</span>
       </button>
-      <button class="btn ghost" onclick="closeViewer()">
+      <button class="btn ghost" id="viewerCloseBtn" onclick="closeViewer()" aria-label="Tutup pratinjau">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         <span>Tutup</span>
       </button>
@@ -708,7 +755,10 @@ let currentPath = [];
 let allItems = [];
 let imgZoom = 1;
 let viewerCurrentId = null;
-let currentView = 'files';
+let viewerReturnFocus = null;
+let viewerPreviousOverflow = '';
+const pageName = new URLSearchParams(location.search).get('page');
+let currentView = pageName === 'courses' ? 'videos' : pageName === 'upload' ? 'upload' : 'files';
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 function currentFolderId() { return currentPath.length ? currentPath[currentPath.length-1].id : null; }
@@ -924,9 +974,9 @@ async function loadAndRender() {
     renderBreadcrumb(); renderStats(); renderFiles();
     schedulePoll();
     const m = location.hash.match(/^#v=(.+)$/);
-    if (m && allItems.some(i => i.id === m[1])) openWatch(m[1], false);
+    if (m && allItems.some(i => i.id === decodeURIComponent(m[1]))) openWatch(decodeURIComponent(m[1]), false);
   } catch(e) {
-    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat</h3><p>${esc(e.message)}</p></div>`;
+    document.getElementById(currentView === 'videos' ? 'videoGrid' : 'fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat</h3><p>${esc(e.message)}</p><button class="btn" onclick="loadAndRender()">Coba lagi</button></div>`;
   }
 }
 
@@ -962,16 +1012,50 @@ function getVisible() {
 }
 
 function setView(v) {
-  currentView = v;
-  document.getElementById('tabFiles').classList.toggle('active', v==='files');
-  document.getElementById('tabVideos').classList.toggle('active', v==='videos');
-  const isVid = v === 'videos';
-  document.getElementById('fileList').style.display = isVid ? 'none' : '';
-  document.getElementById('videoGrid').style.display = isVid ? '' : 'none';
-  document.getElementById('breadcrumb').style.display = isVid ? 'none' : '';
-  document.getElementById('dropZone').style.display = isVid ? 'none' : '';
-  document.getElementById('searchInput').placeholder = isVid ? 'Cari video...' : 'Cari materi...';
-  renderStats(); renderFiles();
+  location.href = '?page=' + (v === 'videos' ? 'courses' : v) + (v === 'files' ? '#library' : '');
+}
+
+function configurePage() {
+  const isVideo = currentView === 'videos';
+  const isUpload = currentView === 'upload';
+  document.body.dataset.page = currentView;
+  document.querySelector('.hero').hidden = isVideo || isUpload;
+  document.getElementById('uploadTools').hidden = !isUpload;
+  document.getElementById('dropZone').style.display = isUpload ? '' : 'none';
+  document.getElementById('fileList').style.display = isVideo ? 'none' : '';
+  document.getElementById('videoGrid').style.display = isVideo ? '' : 'none';
+  document.getElementById('breadcrumb').style.display = isVideo ? 'none' : '';
+  document.getElementById('searchInput').placeholder = isVideo ? 'Cari kursus atau pelajaran...' : 'Cari materi...';
+  document.querySelectorAll('nav [data-page]').forEach(link => {
+    if (link.dataset.page === currentView) link.setAttribute('aria-current', 'page');
+  });
+  if (isVideo || isUpload) {
+    const heading = document.querySelector('.library-heading');
+    heading.querySelector('.eyebrow').textContent = isVideo ? 'RUANG BELAJAR' : 'BERBAGI PENGETAHUAN';
+    heading.querySelector('h2').innerHTML = isVideo ? 'siap belajar hal baru?<br><span>Pilih kursus, mulai langkahmu.</span>' : 'ilmu makin seru dibagikan.<br><span>Tambahkan materi untuk sesama.</span>';
+    heading.querySelector(':scope > p').textContent = isVideo ? 'Tonton video, ikuti urutan pelajaran, dan lanjutkan kapan saja.' : 'Simpan dokumen dan video di folder yang sesuai.';
+    document.title = (isVideo ? 'Kursus' : 'Upload materi') + ' — Materi AKPOL';
+  }
+}
+
+function courseLessons(folderId) {
+  return allItems.filter(item => getFileType(item) === 'vid' && (item.folder_id || null) === (folderId || null))
+    .sort((a, b) => a.name.localeCompare(b.name, 'id', { numeric: true, sensitivity: 'base' }));
+}
+function lessonComplete(id) { return store('akpol_completed', {})[id] === true; }
+function courseName(folderId) { return folderId ? folderPathName(folderId) : 'Video pembelajaran umum'; }
+function toggleLessonComplete() {
+  if (!W.item) return;
+  const completed = store('akpol_completed', {});
+  completed[W.item.id] = !lessonComplete(W.item.id);
+  storeSet('akpol_completed', completed);
+  renderUpnext();
+}
+function previousLesson() {
+  if (!W.item) return;
+  const lessons = courseLessons(W.item.folder_id);
+  const previous = lessons[lessons.findIndex(item => item.id === W.item.id) - 1];
+  if (previous) openWatch(previous.id);
 }
 
 function folderPathName(folderId) {
@@ -984,29 +1068,25 @@ function folderPathName(folderId) {
 function renderVideos() {
   const grid = document.getElementById('videoGrid');
   const search = document.getElementById('searchInput').value.trim().toLowerCase();
-  const vids = allItems.filter(i => getFileType(i)==='vid' && (!search || i.name.toLowerCase().includes(search)));
   document.getElementById('dragHint').style.display = 'none';
   document.getElementById('dropToParent').classList.remove('visible');
-  if (!vids.length) {
-    grid.innerHTML = `<div class="file-list" style="grid-column:1/-1"><div class="empty"><div class="empty-icon">🎬</div><h3>${search?'Tidak ada video untuk "'+esc(search)+'"':'Belum ada video'}</h3><p>${search?'Coba kata kunci lain.':'Klik tombol <b>Video</b> di atas untuk upload video atau menambahkan link YouTube.'}</p><div style="margin-top:14px">${search?'':'<button class="btn red" onclick="showVideoModal()">+ Tambah video</button>'}</div></div></div>`;
+  const folders = [...new Set(allItems.filter(item => getFileType(item) === 'vid').map(item => item.folder_id || null))];
+  const courses = folders.map(folder => ({ name: courseName(folder), lessons: courseLessons(folder) }))
+    .filter(course => course.name.toLowerCase().includes(search) || course.lessons.some(item => item.name.toLowerCase().includes(search)))
+    .sort((a,b) => a.name.localeCompare(b.name, 'id'));
+  if (!courses.length) {
+    grid.innerHTML = `<div class="empty course-empty"><h3>${search ? 'Kursus tidak ditemukan' : 'Belum ada kursus'}</h3><p>${search ? 'Coba nama kursus atau pelajaran lain.' : 'Video pembelajaran akan muncul di sini setelah ditambahkan.'}</p>${search ? '' : '<a class="btn" href="?page=upload">Tambahkan video pertama</a>'}</div>`;
     return;
   }
-  grid.innerHTML = vids.map(v => `
-    <div class="video-card" onclick="openViewer('${v.id}')">
-      <div class="video-thumb">
-        <img src="${videoThumb(v)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
-        <div class="video-play"><span><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></div>
-        ${videoSrcBadge(v)}
-        ${durBadge(v.id)}${watchedBar(v.id)}
-        <button class="icon-btn del video-del admin-only" title="Hapus" onclick="event.stopPropagation();deleteItem('${v.id}')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-        </button>
-      </div>
-      <div class="video-info">
-        <div class="video-title">${esc(vTitle(v))}</div>
-        <div class="video-meta">📁 ${esc(folderPathName(v.folder_id))} · ${fmtDate(v.created_at)}${v.size?' · '+fmtSize(v.size):''}</div>
-      </div>
-    </div>`).join('');
+  grid.innerHTML = courses.map(course => {
+    const done = course.lessons.filter(item => lessonComplete(item.id)).length;
+    const next = course.lessons.find(item => !lessonComplete(item.id)) || course.lessons[0];
+    const first = course.lessons[0];
+    return `<article class="course-card">
+      <a class="course-cover" href="#v=${encodeURIComponent(next.id)}" aria-label="Buka kursus ${esc(course.name)}"><img src="${videoThumb(first)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="course-cover-label">${course.lessons.length} pelajaran</span><span class="course-play" aria-hidden="true"></span></a>
+      <div class="course-details"><h2>${esc(course.name)}</h2><p>${done} dari ${course.lessons.length} pelajaran selesai</p><progress value="${done}" max="${course.lessons.length}" aria-label="Progres ${esc(course.name)}"></progress><a class="btn" href="#v=${encodeURIComponent(next.id)}">${done === course.lessons.length ? 'Pelajari kembali' : done ? 'Lanjutkan belajar' : 'Mulai belajar'}</a></div>
+    </article>`;
+  }).join('');
 }
 
 function videoSrcBadge(v) {
@@ -1151,6 +1231,7 @@ function isVideoFile(f) { return /^video\//.test(f.type) || /\.(mp4|m4v|mov|webm
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function handleFiles(fileInput) {
+  if (currentView !== 'upload') { toast('Buka halaman Upload untuk menambahkan materi.'); return; }
   const files = Array.from(fileInput);
   if (!files.length) return;
   if (needAdmin()) return;
@@ -1460,6 +1541,10 @@ function openViewer(id) {
   const item = allItems.find(i=>i.id===id);
   if (item && getFileType(item) === 'vid') return openWatch(id);
   if (!hasFile(item)) return;
+  if (!document.getElementById('viewerOverlay').classList.contains('open')) {
+    viewerReturnFocus = document.activeElement;
+    viewerPreviousOverflow = document.body.style.overflow;
+  }
   viewerCurrentId = id;
 
   const url = previewUrl(item);
@@ -1480,6 +1565,7 @@ function openViewer(id) {
   // Show overlay
   document.getElementById('viewerOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.getElementById('viewerCloseBtn').focus({ preventScroll: true });
 
   // Render
   const body = document.getElementById('viewerBody');
@@ -1487,6 +1573,36 @@ function openViewer(id) {
   body.innerHTML = '<div class="viewer-loading"><div class="viewer-spinner"></div><span style="color:rgba(255,255,255,0.5);font-size:13px">Memuat file...</span></div>';
 
   if (SERVER) return renderServerViewer(item, ft, body);
+
+  if (ft === 'office') {
+    // Keep the expensive Office renderer out of the library's document.
+    const presentation = ['ppt', 'pptx'].includes(ext);
+    const card = document.createElement('section');
+    card.className = 'office-preview';
+    const format = document.createElement('span');
+    format.className = 'office-format';
+    format.textContent = ext.toUpperCase();
+    const title = document.createElement('h2');
+    title.textContent = item.name;
+    const description = document.createElement('p');
+    description.textContent = 'Buka ' + (presentation ? 'presentasi' : 'dokumen') + ' di tab baru untuk melihat seluruh halaman. Tab materi ini tetap tersedia.';
+    const open = document.createElement('a');
+    open.className = 'btn primary';
+    open.href = 'https://drive.google.com/file/d/' + encodeURIComponent(item.drive_id) + '/view';
+    open.target = '_blank';
+    open.rel = 'noopener noreferrer';
+    open.textContent = presentation ? 'Buka presentasi di tab baru' : 'Buka dokumen di tab baru';
+    const download = document.createElement('button');
+    download.className = 'btn';
+    download.textContent = 'Download ' + ext.toUpperCase();
+    download.onclick = () => downloadItem(id);
+    const actions = document.createElement('div');
+    actions.className = 'office-preview-actions';
+    actions.append(open, download);
+    card.append(format, title, description, actions);
+    body.replaceChildren(card);
+    return;
+  }
 
   if (ft === 'img') {
     imgZoom = 1;
@@ -1516,11 +1632,11 @@ function openViewer(id) {
       window._vImg = img;
     };
     // Gambar belum diproses Drive → tampilkan pratinjau Drive
-    img.onerror = () => { if (viewerCurrentId===id) body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; };
+    img.onerror = () => { if (viewerCurrentId===id) body.innerHTML = `<iframe class="pdf-frame" title="Pratinjau materi" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`; };
 
   } else {
-    // PDF, Word, PPT, Excel, audio, teks: pratinjau bawaan Google Drive
-    body.innerHTML = `<iframe class="pdf-frame" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+    // PDF, audio, and text retain the embedded Google Drive preview.
+    body.innerHTML = `<iframe class="pdf-frame" title="Pratinjau materi" src="${url}" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
   }
 }
 
@@ -1644,14 +1760,17 @@ async function renderPdf(body, url, item) {
 
 function closeViewer() {
   const ov = document.getElementById('viewerOverlay');
+  if (!ov.classList.contains('open')) return;
   ov.classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = viewerPreviousOverflow;
   const b = document.getElementById('viewerBody');
   b.innerHTML=''; b.style.alignItems='center';
   viewerCurrentId = null;
   window._vImg = null;
   if (window._vPdfObs) { window._vPdfObs.disconnect(); window._vPdfObs = null; }
   if (window._vPdf) { const t = window._vPdf; window._vPdf = null; try { t.destroy(); } catch (e) { /* sudah ditutup */ } }
+  if (viewerReturnFocus && viewerReturnFocus.isConnected) viewerReturnFocus.focus({ preventScroll: true });
+  viewerReturnFocus = null;
 }
 
 function zoomImg(delta) {
@@ -1795,7 +1914,7 @@ dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();dz.classList.remove('drag');if(!dragItemId)handleFiles(e.dataTransfer.files);});
 // Cegah browser membuka file saat file dari komputer dijatuhkan di luar upload zone; upload saja
 window.addEventListener('dragover',e=>{if(!dragItemId)e.preventDefault();});
-window.addEventListener('drop',e=>{if(dragItemId)return;e.preventDefault();if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+window.addEventListener('drop',e=>{if(dragItemId)return;e.preventDefault();if(e.dataTransfer.files.length && currentView === 'upload')handleFiles(e.dataTransfer.files);});
 document.getElementById('videoInput').addEventListener('change',e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value='';});
 document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value='';});
 document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.style.display='none';}));
@@ -1876,7 +1995,7 @@ function openWatch(id, push = true) {
   w.classList.toggle('theater', store('akpol_theater', false));
   w.scrollTop = 0;
   document.body.style.overflow = 'hidden';
-  if (push) { const h = '#v=' + id; if (location.hash !== h) history.pushState({ v: id }, '', h); }
+  if (push) { const h = '#v=' + encodeURIComponent(id); if (location.hash !== h) history.pushState({ v: id }, '', h); }
   document.title = vTitle(item) + ' - Video Pembelajaran AKPOL';
 
   $('wTitle').textContent = vTitle(item);
@@ -1886,6 +2005,7 @@ function openWatch(id, push = true) {
   $('wDlLabel').textContent = isYoutube(item) ? 'Buka di YouTube' : 'Download';
   $('wDl').onclick = isYoutube(item) ? () => window.open(item.url, '_blank', 'noopener') : () => downloadItem(item.id);
   $('wAuto').classList.toggle('on', autoplayOn());
+  $('autoplayButton').setAttribute('aria-checked', String(autoplayOn()));
   renderUpnext();
 
   if (isYoutube(item)) loadYT(item); else loadNative(item);
@@ -1901,10 +2021,10 @@ function closeWatch(fromPop = false) {
   $('watch').classList.remove('open');
   $('watch').setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-  document.title = 'Upload Materi AKPOL';
-  if (!fromPop && location.hash.startsWith('#v=')) {
-    if (history.state && history.state.v) history.back();
-    else history.replaceState(null, '', location.pathname + location.search);
+  document.title = 'Kursus — Materi AKPOL';
+  if (!fromPop) {
+    if (currentView !== 'videos') { location.href = '?page=courses'; return; }
+    history.pushState(null, '', location.pathname + location.search);
   }
   renderFiles(); // perbarui bar "sudah ditonton"
 }
@@ -2174,32 +2294,24 @@ function loadYT(item) {
 
 // ——— Antrean "Berikutnya" ———
 function upNextQueue() {
-  const cur = W.item;
-  if (!cur) return [];
-  const coll = new Intl.Collator('id', { numeric: true, sensitivity: 'base' });
-  const vids = allItems.filter(i => getFileType(i) === 'vid');
-  const sameF = v => (v.folder_id || null) === (cur.folder_id || null);
-  const same = vids.filter(sameF).sort((a, b) => coll.compare(a.name, b.name));
-  const idx = same.findIndex(v => v.id === cur.id);
-  const others = vids.filter(v => !sameF(v)).sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
-  return [...same.slice(idx + 1), ...others, ...same.slice(0, Math.max(0, idx))];
+  if (!W.item) return [];
+  const lessons = courseLessons(W.item.folder_id);
+  return lessons.slice(lessons.findIndex(item => item.id === W.item.id) + 1);
 }
 
 function renderUpnext() {
-  const q = upNextQueue();
-  $('wUpnext').innerHTML = q.length ? q.map(v => `
-    <div class="upnext-item" onclick="openWatch('${v.id}')">
-      <div class="un-thumb">
-        <div class="ph">🎬</div>
-        <img src="${videoThumb(v, 400)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
-        ${durBadge(v.id)}${watchedBar(v.id)}
-      </div>
-      <div class="un-info">
-        <div class="un-title">${esc(vTitle(v))}</div>
-        <div class="un-meta">${esc(folderPathName(v.folder_id))}<br>${fmtDate(v.created_at)}</div>
-      </div>
-    </div>`).join('') : '<div class="un-empty">Belum ada video lain.</div>';
-  $('pNext').style.display = q.length ? '' : 'none';
+  if (!W.item) return;
+  const lessons = courseLessons(W.item.folder_id);
+  const index = lessons.findIndex(item => item.id === W.item.id);
+  const done = lessons.filter(item => lessonComplete(item.id)).length;
+  $('courseProgress').textContent = done + ' dari ' + lessons.length + ' pelajaran selesai';
+  $('lessonPosition').textContent = courseName(W.item.folder_id) + ' · Pelajaran ' + (index + 1) + ' dari ' + lessons.length;
+  $('completeLesson').textContent = lessonComplete(W.item.id) ? 'Selesai — batalkan tanda' : 'Tandai selesai';
+  $('completeLesson').setAttribute('aria-pressed', String(lessonComplete(W.item.id)));
+  $('previousLesson').disabled = index === 0;
+  $('nextLesson').disabled = index === lessons.length - 1;
+  $('wUpnext').innerHTML = lessons.map((item, i) => `<button class="lesson-row ${item.id === W.item.id ? 'selected' : ''}" onclick="openWatch('${item.id}')" ${item.id === W.item.id ? 'aria-current="step"' : ''}><span class="lesson-number">${lessonComplete(item.id) ? '✓' : i + 1}</span><span><strong>${esc(vTitle(item))}</strong><small>${item.id === W.item.id ? 'Sedang dipelajari' : lessonComplete(item.id) ? 'Selesai' : 'Belum selesai'}</small></span></button>`).join('');
+  $('pNext').style.display = index < lessons.length - 1 ? '' : 'none';
 }
 
 function playNext() { const n = upNextQueue()[0]; if (n) openWatch(n.id); }
@@ -2236,6 +2348,7 @@ function toggleAutoplay() {
   const on = !autoplayOn();
   storeSet('akpol_autoplay', on);
   $('wAuto').classList.toggle('on', on);
+  $('autoplayButton').setAttribute('aria-checked', String(on));
   pToast('Putar otomatis ' + (on ? 'aktif' : 'nonaktif'));
 }
 
@@ -2384,7 +2497,7 @@ function wake() {
 }
 function shareVideo() {
   if (!W.item) return;
-  const url = location.origin + location.pathname + '#v=' + W.item.id;
+  const url = location.origin + location.pathname + '?page=courses#v=' + encodeURIComponent(W.item.id);
   if (navigator.share && matchMedia('(pointer: coarse)').matches) { navigator.share({ title: W.item.name, url }).catch(() => {}); return; }
   (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
     () => toast('Link video disalin'),
@@ -2485,13 +2598,17 @@ function initWatch() {
   });
 
   // Tombol Back browser menutup / membuka video
-  window.addEventListener('popstate', () => {
+  window.addEventListener('hashchange', () => {
     const m = location.hash.match(/^#v=(.+)$/);
-    if (m && allItems.some(i => i.id === m[1])) openWatch(m[1], false);
+    if (m && allItems.some(i => i.id === decodeURIComponent(m[1]))) openWatch(decodeURIComponent(m[1]), false);
     else closeWatch(true);
   });
   window.addEventListener('pagehide', savePos);
 }
+window.addEventListener('beforeunload', event => {
+  if (uploading) { event.preventDefault(); event.returnValue = ''; }
+});
+configurePage();
 initWatch();
 
 document.body.classList.add(SERVER ? 'mode-server' : 'mode-drive');

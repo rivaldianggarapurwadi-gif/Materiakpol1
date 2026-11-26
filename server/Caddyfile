@@ -40,6 +40,12 @@
 		file_server
 	}
 
+	handle /assets/* {
+		root * /srv/site
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+
 	@index path / /index.html
 	handle @index {
 		root * /srv/site

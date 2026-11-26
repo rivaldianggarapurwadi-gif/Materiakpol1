@@ -38,7 +38,7 @@ services:
       SITE_ADDRESS: ${SITE_ADDRESS:-:80}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ..:/srv/site:ro                        # the repo: only index.html and vendor/ are served
+      - ..:/srv/site:ro                        # the repo: only index.html, assets/ and vendor/ are served
       - ${DATA_DIR:-./data}/media:/srv/media:ro
       - caddy_data:/data
       - caddy_config:/config
