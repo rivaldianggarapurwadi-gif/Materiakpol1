@@ -227,7 +227,10 @@ export function createApp() {
         res.setHeader('Cache-Control', p.includes(`${path.sep}files${path.sep}`) ? 'public, max-age=3600' : 'public, max-age=86400');
       },
     }));
-    app.use('/vendor', express.static(path.join(config.siteDir, 'vendor'), { fallthrough: false, maxAge: '7d' }));
+    app.use('/vendor', express.static(path.join(config.siteDir, 'vendor'), {
+      fallthrough: false, maxAge: '7d',
+      setHeaders(res, p) { if (p.endsWith('.mjs')) res.setHeader('Content-Type', 'text/javascript'); },
+    }));
     app.get(['/', '/index.html'], (req, res) => {
       res.set('Cache-Control', 'no-cache').sendFile(path.join(config.siteDir, 'index.html'));
     });

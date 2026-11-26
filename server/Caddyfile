@@ -35,6 +35,8 @@
 	handle /vendor/* {
 		root * /srv/site
 		header Cache-Control "public, max-age=604800"
+		@mjs path *.mjs
+		header @mjs Content-Type "text/javascript"
 		file_server
 	}
 
