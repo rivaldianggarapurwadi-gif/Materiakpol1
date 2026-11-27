@@ -27,7 +27,8 @@ async function discover(base) {
     const list = await (await fetch(vurl)).text();
     for (const l of list.split('\n')) if (l.endsWith('.ts')) segments.push(new URL(l, vurl).href);
   }
-  const docs = items.filter(i => !i.is_folder && i.src && !i.hls).map(i => new URL(i.src, base).href);
+  // small documents only: the test is about many people browsing and watching, not one huge download
+  const docs = items.filter(i => !i.is_folder && i.src && !i.hls && i.size < 5e6).map(i => new URL(i.src, base).href);
   return { items: items.length, videos: videos.length, segments, docs };
 }
 
