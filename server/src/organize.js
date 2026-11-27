@@ -8,11 +8,11 @@ import { items, uid } from './db.js';
 // Folder names, in display order, with the words that identify each subject.
 // Add words here if files are left unsorted (lowercase; whole words only).
 export const MAPEL = [
-  { name: 'Binmas', words: ['binmas', 'bimbingan masyarakat', 'polmas', 'pemolisian masyarakat', 'perpolisian masyarakat'] },
+  { name: 'Binmas', words: ['binmas', 'bimbingan masyarakat', 'polmas', 'pemolisian masyarakat', 'perpolisian masyarakat', 'pokdar'] },
   { name: 'Manajemen Bin Polri', words: ['manajemen bin polri', 'manajemen bin', 'manajemen pembinaan', 'bin polri', 'mbp', 'manbin'] },
-  { name: 'Reserse', words: ['reserse', 'reskrim', 'serse', 'penyidikan', 'penyelidikan', 'krimum', 'krimsus', 'narkoba', 'forensik'] },
-  { name: 'Administrasi Kepolisian', words: ['administrasi kepolisian', 'adm kepolisian', 'adm pol', 'admpol', 'adminpol', 'administrasi polri'] },
-  { name: 'IELTS', words: ['ielts', 'english', 'bahasa inggris', 'toefl'] },
+  { name: 'Reserse', words: ['reserse', 'reskrim', 'serse', 'penyidikan', 'penyelidikan', 'krimum', 'krimsus', 'narkoba', 'forensik', 'lp model', 'tkp'] },
+  { name: 'Administrasi Kepolisian', words: ['administrasi kepolisian', 'adm kepolisian', 'adm pol', 'admpol', 'adminpol', 'administrasi polri', 'adm', 'administrasi'] },
+  { name: 'IELTS', words: ['ielts', 'english', 'bahasa inggris', 'toefl', 'listening', 'speaking'] },
   { name: 'Lantas', words: ['lantas', 'lalu lintas', 'lalin', 'laka', 'kecelakaan lalu lintas', 'sim'] },
   { name: 'KB', words: ['kb'] },
   { name: 'Sabhara', words: ['sabhara', 'samapta', 'dalmas', 'turjawali'] },
@@ -65,13 +65,24 @@ export function organizeMapel({ apply = false, log = console.log } = {}) {
     return parts.length ? parts.join(' › ') : 'Semua Materi';
   };
 
-  // 1) One root folder per subject: reuse a root folder with the same name, otherwise create it.
+  // 1) One root folder per subject. Reuse a root folder with the same name, or one named with one of the
+  //    subject's words (e.g. "ADM", "intel"), renamed to the subject name; otherwise create it.
   const target = {};
   const created = [];
+  const renamed = [];
+  const used = new Set();
+  const isAlias = (name, m) => { const n = norm(name).trim(); return n === norm(m.name).trim() || m.words.includes(n); };
   for (const m of MAPEL) {
-    const existing = children(null).find(i => i.is_folder && norm(i.name) === norm(m.name));
-    if (existing) target[m.name] = existing.id;
-    else {
+    const roots = children(null).filter(i => i.is_folder && !used.has(i.id));
+    const existing = roots.find(i => norm(i.name) === norm(m.name)) || roots.find(i => isAlias(i.name, m));
+    if (existing) {
+      target[m.name] = existing.id;
+      used.add(existing.id);
+      if (existing.name !== m.name) {
+        renamed.push({ from: existing.name, to: m.name });
+        if (apply) items.update(existing.id, { name: m.name });
+      }
+    } else {
       created.push(m.name);
       target[m.name] = apply ? items.insert({ id: uid(), name: m.name, is_folder: true, folder_id: null }).id : `(baru) ${m.name}`;
     }
@@ -118,6 +129,7 @@ export function organizeMapel({ apply = false, log = console.log } = {}) {
   }
 
   // 4) Report (and apply)
+  if (renamed.length) log(`Folder ${apply ? 'diganti nama' : 'akan diganti nama'}: ${renamed.map(x => `"${x.from}" → "${x.to}"`).join(', ')}`);
   if (created.length) log(`Folder mapel ${apply ? 'dibuat' : 'akan dibuat'}: ${created.join(', ')}`);
   if (subCreated.length) log(`Subfolder ${SUBFOLDERS.join(' / ')} ${apply ? 'dibuat' : 'akan dibuat'}: ${subCreated.length} folder di ${new Set(subCreated.map(x => x.split('/')[0])).size} mapel`);
   for (const m of MAPEL) {
@@ -148,5 +160,5 @@ export function organizeMapel({ apply = false, log = console.log } = {}) {
   const movedCount = new Set([...moves, ...subMoves].map(x => x.it.id)).size; // a file can move twice (into the mapel, then its subfolder)
   log(`\n${apply ? 'Selesai' : 'Rencana'}: ${movedCount} item ${apply ? 'dipindahkan' : 'akan dipindahkan'}, ${created.length} folder mapel dan ${subCreated.length} subfolder ${apply ? 'dibuat' : 'baru'}, ${ambiguous.length + unmatched.length} dibiarkan.`);
   if (!apply) log('Belum ada yang diubah. Jalankan dengan --apply untuk memindahkan.');
-  return { moves: moves.length, subMoves: subMoves.length, created, subCreated, ambiguous: ambiguous.map(i => i.name), unmatched: unmatched.map(i => i.name), stays: stays.map(x => x.it.name) };
+  return { moves: moves.length, subMoves: subMoves.length, created, renamed, subCreated, ambiguous: ambiguous.map(i => i.name), unmatched: unmatched.map(i => i.name), stays: stays.map(x => x.it.name) };
 }
