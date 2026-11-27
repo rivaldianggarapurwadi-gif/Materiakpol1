@@ -9,7 +9,9 @@
     "start": "node --disable-warning=ExperimentalWarning src/app.js",
     "worker": "node --disable-warning=ExperimentalWarning src/worker.js",
     "cli": "node --disable-warning=ExperimentalWarning src/cli.js",
-    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/*.test.js"
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/*.test.js",
+    "test:e2e": "node --disable-warning=ExperimentalWarning test/e2e-local.mjs",
+    "test:e2e:drive": "node test/e2e-drive-mode.cjs"
   },
   "dependencies": {
     "@tus/file-store": "2.1.1",

@@ -2,7 +2,7 @@
 
 > **Ringkasan (ID):** Pemilik web ingin berhenti bergantung pada Google Drive dan memakai **server sendiri** (komputer disiapkan pemilik). Dokumen ini menjelaskan kondisi web saat ini, rancangan server sendiri, langkah kerja, dan hal yang masih harus ditanyakan ke pemilik sebelum mulai.
 
-Status: **built and tested, not yet installed on the owner's machine.** The owner answered the key questions in §7 on 2026-11-26. Phases 1–6 of §9 are implemented in `server/` (owner guide: `server/PANDUAN.md`). Remaining: install on the real hardware, run the Drive migration there, pick the public-access route (§5) once the ISP/CGNAT answer is known.
+Status: **installed on a campus PC on 2026-11-26 and running; the library is still almost empty.** The owner answered the key questions in §7 on 2026-11-26. Phases 1–6 of §9 are implemented in `server/` (owner guide: `server/PANDUAN.md`). Remaining: move the material over from Google Drive (the owner postponed this on 2026-11-27), set up access from outside the campus network (§5; the owner cannot open the router's settings, so Tailscale Funnel is the suggested route), and confirm hardware video encoding on the real GPU.
 
 ## Current condition (2026-11-27)
 
@@ -23,13 +23,27 @@ Status: **built and tested, not yet installed on the owner's machine.** The owne
 - **Verified only against mocks:** `syncDrive` and the other v3 Apps Script logic were tested with an in-memory DriveApp/SpreadsheetApp harness (folder mirroring, sync, de-duplication, skip rules, move, delete, finishUpload tree check). They have **not** been run on real Google. The harness was a throwaway script in the session scratchpad and is not in the repo.
 
 **Self-hosted server (`server/`)**
-- Built and tested; not yet installed on the owner's hardware (details below). Later commits from the server session added `install.sh` fixes and `organize-mapel` (one folder per subject).
+- **Installed by the owner on 2026-11-26** with `install.sh`: a campus desktop PC, Ubuntu Server 26.04, one 512 GB SSD, connected over Wi-Fi with a DHCP address (no fixed IP, because the owner cannot open the router's settings; `PANDUAN.md` §6 covers this case).
+- `install.sh` found an Intel GPU (`/dev/dri`) and enabled the VAAPI override. Whether the worker really picked a hardware encoder is **not confirmed**; check with `docker compose logs worker | grep Encoder`.
+- The server's checkout is on the branch `claude/hopeful-archimedes-0llefc`. Frontend changes go live with `git pull` alone (Caddy serves `index.html`, `assets/` and `vendor/` straight from the checkout); changes under `server/` also need `docker compose up -d --build`.
+- Content on 2026-11-27: two test videos. The owner wants one folder per subject (mapel): Binmas, Manajemen Bin Polri, Reserse, Administrasi Kepolisian, IELTS, Lantas, KB, Sabhara, TIK, Polair, Intel. `organize-mapel` (dry run unless `--apply`) creates them and sorts items by name.
+- Fixed during the install: `install.sh` now creates the data folders before Compose starts (Docker used to create `data/media` as root, which crashed the app with EACCES), installs `docker-buildx`, and adds the installing user to the `docker` group.
 - The server's Drive migration (`migrate.js`) reads the same Apps Script `list`. v3 adds `drive_folder` and Drive ids on folder rows. The migrator ignores folder `drive_id`s (folders are created from the list; only file rows are downloaded), so it stays compatible.
+
+**User interface (redesigned 2026-11-27)**
+- **Look:** a sticker theme built around the mascot **Kentung**. The owner's sticker sheet was cut into 27 transparent stickers (`assets/kentung/`, two sizes each; see its README for which pose is used where). Thick ink outlines, maroon and gold from the Manggala Satya crest. The crest stays in the header, the home hero, the footer, the watch page and the file viewer. The footer carries the credit "Run and managed by Tim IT MS 60".
+- **Where the styling lives:** `assets/theme.css` (colour and shape tokens at the top), layered over the older base styles that are still inline in `index.html`.
+- **Materi (home):** a greeting that follows the time of day, one card per root folder (mapel) with its video and document counts, "Lanjutkan belajar" for half-watched videos, and "Baru ditambahkan". Search looks in every folder at once. Opening a folder uses the History API (`?f=<id>`), so the browser's Back button and shared folder links work. Phones get a bottom tab bar instead of the header links.
+- **Kursus:** course cards with progress. Watching a video to the end marks the lesson done; closing the player returns to where the viewer came from.
+- **Upload (admin):** the upload box names its destination folder. Rename (server mode only), move through a folder picker (also works on phones) or by drag and drop, delete through a confirm dialog instead of the browser's `confirm()`.
+- **States:** loading, empty folder, no search results, load error, upload in progress and "YouTube is blocked" each show a Kentung pose with a plain sentence.
+- **Tests:** `npm run test:e2e` (server mode against a temporary in-process server and worker) and `npm run test:e2e:drive` (Drive mode: the static files at a sub-path with the Apps Script stubbed, including the v1 response shape that is still deployed). Both pass on the commit that introduced the redesign.
+- **Deployment:** merged into `main` on 2026-11-27 at the owner's request, so GitHub Pages (Drive mode) serves it. The self-hosted server shows it after `git pull` in its checkout.
 
 **Next steps**
 1. Owner redeploys Apps Script v3, then uploads a test video through Drive and checks it appears under **Kursus**.
 2. If website uploads are still needed for small files, get a screenshot of the progress label (`langsung ke Drive` vs `via server (lambat)`) to diagnose the cancellations.
-3. Install the self-hosted server on the owner's machine (`server/PANDUAN.md`), then `migrate-drive --dry-run`.
+3. On the self-hosted server: `migrate-drive --dry-run`, then the real migration, then `organize-mapel`. Set up Tailscale Funnel (`PANDUAN.md` §6) if cadets need the site from outside the campus network.
 
 ### Implementation notes (2026-11-26)
 

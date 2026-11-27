@@ -1,4 +1,5 @@
-// Sort the library into one top-level folder per subject (mapel), matching item names against keywords.
+// Sort the library into one top-level folder per subject (mapel), matching item names against keywords,
+// then give every mapel the subfolders Video / PPT / Tentir and sort its loose files into them.
 // Default is a dry run that only prints the plan; pass apply: true to move things.
 //   node src/cli.js organize-mapel           (lihat rencana)
 //   node src/cli.js organize-mapel --apply   (jalankan)
@@ -19,6 +20,22 @@ export const MAPEL = [
   { name: 'Polair', words: ['polair', 'polairud', 'polisi air', 'perairan', 'kepolisian perairan'] },
   { name: 'Intel', words: ['intel', 'intelijen', 'intelkam', 'baintelkam'] },
 ];
+
+// Subfolders inside every mapel folder, in display order.
+export const SUBFOLDERS = ['Video', 'PPT', 'Tentir'];
+const VIDEO_EXT = /\.(mp4|m4v|mov|webm|mkv|avi|3gp|ogv|wmv|flv|mpg|mpeg|ts|mts)$/i;
+const SLIDE_EXT = /\.(ppt|pptx|pps|ppsx|pptm|odp|key)$/i;
+const TENTIR_WORDS = ['tentir', 'rangkuman', 'ringkasan', 'resume', 'kisi kisi', 'soal', 'latihan soal', 'bank soal', 'catatan'];
+
+// Which subfolder a file belongs in: 'Video' | 'PPT' | 'Tentir' | null (stays in the mapel folder)
+export function subfolderFor(item) {
+  if (item.is_folder) return null;
+  if (String(item.mime).startsWith('video/') || VIDEO_EXT.test(item.name)) return 'Video'; // also YouTube links
+  const n = norm(item.name);
+  if (TENTIR_WORDS.some(w => n.includes(' ' + w + ' '))) return 'Tentir';
+  if (SLIDE_EXT.test(item.name)) return 'PPT';
+  return null;
+}
 
 // "Modul_Lalu-Lintas (2025).pdf" → " modul lalu lintas 2025 pdf "
 const norm = s => ' ' + String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')
@@ -79,8 +96,30 @@ export function organizeMapel({ apply = false, log = console.log } = {}) {
   };
   walk(null);
 
-  // 3) Report (and apply)
+  // 3) Subfolders Video / PPT / Tentir in every mapel folder; loose files in a mapel folder are sorted into them.
+  //    Files already in any folder below the mapel (e.g. "Pertemuan 1") are left where they are.
+  const willSit = new Map(); // file id → mapel name it will sit directly in
+  for (const m of MAPEL) for (const it of children(target[m.name])) if (!it.is_folder) willSit.set(it.id, { it, mapel: m.name });
+  for (const x of moves) if (!x.it.is_folder) willSit.set(x.it.id, { it: x.it, mapel: x.mapel });
+  const subMoves = [], stays = [];
+  for (const { it, mapel } of willSit.values()) {
+    const sub = subfolderFor(it);
+    if (sub) subMoves.push({ it, mapel, sub }); else stays.push({ it, mapel });
+  }
+  const subCreated = [];
+  const subTarget = {}; // `${mapel}/${sub}` → folder id
+  for (const m of MAPEL) {
+    for (const sub of SUBFOLDERS) {
+      const existing = children(target[m.name]).find(i => i.is_folder && norm(i.name) === norm(sub));
+      if (existing) { subTarget[m.name + '/' + sub] = existing.id; continue; }
+      subCreated.push(`${m.name}/${sub}`);
+      if (apply) subTarget[m.name + '/' + sub] = items.insert({ id: uid(), name: sub, is_folder: true, folder_id: target[m.name] }).id;
+    }
+  }
+
+  // 4) Report (and apply)
   if (created.length) log(`Folder mapel ${apply ? 'dibuat' : 'akan dibuat'}: ${created.join(', ')}`);
+  if (subCreated.length) log(`Subfolder ${SUBFOLDERS.join(' / ')} ${apply ? 'dibuat' : 'akan dibuat'}: ${subCreated.length} folder di ${new Set(subCreated.map(x => x.split('/')[0])).size} mapel`);
   for (const m of MAPEL) {
     const mine = moves.filter(x => x.mapel === m.name);
     if (!mine.length) continue;
@@ -88,6 +127,15 @@ export function organizeMapel({ apply = false, log = console.log } = {}) {
     for (const x of mine) log(`   ${x.it.is_folder ? '📁' : '•'} ${x.it.name}   (dari: ${x.from})`);
   }
   if (apply) for (const x of moves) items.move(x.it.id, target[x.mapel]);
+  if (subMoves.length) {
+    log(`\n🗂️  Ke subfolder (${subMoves.length}):`);
+    for (const x of subMoves) log(`   • ${x.it.name}   → ${x.mapel} › ${x.sub}`);
+  }
+  if (apply) for (const x of subMoves) items.move(x.it.id, subTarget[x.mapel + '/' + x.sub]);
+  if (stays.length) {
+    log(`\n📄 Tetap di folder mapel, bukan video/PPT/tentir — pindahkan sendiri bila perlu (${stays.length}):`);
+    for (const x of stays.slice(0, 200)) log(`   • ${x.it.name}   (${x.mapel})`);
+  }
   if (ambiguous.length) {
     log(`\n❓ Cocok ke lebih dari satu mapel — tidak dipindah (${ambiguous.length}):`);
     for (const it of ambiguous) log(`   ${it.is_folder ? '📁' : '•'} ${it.name}   (di: ${pathOf(it)})`);
@@ -97,7 +145,8 @@ export function organizeMapel({ apply = false, log = console.log } = {}) {
     for (const it of unmatched.slice(0, 200)) log(`   • ${it.name}   (di: ${pathOf(it)})`);
     if (unmatched.length > 200) log(`   … dan ${unmatched.length - 200} lainnya`);
   }
-  log(`\n${apply ? 'Selesai' : 'Rencana'}: ${moves.length} item ${apply ? 'dipindahkan' : 'akan dipindahkan'}, ${created.length} folder mapel ${apply ? 'dibuat' : 'baru'}, ${ambiguous.length + unmatched.length} dibiarkan.`);
+  const movedCount = new Set([...moves, ...subMoves].map(x => x.it.id)).size; // a file can move twice (into the mapel, then its subfolder)
+  log(`\n${apply ? 'Selesai' : 'Rencana'}: ${movedCount} item ${apply ? 'dipindahkan' : 'akan dipindahkan'}, ${created.length} folder mapel dan ${subCreated.length} subfolder ${apply ? 'dibuat' : 'baru'}, ${ambiguous.length + unmatched.length} dibiarkan.`);
   if (!apply) log('Belum ada yang diubah. Jalankan dengan --apply untuk memindahkan.');
-  return { moves: moves.length, created, ambiguous: ambiguous.map(i => i.name), unmatched: unmatched.map(i => i.name) };
+  return { moves: moves.length, subMoves: subMoves.length, created, subCreated, ambiguous: ambiguous.map(i => i.name), unmatched: unmatched.map(i => i.name), stays: stays.map(x => x.it.name) };
 }

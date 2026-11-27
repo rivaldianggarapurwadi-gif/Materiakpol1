@@ -15,4 +15,6 @@ Web ini bisa berjalan dengan dua cara:
 `index.html` yang sama dipakai keduanya: server sendiri menjawab `/config.js` dengan `AKPOL_SERVER = true`,
 sedangkan GitHub Pages memakai [`config.js`](config.js) di repo ini (mode Google Drive).
 
+Tampilan memakai maskot **Kentung** (stiker di [`assets/kentung/`](assets/kentung/)) dan lambang Manggala Satya; gayanya diatur di [`assets/theme.css`](assets/theme.css).
+
 Catatan teknis dan rencana: [HANDOFF-self-hosted-server.md](HANDOFF-self-hosted-server.md).
