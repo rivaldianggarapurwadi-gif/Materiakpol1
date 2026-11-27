@@ -481,7 +481,7 @@
 @media(max-width:700px) { .video-grid { grid-template-columns:1fr; } }
 
 </style>
-<link rel="stylesheet" href="assets/theme.css?v=mapel-logo-1">
+<link rel="stylesheet" href="assets/theme.css?v=mapel-pj-1">
 </head>
 <body>
 <a class="skip-link" href="#library">Langsung ke materi</a>
@@ -645,6 +645,7 @@
       <div class="fh-main">
         <nav class="breadcrumb" id="breadcrumb" aria-label="Lokasi folder"></nav>
         <h2 id="folderTitle"></h2>
+        <p class="folder-pj" id="folderPJ" hidden></p>
         <div class="stats-bar" id="statsBar"></div>
       </div>
       <div class="sort-toggle" id="sortToggle" role="group" aria-label="Urutkan">
@@ -1068,11 +1069,26 @@ function poseFor(name) {
 const MAPEL_BADGE = [
   [/manajemen|bin\s*polri|pembinaan/i, 'manajemen-bin-polri'], [/administrasi|\badm\b/i, 'administrasi-kepolisian'],
   [/binmas|polmas|bimbingan\s*masyarakat/i, 'binmas'], [/ielts|inggris|english|toefl/i, 'ielts'],
-  [/\bintel/i, 'intel'], [/\bkb\b|karakter|kebhayangkaraan/i, 'karakter-kebhayangkaraan'],
+  [/\bintel/i, 'intel'], [/\bkb\b|karakter|kebhayangkaraan|karbhay/i, 'karakter-kebhayangkaraan'],
   [/lantas|lalu\s*lintas|lalin/i, 'lantas'], [/polair|perairan/i, 'polair'],
   [/reserse|reskrim|serse|penyidik/i, 'reserse'], [/sabhara|samapta|dalmas/i, 'sabhara'],
   [/\btik\b|teknologi\s*informasi|informatika/i, 'tik'],
 ];
+// Penanggung jawab (PJ) materi tiap mapel
+const MAPEL_PJ = {
+  'reserse': ['Anggara Mayora', 'Michael Revando'],
+  'administrasi-kepolisian': ['Airlangga Gellegar', 'Syahrizal Hayya'],
+  'sabhara': ['Rafif Adib', 'Malik Madani'],
+  'ielts': ['Rifaldi', 'Reyvanlino'],
+  'lantas': ['Faiz Bramantyo', 'Gibran'],
+  'tik': ['Faiz Sudarsa', 'Arvitho Tristan', 'Klose Simanjuntak'],
+  'binmas': ['Chania Pasya', 'Benhard Christo', 'Radana Rasya'],
+  'polair': ['Fathi Rizky', 'Athaar Ramdias'],
+  'manajemen-bin-polri': ['Balqis Angelita', 'Steven Alexander'],
+  'karakter-kebhayangkaraan': ['Fajar Nugroho', 'Raihan Satmoko'],
+  'intel': ['Faris Dani', 'Naufal Aulia'],
+};
+function mapelPJ(name) { return MAPEL_PJ[mapelBadge(name)] || []; }
 function mapelBadge(name) { for (const [re, f] of MAPEL_BADGE) if (re.test(name)) return f; return null; }
 function mapelArt(name, size, cls = '') {
   const f = mapelBadge(name);
@@ -1505,6 +1521,9 @@ function renderFolderHead() {
   document.getElementById('sortToggle').hidden = !!q;
   document.querySelectorAll('#sortToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sort === sortMode())));
   document.getElementById('folderKentung').innerHTML = q ? kentung('think', 88) : cur ? mapelArt(currentPath[0].name, 96) : '';
+  const pj = !q && cur ? mapelPJ(currentPath[0].name) : [];
+  document.getElementById('folderPJ').hidden = !pj.length;
+  document.getElementById('folderPJ').innerHTML = pj.length ? `Penanggung jawab: <b>${esc(pj.join(', '))}</b>` : '';
   document.getElementById('dzDest').textContent = cur ? currentPath.map(p => p.name).join(' › ') : 'Semua Materi (paling atas)';
 }
 
@@ -1835,6 +1854,7 @@ function renderHome() {
         ${exDays <= 14 ? `<span class="exam-chip ${exDays <= 3 ? 'soon' : ''}">Ujian ${examCountdown(exDays).toLowerCase()}</span>` : t.fresh ? '<span class="new-chip">BARU</span>' : ''}
         <span class="mapel-name">${esc(m.name)}</span>
         <span class="mapel-meta">${meta}</span>
+        ${mapelPJ(m.name).length ? `<span class="mapel-pj" title="Penanggung jawab materi">👤 ${esc(mapelPJ(m.name).join(', '))}</span>` : ''}
       </a>`;
     }).join('');
   }
