@@ -481,7 +481,7 @@
 @media(max-width:700px) { .video-grid { grid-template-columns:1fr; } }
 
 </style>
-<link rel="stylesheet" href="assets/theme.css?v=mapel-pj-1">
+<link rel="stylesheet" href="assets/theme.css?v=mapel-pj-3">
 </head>
 <body>
 <a class="skip-link" href="#library">Langsung ke materi</a>
@@ -645,7 +645,7 @@
       <div class="fh-main">
         <nav class="breadcrumb" id="breadcrumb" aria-label="Lokasi folder"></nav>
         <h2 id="folderTitle"></h2>
-        <p class="folder-pj" id="folderPJ" hidden></p>
+        <div class="folder-pj" id="folderPJ" hidden></div>
         <div class="stats-bar" id="statsBar"></div>
       </div>
       <div class="sort-toggle" id="sortToggle" role="group" aria-label="Urutkan">
@@ -1074,21 +1074,33 @@ const MAPEL_BADGE = [
   [/reserse|reskrim|serse|penyidik/i, 'reserse'], [/sabhara|samapta|dalmas/i, 'sabhara'],
   [/\btik\b|teknologi\s*informasi|informatika/i, 'tik'],
 ];
-// Penanggung jawab (PJ) materi tiap mapel
+// Penanggung jawab (PJ) materi tiap mapel: [nama, nomor WhatsApp (format 62…) atau '' bila belum ada]
 const MAPEL_PJ = {
-  'reserse': ['Anggara Mayora', 'Michael Revando'],
-  'administrasi-kepolisian': ['Airlangga Gellegar', 'Syahrizal Hayya'],
-  'sabhara': ['Rafif Adib', 'Malik Madani'],
-  'ielts': ['Rifaldi', 'Reyvanlino'],
-  'lantas': ['Faiz Bramantyo', 'Gibran'],
-  'tik': ['Faiz Sudarsa', 'Arvitho Tristan', 'Klose Simanjuntak'],
-  'binmas': ['Chania Pasya', 'Benhard Christo', 'Radana Rasya'],
-  'polair': ['Fathi Rizky', 'Athaar Ramdias'],
-  'manajemen-bin-polri': ['Balqis Angelita', 'Steven Alexander'],
-  'karakter-kebhayangkaraan': ['Fajar Nugroho', 'Raihan Satmoko'],
-  'intel': ['Faris Dani', 'Naufal Aulia'],
+  'reserse': [['Anggara Mayora', '6285334815788'], ['Michael Revando', '']],
+  'administrasi-kepolisian': [['Airlangga Gellegar', ''], ['Syahrizal Hayya', '6285225098021']],
+  'sabhara': [['Rafif Adib', '62895400806932'], ['Malik Madani', '']],
+  'ielts': [['Rifaldi', ''], ['Reyvanlino', '']],
+  'lantas': [['Faiz Bramantyo', ''], ['Gibran', '']],
+  'tik': [['Faiz Sudarsa', ''], ['Arvitho Tristan', ''], ['Klose Simanjuntak', '6285283122264']],
+  'binmas': [['Chania Pasya', '6285274441766'], ['Benhard Christo', '6282160333362'], ['Radana Rasya', '']],
+  'polair': [['Fathi Rizky', '6281266894988'], ['Athaar Ramdias', '6282148824439']],
+  'manajemen-bin-polri': [['Balqis Angelita', '6282138442919'], ['Steven Alexander', '']],
+  'karakter-kebhayangkaraan': [['Fajar Nugroho', '6289528407853'], ['Raihan Satmoko', '6282322756717']],
+  'intel': [['Faris Dani', '6285233726622'], ['Naufal Aulia', '6282187552000']],
 };
-function mapelPJ(name) { return MAPEL_PJ[mapelBadge(name)] || []; }
+function mapelPJ(name) { return (MAPEL_PJ[mapelBadge(name)] || []).map(([n, wa]) => ({ name: n, wa })); }
+// 6281266894988 → 0812-6689-4988
+function fmtPhone(wa) { const d = '0' + wa.slice(2); return d.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3'); }
+function waLink(wa, who, mapel) {
+  const text = `Halo ${who}, saya mau tanya soal materi ${mapel} di Materi AKPOL.`;
+  return `https://wa.me/${wa}?text=${encodeURIComponent(text)}`;
+}
+const WA_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.66 15l-1.3 4.76 4.88-1.28A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-2.9.76.78-2.83-.2-.31A8.2 8.2 0 1 1 12 20.2zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.16.25-.63.8-.78.96-.14.16-.29.18-.53.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.31c-.23.25-.86.84-.86 2.05s.88 2.38 1 2.54c.12.16 1.73 2.64 4.2 3.7.59.26 1.05.41 1.4.52.59.19 1.13.16 1.55.1.47-.07 1.46-.6 1.66-1.17.2-.58.2-1.07.14-1.17-.06-.1-.22-.16-.47-.29z"/></svg>';
+function pjChips(mapelName) {
+  return mapelPJ(mapelName).map(p => p.wa
+    ? `<span class="pj-chip"><span class="pj-name">${esc(p.name)}</span><span class="pj-phone">${fmtPhone(p.wa)}</span><a class="pj-wa" href="${esc(waLink(p.wa, p.name, mapelName))}" target="_blank" rel="noopener" aria-label="Chat WhatsApp ${esc(p.name)}">${WA_ICON}<span>WhatsApp</span></a></span>`
+    : `<span class="pj-chip"><span class="pj-name">${esc(p.name)}</span></span>`).join('');
+}
 function mapelBadge(name) { for (const [re, f] of MAPEL_BADGE) if (re.test(name)) return f; return null; }
 function mapelArt(name, size, cls = '') {
   const f = mapelBadge(name);
@@ -1523,7 +1535,7 @@ function renderFolderHead() {
   document.getElementById('folderKentung').innerHTML = q ? kentung('think', 88) : cur ? mapelArt(currentPath[0].name, 96) : '';
   const pj = !q && cur ? mapelPJ(currentPath[0].name) : [];
   document.getElementById('folderPJ').hidden = !pj.length;
-  document.getElementById('folderPJ').innerHTML = pj.length ? `Penanggung jawab: <b>${esc(pj.join(', '))}</b>` : '';
+  document.getElementById('folderPJ').innerHTML = pj.length ? `<span class="pj-label">Penanggung jawab</span>${pjChips(currentPath[0].name)}` : '';
   document.getElementById('dzDest').textContent = cur ? currentPath.map(p => p.name).join(' › ') : 'Semua Materi (paling atas)';
 }
 
@@ -1854,7 +1866,7 @@ function renderHome() {
         ${exDays <= 14 ? `<span class="exam-chip ${exDays <= 3 ? 'soon' : ''}">Ujian ${examCountdown(exDays).toLowerCase()}</span>` : t.fresh ? '<span class="new-chip">BARU</span>' : ''}
         <span class="mapel-name">${esc(m.name)}</span>
         <span class="mapel-meta">${meta}</span>
-        ${mapelPJ(m.name).length ? `<span class="mapel-pj" title="Penanggung jawab materi">👤 ${esc(mapelPJ(m.name).join(', '))}</span>` : ''}
+        ${mapelPJ(m.name).length ? `<span class="mapel-pj" title="Penanggung jawab materi">👤 ${esc(mapelPJ(m.name).map(p => p.name).join(', '))}</span>` : ''}
       </a>`;
     }).join('');
   }
