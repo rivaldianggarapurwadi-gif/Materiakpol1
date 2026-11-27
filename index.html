@@ -1458,7 +1458,8 @@ function setLessonComplete(id, on) {
   if (on) completed[id] = true; else delete completed[id];
   storeSet('akpol_completed', completed);
 }
-function courseName(folderId) { return folderId ? folderPathName(folderId) : 'Video pembelajaran umum'; }
+// Video di "Lantas › Video" tampil sebagai kursus "Lantas" (subfolder Video dibuat untuk tiap mapel)
+function courseName(folderId) { return folderId ? folderPathName(folderId).replace(/ › Video$/i, '') : 'Video pembelajaran umum'; }
 function toggleLessonComplete() {
   if (!W.item) return;
   setLessonComplete(W.item.id, !lessonComplete(W.item.id));

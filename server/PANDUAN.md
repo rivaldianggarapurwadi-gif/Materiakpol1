@@ -293,7 +293,7 @@ sudo ./scripts/backup.sh
 | Melihat log | `docker compose logs -f` |
 | Restart server | `docker compose restart` |
 | Proses ulang file yang gagal | `docker compose exec app node src/cli.js reprocess --failed` |
-| Rapikan materi ke folder per mapel (lihat rencana dulu) | `docker compose exec app node src/cli.js organize-mapel`, lalu tambahkan `--apply` untuk menjalankan |
+| Rapikan materi ke folder per mapel, masing-masing dengan subfolder Video / PPT / Tentir (lihat rencana dulu) | `docker compose exec app node src/cli.js organize-mapel`, lalu tambahkan `--apply` untuk menjalankan |
 | Setelah memasang GPU baru | `sudo ./install.sh` lalu `docker compose exec app node src/cli.js reprocess --all-videos` |
 
 Di web, admin akan melihat peringatan jika **disk hampir penuh** (sisa < 10 GB) atau ada **file gagal diproses** (tanda ⚠️ di halaman **Upload**; klik ikon ↻ untuk mencoba lagi).
