@@ -16,6 +16,7 @@ const HELP = `Materi AKPOL — perintah admin
   reprocess <id|--failed|--missing|--all-videos>
                             Proses ulang file (gagal / hasil proses hilang setelah pemulihan / semua video)
   migrate-drive [URL]       Pindahkan semua materi dari Google Drive (URL Web App Apps Script)
+  organize-mapel [--apply]  Rapikan materi ke satu folder per mapel (tanpa --apply: hanya rencana)
   purge-trash [hari]        Hapus permanen isi sampah yang lebih lama dari [hari] (bawaan ${config.trashDays})
   status                    Ringkasan: jumlah materi, antrean proses, sisa disk
 `;
@@ -110,6 +111,11 @@ async function main([cmd, ...args]) {
     case 'migrate-drive': {
       const { migrateFromDrive } = await import('./migrate.js');
       await migrateFromDrive(args[0]);
+      break;
+    }
+    case 'organize-mapel': {
+      const { organizeMapel } = await import('./organize.js');
+      organizeMapel({ apply: args.includes('--apply') });
       break;
     }
     case 'purge-trash':
