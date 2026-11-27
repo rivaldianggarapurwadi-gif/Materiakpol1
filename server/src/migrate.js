@@ -2,6 +2,9 @@
 // Keeps ids (so shared #v=<id> links and watch positions still work), folders, names and dates.
 // Safe to run again: items already here are skipped, so an interrupted run just continues.
 //   node src/cli.js migrate-drive [APPS_SCRIPT_URL] [--dry-run]
+// When this server cannot reach Google, another computer can fetch the data instead (scripts/migrate-via-mac.sh):
+//   migrate-drive --from-dir DIR --missing-ids   prints the Drive ids still to download (DIR/list.json = Apps Script "list")
+//   migrate-drive --from-dir DIR                 imports from DIR/list.json and DIR/files/<drive_id>
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
@@ -22,14 +25,25 @@ const YT_RE = /^https:\/\/www\.youtube\.com\/watch\?v=[A-Za-z0-9_-]{11}$/;
 const fmt = b => b >= 1024 ** 3 ? (b / 1024 ** 3).toFixed(2) + ' GB' : (b / 1024 ** 2).toFixed(1) + ' MB';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function fetchList(apiUrl) {
+async function fetchList(apiUrl, fromDir) {
+  if (fromDir) {
+    const data = JSON.parse(await fsp.readFile(path.join(fromDir, 'list.json'), 'utf8'));
+    if (!data.ok) throw new Error('list.json: ' + (data.error || 'bukan respon Apps Script'));
+    return data.items || [];
+  }
   const r = await fetch(apiUrl + (apiUrl.includes('?') ? '&' : '?') + 'action=list', { redirect: 'follow' });
   const data = await r.json().catch(() => { throw new Error(`Respon Apps Script tidak valid (HTTP ${r.status})`); });
   if (!data.ok) throw new Error('Apps Script: ' + (data.error || 'gagal'));
   return data.items || [];
 }
 
-async function download(driveId, dest) {
+async function download(driveId, dest, fromDir) {
+  if (fromDir) {
+    const src = path.join(fromDir, 'files', String(driveId).replace(/[^A-Za-z0-9_-]/g, ''));
+    if (!fs.existsSync(src)) throw new Error('belum diunduh ke ' + path.join(fromDir, 'files'));
+    await fsp.copyFile(src, dest);
+    return (await fsp.stat(dest)).size;
+  }
   let lastErr;
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
@@ -62,10 +76,18 @@ function orderFolders(folders) {
   return out;
 }
 
-export async function migrateFromDrive(apiUrl, { dryRun = process.argv.includes('--dry-run'), log = console.log } = {}) {
+const argAfter = flag => { const i = process.argv.indexOf(flag); return i >= 0 ? process.argv[i + 1] : undefined; };
+
+export async function migrateFromDrive(apiUrl, {
+  dryRun = process.argv.includes('--dry-run'),
+  fromDir = argAfter('--from-dir'),
+  missingIds = process.argv.includes('--missing-ids'),
+  log = console.log,
+} = {}) {
   if (!apiUrl || apiUrl.startsWith('--')) apiUrl = process.env.DRIVE_API_URL || DEFAULT_DRIVE_API;
-  log('Mengambil daftar materi dari Google Drive...');
-  const list = (await fetchList(apiUrl)).filter(i => {
+  if (missingIds) log = () => {}; // only the ids go to stdout
+  log(fromDir ? `Membaca daftar materi dari ${fromDir}...` : 'Mengambil daftar materi dari Google Drive...');
+  const list = (await fetchList(apiUrl, fromDir)).filter(i => {
     if (ID_RE.test(String(i.id))) return true;
     log(`  ! dilewati, id tidak valid: ${i.name}`);
     return false;
@@ -77,6 +99,7 @@ export async function migrateFromDrive(apiUrl, { dryRun = process.argv.includes(
   const totalBytes = todo.reduce((a, f) => a + (Number(f.size) || 0), 0);
   log(`Ditemukan: ${folders.length} folder, ${files.length} file, ${links.length} video YouTube.`);
   log(`Belum dipindah: ${todo.length} file (${fmt(totalBytes)}).`);
+  if (missingIds) { for (const f of todo) console.log(f.drive_id); return { todo: todo.length }; }
   if (dryRun) { log('(--dry-run: tidak ada yang diubah)'); return { folders: folders.length, files: files.length, links: links.length, todo: todo.length, totalBytes }; }
 
   const known = id => !!id && !!items.get(id);
@@ -103,7 +126,7 @@ export async function migrateFromDrive(apiUrl, { dryRun = process.argv.includes(
       const n = todo.length - queue.length;
       const tmp = path.join(config.uploadDir, `migrate-${f.id}.part`);
       try {
-        const size = await download(f.drive_id, tmp);
+        const size = await download(f.drive_id, tmp, fromDir);
         if (known(f.id)) { await fsp.rm(tmp, { force: true }); continue; } // another run got it first
         await registerFile({
           srcPath: tmp, id: f.id, name: String(f.name || 'file'), mime: f.mime || '', folderId: parentOf(f),
