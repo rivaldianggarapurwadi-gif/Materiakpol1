@@ -578,7 +578,7 @@
   <!-- Beranda Materi -->
   <div id="homeView" hidden>
     <section class="home-section" id="examSection" hidden aria-labelledby="examTitle">
-      <div class="sec-head"><h2 id="examTitle">Jadwal ujian</h2><button type="button" class="btn small admin-only" onclick="showExamModal()">+ Tambah jadwal</button></div>
+      <div class="sec-head"><h2 id="examTitle">Jadwal Ujian Mid Semester IV</h2><span class="sec-note">Taruna Tk II/60</span></div>
       <div class="exam-row" id="examRow"></div>
       <button type="button" class="more-btn" id="examMore" hidden onclick="examsExpanded = !examsExpanded; renderExams()"></button>
     </section>
@@ -793,36 +793,6 @@
     <div class="modal-footer">
       <button class="btn" onclick="hideModal('loginModal')">Batal</button>
       <button class="btn primary" id="loginBtn" onclick="loginAdmin()">Masuk</button>
-    </div>
-  </div>
-</div>
-
-<!-- Jadwal ujian (admin) -->
-<div class="modal-overlay" id="examModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="examModalTitle">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 id="examModalTitle">Tambah jadwal ujian</h2>
-      <button class="icon-btn" onclick="hideModal('examModal')" aria-label="Tutup"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <form class="modal-body" id="examForm" onsubmit="event.preventDefault();submitExam()">
-      <label class="form-label" for="examTitleInput">Nama ujian</label>
-      <input type="text" class="form-input" id="examTitleInput" maxlength="120" placeholder="mis. UTS, UAS, Ujian praktik" required>
-      <label class="form-label" for="examFolder">Mapel</label>
-      <select class="form-input" id="examFolder"></select>
-      <div class="form-row">
-        <div><label class="form-label" for="examDate">Tanggal</label><input type="date" class="form-input" id="examDate" required></div>
-        <div><label class="form-label" for="examTime">Jam <small>(opsional)</small></label><input type="time" class="form-input" id="examTime"></div>
-      </div>
-      <label class="form-label" for="examPlace">Tempat <small>(opsional)</small></label>
-      <input type="text" class="form-input" id="examPlace" maxlength="120" placeholder="mis. Aula Utama, Kelas 3B">
-      <label class="form-label" for="examNote">Catatan <small>(opsional)</small></label>
-      <input type="text" class="form-input" id="examNote" maxlength="500" placeholder="mis. Bab 1–4, bawa alat tulis">
-      <div class="login-err" id="examErr" role="alert"></div>
-      <button type="submit" style="display:none" tabindex="-1" aria-hidden="true"></button>
-    </form>
-    <div class="modal-footer">
-      <button class="btn" onclick="hideModal('examModal')">Batal</button>
-      <button class="btn primary" id="examSaveBtn" onclick="submitExam()">Simpan</button>
     </div>
   </div>
 </div>
@@ -1221,8 +1191,6 @@ async function dbSelect() {
   serverVersion = d.version || 1;
   driveRootId = d.drive_folder || null;
   if (SERVER) setAdmin(!!d.admin, d.user);
-  examsSupported = Array.isArray(d.exams); // hanya server sendiri yang menyimpan jadwal ujian
-  allExams = examsSupported ? d.exams : [];
   return sortItems(d.items);
 }
 
@@ -1705,7 +1673,32 @@ function rowKey(e) {
 }
 
 // ——— Jadwal ujian (server sendiri; admin mengatur, semua orang melihat) ———
-let allExams = [], examsSupported = false, examsExpanded = false, examEditId = null;
+// Jadwal dari Bagjarlat (Semarang, 12 November 2026). Ubah daftar ini untuk jadwal baru.
+// mapel = nama folder mapel (huruf besar/kecil tidak masalah); kosongkan jika tidak ada foldernya.
+const EXAM_LIST = [
+  { date: '2026-12-07', time: '07.30–09.00', title: 'FT Reserse',               mapel: 'Reserse',                 dosen: 'KOMBES POL. Slamet Loesiono, S.I.K., M.H.' },
+  { date: '2026-12-07', time: '10.00–11.30', title: 'Administrasi Kepolisian',  mapel: 'Administrasi Kepolisian', dosen: 'KOMBES POL. Guntur Agung S., S.I.K., M.Si' },
+  { date: '2026-12-08', time: '07.30–09.00', title: 'FT Sabhara',               mapel: 'Sabhara',                 dosen: 'KOMBES POL. Andreas Heri Susi Darto, S.I.K.' },
+  { date: '2026-12-08', time: '10.00–11.30', title: 'IELTS',                    mapel: 'IELTS',                   dosen: 'KOMPOL. Abror Alkindi, S.Pd., M.Si' },
+  { date: '2026-12-09', time: '07.30–09.00', title: 'FT Lantas',                mapel: 'Lantas',                  dosen: 'KOMBES POL. Harri Sindu N., S.H., M.M.' },
+  { date: '2026-12-09', time: '10.00–11.30', title: 'TIK',                      mapel: 'TIK',                     dosen: 'Iwan Nur Adi, M.Kom., CHFI, CEH' },
+  { date: '2026-12-10', time: '07.30–09.00', title: 'FT Binmas',                mapel: 'Binmas',                  dosen: 'KOMBES POL. Edhi Cahyono, S.I.K.' },
+  { date: '2026-12-10', time: '10.00–11.30', title: 'FT Polair',                mapel: 'Polair',                  dosen: 'KOMBES POL. Andreas Heri Susi Darto, S.I.K.' },
+  { date: '2026-12-11', time: '07.30–09.00', title: 'Manajemen Bin Polri',      mapel: 'Manajemen Bin Polri',     dosen: 'BRIGJEN POL. Eko Suprihanto, S.H., S.I.K., M.H.' },
+  { date: '2026-12-11', time: '10.00–11.00', title: 'Karakter Kebhayangkaraan', mapel: 'KB',                      dosen: 'AKBP. Firdaus Yudhatama, S.H., S.I.K., M.Si' },
+  { date: '2026-12-14', time: '07.30–09.00', title: 'FT Intelkam',              mapel: 'Intel',                   dosen: 'KOMBES POL. Wahyu Purwidiarso, S.H., S.I.K., M.H.' },
+];
+const examsSupported = true;
+let examsExpanded = false;
+// folder mapel dicocokkan dengan nama setiap kali daftar materi dimuat
+let allExams = [];
+function linkExams() {
+  const roots = allItems.filter(i => i.is_folder && !i.folder_id);
+  allExams = EXAM_LIST.map((e, n) => {
+    const f = e.mapel && roots.find(r => r.name.trim().toLowerCase() === e.mapel.toLowerCase());
+    return { ...e, id: 'x' + n, folder_id: f ? f.id : null, place: '', note: e.dosen };
+  });
+}
 function examDay(e) { const [y, m, d] = e.date.split('-').map(Number); return new Date(y, m - 1, d); }
 function examDaysLeft(e) { return Math.round((examDay(e) - new Date().setHours(0, 0, 0, 0)) / DAY); }
 // Ujian yang belum lewat (hari ini masih tampil), urut paling dekat
@@ -1714,10 +1707,10 @@ function upcomingExams(folderIds) {
     .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '99').localeCompare(b.time || '99') || natCmp(a.title, b.title));
 }
 function examCountdown(days) { return days === 0 ? 'Hari ini' : days === 1 ? 'Besok' : days + ' hari lagi'; }
-function examMapel(e) { const f = e.folder_id && allItems.find(i => i.id === e.folder_id); return f ? f.name : 'Umum'; }
+function examMapel(e) { const f = e.folder_id && allItems.find(i => i.id === e.folder_id); return f ? f.name : (e.mapel || 'Umum'); }
 function examWhen(e) {
   const day = examDay(e).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
-  return [day, e.time ? e.time.replace(':', '.') : '', e.place].filter(Boolean).map(esc).join(' · ');
+  return [day, e.time, e.place].filter(Boolean).map(esc).join(' · ');
 }
 function examCard(e) {
   const days = examDaysLeft(e);
@@ -1734,8 +1727,6 @@ function examCard(e) {
       ${e.note ? `<p class="exam-note">${esc(e.note)}</p>` : ''}
       <div class="exam-acts">
         ${hasFolder ? `<a class="btn small" href="${esc(folderUrl(e.folder_id))}" onclick="return openFolderLink(event,'${e.folder_id}')">Buka materi</a>` : ''}
-        <button type="button" class="icon-btn admin-only" title="Ubah" aria-label="Ubah jadwal ${esc(e.title)}" onclick="showExamModal('${e.id}')">${ROW_ICON.rename}</button>
-        <button type="button" class="icon-btn del admin-only" title="Hapus" aria-label="Hapus jadwal ${esc(e.title)}" onclick="deleteExam('${e.id}')">${ROW_ICON.del}</button>
       </div>
     </div>
     ${kentung(days === 0 ? 'salute' : days <= 3 ? 'fight' : 'study', 76, 'exam-kentung')}
@@ -1750,19 +1741,19 @@ function renderExams() {
   if (list.length) {
     const e = list[0], days = examDaysLeft(e);
     hero.className = 'hero-exam' + (days === 0 ? ' today' : days <= 3 ? ' soon' : '');
-    hero.innerHTML = `<span class="he-label">Ujian terdekat</span><b>${esc(e.title)}${e.folder_id ? ' · ' + esc(examMapel(e)) : ''}</b><span class="he-count">${examCountdown(days)}</span>${list.length > 1 ? `<span class="he-more">+${list.length - 1} lagi</span>` : ''}`;
+    hero.innerHTML = `<span class="he-label">Ujian terdekat</span><b>${esc(e.title)} · ${esc(e.time)}</b><span class="he-count">${examCountdown(days)}</span>${list.length > 1 ? `<span class="he-more">+${list.length - 1} lagi</span>` : ''}`;
   }
-  sec.hidden = !examsSupported || (!list.length && !canEdit());
+  sec.hidden = !list.length;
   if (sec.hidden) return;
   const shown = examsExpanded ? list : list.slice(0, 4);
-  document.getElementById('examRow').innerHTML = list.length ? shown.map(examCard).join('')
-    : `<div class="exam-empty">${kentung('relax', 64)}<span>Belum ada jadwal ujian. Tambahkan supaya taruna bisa bersiap.</span></div>`;
+  document.getElementById('examRow').innerHTML = shown.map(examCard).join('');
   const more = document.getElementById('examMore');
   more.hidden = list.length <= 4;
   more.textContent = examsExpanded ? 'Tampilkan lebih sedikit' : `Lihat semua jadwal (${list.length})`;
 }
 // Di dalam folder mapel: ujian mapel itu tampil di atas daftar materi
 function renderFolderExams() {
+  linkExams();
   const el = document.getElementById('folderExams');
   const list = examsSupported && currentPath.length && !searchQuery() ? upcomingExams(currentPath.map(p => p.id)) : [];
   el.hidden = !list.length;
@@ -1771,51 +1762,6 @@ function renderFolderExams() {
     return `<div class="exam-line ${days === 0 ? 'today' : days <= 3 ? 'soon' : ''}"><span class="exam-count">${examCountdown(days)}</span><b>${esc(e.title)}</b><span>${examWhen(e)}</span></div>`;
   }).join('');
 }
-function showExamModal(id) {
-  if (needAdmin()) return;
-  const e = id ? allExams.find(x => x.id === id) : null;
-  examEditId = e ? e.id : null;
-  const mapel = allItems.filter(i => i.is_folder && !i.folder_id).sort((a, b) => natCmp(a.name, b.name));
-  const pre = e ? e.folder_id : currentPath.length ? currentPath[0].id : null;
-  document.getElementById('examFolder').innerHTML = '<option value="">Umum (semua mapel)</option>'
-    + mapel.map(m => `<option value="${m.id}" ${m.id === pre ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
-  document.getElementById('examModalTitle').textContent = e ? 'Ubah jadwal ujian' : 'Tambah jadwal ujian';
-  document.getElementById('examTitleInput').value = e ? e.title : '';
-  document.getElementById('examDate').value = e ? e.date : '';
-  document.getElementById('examTime').value = e ? e.time : '';
-  document.getElementById('examPlace').value = e ? e.place : '';
-  document.getElementById('examNote').value = e ? e.note : '';
-  document.getElementById('examErr').textContent = '';
-  openModal('examModal', document.getElementById('examTitleInput'));
-}
-async function submitExam() {
-  const v = id => document.getElementById(id).value.trim();
-  const err = document.getElementById('examErr');
-  if (!v('examTitleInput')) { err.textContent = 'Isi nama ujian'; return; }
-  if (!v('examDate')) { err.textContent = 'Pilih tanggal ujian'; return; }
-  const btn = document.getElementById('examSaveBtn');
-  btn.disabled = true;
-  try {
-    const { exam } = await apiPost('saveExam', { id: examEditId, title: v('examTitleInput'), folder_id: v('examFolder') || null, date: v('examDate'), time: v('examTime'), place: v('examPlace'), note: v('examNote') });
-    allExams = allExams.filter(x => x.id !== exam.id).concat(exam);
-    hideModal('examModal');
-    renderFiles();
-    toast(examDaysLeft(exam) < 0 ? 'Disimpan, tetapi tanggalnya sudah lewat sehingga tidak tampil' : 'Jadwal “' + exam.title + '” disimpan', examDaysLeft(exam) < 0 ? 'info' : 'success');
-  } catch (e) { err.textContent = e.message; }
-  finally { btn.disabled = false; }
-}
-async function deleteExam(id) {
-  const e = allExams.find(x => x.id === id);
-  if (!e || needAdmin()) return;
-  if (!await askConfirm({ title: `Hapus jadwal “${e.title}”?`, text: `${examMapel(e)} · ${examDay(e).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`, ok: 'Ya, hapus', danger: true })) return;
-  try {
-    await apiPost('deleteExam', { id });
-    allExams = allExams.filter(x => x.id !== id);
-    renderFiles();
-    toast('Jadwal “' + e.title + '” dihapus');
-  } catch (err) { toast('Gagal hapus: ' + err.message, 'error'); }
-}
-
 // ——— Beranda Materi: lanjutkan belajar, kartu mapel, materi terbaru ———
 function renderHome() {
   const roots = allItems.filter(i => !i.folder_id);
@@ -1829,6 +1775,7 @@ function renderHome() {
     walk(id, 0);
     return { v, d, fresh };
   };
+  linkExams();
   renderExams();
   const cont = continueCards();
   document.getElementById('continueSection').hidden = !cont;
