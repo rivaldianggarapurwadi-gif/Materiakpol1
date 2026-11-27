@@ -434,6 +434,11 @@
 .drive-box .upload-actions { margin:14px 0 6px; }
 .drive-note { font-size:12px; color:var(--text-muted); }
 
+.campus-banner { display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:center; padding:10px 16px; background:#7a1f2b; color:#fff; font-size:14px; text-align:center; }
+.campus-banner[hidden] { display:none; }
+.campus-banner .btn.primary { padding:6px 14px; font-size:13px; background:#f3d27a !important; color:#4a1219 !important; border-color:#f3d27a !important; box-shadow:none !important; }
+.campus-close { background:transparent; border:0; color:#fff; font-size:16px; cursor:pointer; padding:4px 8px; opacity:.8; }
+
 /* Course catalogue, focused lessons, and a separate upload route. */
 [hidden] { display:none!important; }
 .nav-link[aria-current="page"] { outline:2px solid #7b9471; outline-offset:3px; }
@@ -476,6 +481,11 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 </head>
 <body>
 
+<div class="campus-banner" id="campusBanner" hidden>
+  <span>📡 Di WiFi AKPOL? Buka <b>versi kampus</b> — lebih cepat &amp; video lancar.</span>
+  <a class="btn primary" id="campusLink" href="#">Buka versi kampus</a>
+  <button class="campus-close" onclick="hideCampusBanner()" aria-label="Tutup">✕</button>
+</div>
 <header>
   <div class="logo">
     <img class="brand-crest" src="assets/manggala-satya.png" alt="Lambang Manggala Satya" width="56" height="56">
@@ -766,6 +776,24 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 //  - SERVER: server sendiri (folder server/, lihat server/PANDUAN.md). /config.js dari server mengisi AKPOL_SERVER = true.
 //  - Google Drive lewat Apps Script (GitHub Pages, lihat SETUP.md).
 const SERVER = window.AKPOL_SERVER === true;
+
+// Banner ke server kampus (hanya di versi Google Drive / GitHub Pages)
+const CAMPUS_URL = !SERVER && typeof window.AKPOL_CAMPUS_URL === 'string' ? window.AKPOL_CAMPUS_URL : '';
+function hideCampusBanner() {
+  document.getElementById('campusBanner').hidden = true;
+  try { localStorage.setItem('akpol_campus_hide', String(Date.now())); } catch (e) {}
+}
+(function showCampusBanner() {
+  if (!CAMPUS_URL) return;
+  let hidAt = 0;
+  try { hidAt = Number(localStorage.getItem('akpol_campus_hide') || 0); } catch (e) {}
+  if (Date.now() - hidAt < 7 * 24 * 3600 * 1000) return; // ditutup → muncul lagi setelah 7 hari
+  const link = document.getElementById('campusLink');
+  // Bawa halaman & video yang sedang dibuka (id materi sama setelah migrasi)
+  const go = () => { link.href = CAMPUS_URL.replace(/\/$/, '/') + location.search + location.hash; };
+  go(); window.addEventListener('hashchange', go);
+  document.getElementById('campusBanner').hidden = false;
+})();
 // URL Web App dari Google Apps Script (lihat SETUP.md). Ganti dengan URL milikmu.
 const DRIVE_API_URL = 'https://script.google.com/macros/s/AKfycbyJ1hvlyX0vDeKo_Bf6-tdVnMm2nBfnbAypTVBgTvO-3hx0Fch2K4iksJ80vRTkc8gf/exec';
 const API_URL = SERVER ? 'api' : DRIVE_API_URL;
