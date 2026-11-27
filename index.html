@@ -474,7 +474,7 @@
 @media(max-width:700px) { .video-grid { grid-template-columns:1fr; } }
 
 </style>
-<link rel="stylesheet" href="assets/theme.css?v=kentung-1">
+<link rel="stylesheet" href="assets/theme.css?v=kentung-3">
 </head>
 <body>
 <a class="skip-link" href="#library">Langsung ke materi</a>
@@ -578,9 +578,8 @@
   <!-- Beranda Materi -->
   <div id="homeView" hidden>
     <section class="home-section" id="examSection" hidden aria-labelledby="examTitle">
-      <div class="sec-head"><h2 id="examTitle">Jadwal Ujian Mid Semester IV</h2><span class="sec-note">Taruna Tk II/60</span></div>
+      <div class="sec-head"><h2 id="examTitle">Jadwal ujian</h2><span class="sec-note">Mid Semester IV</span></div>
       <div class="exam-row" id="examRow"></div>
-      <button type="button" class="more-btn" id="examMore" hidden onclick="examsExpanded = !examsExpanded; renderExams()"></button>
     </section>
     <section class="home-section" id="continueSection" hidden aria-labelledby="continueTitle">
       <div class="sec-head"><h2 id="continueTitle">Lanjutkan belajar</h2><span class="sec-note">Tersimpan di perangkat ini</span></div>
@@ -1714,23 +1713,14 @@ function examWhen(e) {
 }
 function examCard(e) {
   const days = examDaysLeft(e);
-  const urg = days === 0 ? 'today' : days <= 3 ? 'soon' : '';
   const d = examDay(e);
   const hasFolder = e.folder_id && allItems.some(i => i.id === e.folder_id);
-  return `<article class="exam-card ${urg}">
-    <div class="exam-date" aria-hidden="true"><b>${d.getDate()}</b><span>${d.toLocaleDateString('id-ID', { month: 'short' }).replace('.', '')}</span></div>
-    <div class="exam-body">
-      <span class="exam-count">${examCountdown(days)}</span>
-      <h3>${esc(e.title)}</h3>
-      <p class="exam-mapel">${esc(examMapel(e))}</p>
-      <p class="exam-when">${examWhen(e)}</p>
-      ${e.note ? `<p class="exam-note">${esc(e.note)}</p>` : ''}
-      <div class="exam-acts">
-        ${hasFolder ? `<a class="btn small" href="${esc(folderUrl(e.folder_id))}" onclick="return openFolderLink(event,'${e.folder_id}')">Buka materi</a>` : ''}
-      </div>
-    </div>
-    ${kentung(days === 0 ? 'salute' : days <= 3 ? 'fight' : 'study', 76, 'exam-kentung')}
-  </article>`;
+  const tag = hasFolder ? 'a' : 'div';
+  const link = hasFolder ? ` href="${esc(folderUrl(e.folder_id))}" onclick="return openFolderLink(event,'${e.folder_id}')"` : '';
+  return `<${tag} class="exam-item ${days === 0 ? 'today' : days <= 3 ? 'soon' : ''}"${link}>
+    <span class="exam-date"><b>${d.getDate()}</b><span>${d.toLocaleDateString('id-ID', { month: 'short' }).replace('.', '')}</span></span>
+    <span class="exam-text"><b>${esc(e.title)}</b><small>${esc(d.toLocaleDateString('id-ID', { weekday: 'long' }))} · ${esc(e.time)}</small><span class="exam-count">${examCountdown(days)}</span></span>
+  </${tag}>`;
 }
 function renderExams() {
   const sec = document.getElementById('examSection');
@@ -1745,11 +1735,8 @@ function renderExams() {
   }
   sec.hidden = !list.length;
   if (sec.hidden) return;
-  const shown = examsExpanded ? list : list.slice(0, 4);
+  const shown = list; // satu baris yang bisa digeser ke samping, jadi tidak memanjang ke bawah
   document.getElementById('examRow').innerHTML = shown.map(examCard).join('');
-  const more = document.getElementById('examMore');
-  more.hidden = list.length <= 4;
-  more.textContent = examsExpanded ? 'Tampilkan lebih sedikit' : `Lihat semua jadwal (${list.length})`;
 }
 // Di dalam folder mapel: ujian mapel itu tampil di atas daftar materi
 function renderFolderExams() {
@@ -1759,7 +1746,7 @@ function renderFolderExams() {
   el.hidden = !list.length;
   el.innerHTML = list.map(e => {
     const days = examDaysLeft(e);
-    return `<div class="exam-line ${days === 0 ? 'today' : days <= 3 ? 'soon' : ''}"><span class="exam-count">${examCountdown(days)}</span><b>${esc(e.title)}</b><span>${examWhen(e)}</span></div>`;
+    return `<div class="exam-line ${days === 0 ? 'today' : days <= 3 ? 'soon' : ''}"><span class="exam-count">${examCountdown(days)}</span><b>${esc(e.title)}</b><span>${examWhen(e)}</span>${e.dosen ? `<span class="exam-dosen">${esc(e.dosen)}</span>` : ''}</div>`;
   }).join('');
 }
 // ——— Beranda Materi: lanjutkan belajar, kartu mapel, materi terbaru ———
@@ -1793,7 +1780,7 @@ function renderHome() {
       const exDays = ex ? examDaysLeft(ex) : 99;
       return `<a class="mapel-card tint-${i % 6}" href="${esc(folderUrl(m.id))}" onclick="return openFolderLink(event,'${m.id}')">
         ${kentung(poseFor(m.name), 92, 'mapel-kentung')}
-        ${exDays <= 14 ? `<span class="exam-chip ${exDays <= 3 ? 'soon' : ''}">${esc(ex.title)} · ${examCountdown(exDays).toLowerCase()}</span>` : t.fresh ? '<span class="new-chip">BARU</span>' : ''}
+        ${exDays <= 14 ? `<span class="exam-chip ${exDays <= 3 ? 'soon' : ''}">Ujian ${examCountdown(exDays).toLowerCase()}</span>` : t.fresh ? '<span class="new-chip">BARU</span>' : ''}
         <span class="mapel-name">${esc(m.name)}</span>
         <span class="mapel-meta">${meta}</span>
       </a>`;
