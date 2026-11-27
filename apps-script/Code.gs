@@ -222,7 +222,7 @@ function syncDrive_(b) {
       pending.forEach(f => {
         const parent = f.folder_id ? items.find(i => i.id === f.folder_id) : null;
         if (parent && !parent.drive_id) return; // induk belum punya, tunggu putaran berikutnya
-        const df = (parent ? DriveApp.getFolderById(parent.drive_id) : DriveApp.getFolderById(store.folderId)).createFolder(f.name);
+        const df = childFolderNamed_(parent ? DriveApp.getFolderById(parent.drive_id) : DriveApp.getFolderById(store.folderId), f.name, items);
         f.drive_id = df.getId();
         const row = findRow_(store.sheet, f.id);
         if (row) store.sheet.getRange(row, 7).setValue(f.drive_id);
@@ -277,11 +277,24 @@ function driveFolderFor_(store, items, siteFolderId) {
   const it = items.find(i => i.id === siteFolderId);
   if (!it) return DriveApp.getFolderById(store.folderId);
   if (it.drive_id) { try { return DriveApp.getFolderById(it.drive_id); } catch (err) { /* dihapus di Drive → buat ulang */ } }
-  const df = driveFolderFor_(store, items, it.folder_id).createFolder(it.name);
+  const df = childFolderNamed_(driveFolderFor_(store, items, it.folder_id), it.name, items);
   it.drive_id = df.getId();
   const row = findRow_(store.sheet, it.id);
   if (row) store.sheet.getRange(row, 7).setValue(it.drive_id);
   return df;
+}
+
+// Pakai subfolder Drive yang namanya sama (dan belum dipakai folder web lain); kalau tidak ada, buat baru.
+// Mencegah kursus dobel bila pengguna sudah membuat folder sendiri di Drive.
+function childFolderNamed_(parentFolder, name, items) {
+  const used = {};
+  items.forEach(i => { if (i.drive_id) used[i.drive_id] = true; });
+  const it = parentFolder.getFoldersByName(name);
+  while (it.hasNext()) {
+    const f = it.next();
+    if (!f.isTrashed() && !used[f.getId()]) return f;
+  }
+  return parentFolder.createFolder(name);
 }
 
 function inAppTree_(fileOrFolder, rootId) {

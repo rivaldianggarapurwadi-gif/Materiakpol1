@@ -4,6 +4,33 @@
 
 Status: **built and tested, not yet installed on the owner's machine.** The owner answered the key questions in §7 on 2026-11-26. Phases 1–6 of §9 are implemented in `server/` (owner guide: `server/PANDUAN.md`). Remaining: install on the real hardware, run the Drive migration there, pick the public-access route (§5) once the ISP/CGNAT answer is known.
 
+## Current condition (2026-11-27)
+
+> **Ringkasan (ID):** Web live (GitHub Pages) masih memakai Google Drive. Upload lewat web lambat dan sering terputus, jadi sekarang ada jalur **upload langsung lewat Google Drive** yang otomatis tersinkron ke web. Jalur ini butuh **Apps Script versi 3**; per 27 Nov server pemilik **masih menjalankan kode lama** (respon `list` tanpa `"version"`), jadi pemilik harus deploy ulang. Server sendiri (`server/`) sudah jadi dan teruji, tinggal dipasang di komputer pemilik.
+
+**Live site (`main` → GitHub Pages), Google Drive mode**
+- Redesign (Manggala Satya theme, pages Materi / Kursus / Upload, course cards with lesson lists) is merged with the server-mode code and the YouTube-blocked notice. Both modes pass their browser tests (Drive mode against a mocked Apps Script; server mode against a real local stack).
+- **Uploading through the website is slow and often cancelled (owner report, 2026-11-27).** The root cause was never pinned down (no screenshot of the route label). The workaround is the new **Drive-direct path**:
+  - Site folders are mirrored as Google Drive folders inside "Materi AKPOL (jangan dihapus)".
+  - The owner uploads in Google Drive (web or app), which is resumable and keeps going in the background.
+  - The `syncDrive` action registers new files and subfolders. It runs in the background on every page load (throttled to once a minute) and from the **🔄 Ambil file baru dari Drive** button on the Upload page.
+  - Sync skips trashed files, Google Docs/Sheets, the database sheet, and in-progress website uploads (tagged `description = akpol-web-upload`).
+  - It **reuses an existing Drive subfolder with the same name** instead of creating a duplicate course.
+  - Moves and deletes on the site follow in Drive.
+- **Blocker (owner action):** the deployed Apps Script is still the **original v1 code**. The owner's pasted `?action=list` response had no `version` field, and every folder had an empty `drive_id`. The owner must paste the current `apps-script/Code.gs`, then **Deploy → Manage deployments → ✏️ → Version: New version → Deploy**, and confirm `"version":3` in the `list` response. If they made a *new* deployment instead, the URL changed and `DRIVE_API_URL` in `index.html` must be updated.
+- **Data on the live site (from the owner's `list` output):** about 40 items, mostly PPT/PDF course material. Root folders: `reserse`, `intel`, `Polair`, `ADM`, `Lantas`. No videos registered yet.
+- **Network facts:** YouTube is **blocked** on AKPOL Wi-Fi; **Google Drive is reachable** there (owner, 2026-11-26).
+- **Verified only against mocks:** `syncDrive` and the other v3 Apps Script logic were tested with an in-memory DriveApp/SpreadsheetApp harness (folder mirroring, sync, de-duplication, skip rules, move, delete, finishUpload tree check). They have **not** been run on real Google. The harness was a throwaway script in the session scratchpad and is not in the repo.
+
+**Self-hosted server (`server/`)**
+- Built and tested; not yet installed on the owner's hardware (details below). Later commits from the server session added `install.sh` fixes and `organize-mapel` (one folder per subject).
+- The server's Drive migration (`migrate.js`) reads the same Apps Script `list`. v3 adds `drive_folder` and Drive ids on folder rows. The migrator ignores folder `drive_id`s (folders are created from the list; only file rows are downloaded), so it stays compatible.
+
+**Next steps**
+1. Owner redeploys Apps Script v3, then uploads a test video through Drive and checks it appears under **Kursus**.
+2. If website uploads are still needed for small files, get a screenshot of the progress label (`langsung ke Drive` vs `via server (lambat)`) to diagnose the cancellations.
+3. Install the self-hosted server on the owner's machine (`server/PANDUAN.md`), then `migrate-drive --dry-run`.
+
 ### Implementation notes (2026-11-26)
 
 - **Layout:** `server/src/` — `app.js` (Express API + tus at `/api/upload`), `worker.js` (job queue in SQLite), `media.js` (FFmpeg/LibreOffice), `migrate.js`, `cli.js`. Docker Compose runs `caddy`, `app`, `worker`; Intel/NVIDIA overrides are selected by `install.sh` through `COMPOSE_FILE` in `.env`.
@@ -41,7 +68,7 @@ Repo: `rivaldianggarapurwadi-gif/Materiakpol1`. The site is published from `main
 | File | What it is |
 |---|---|
 | `index.html` | The entire frontend (about 2,000 lines): one HTML file with inline CSS and JS and no build step. |
-| `apps-script/Code.gs` | Backend: a Google Apps Script web app (API version 2). |
+| `apps-script/Code.gs` | Backend: a Google Apps Script web app (API version 3: Drive-folder mirroring and `syncDrive`). |
 | `SETUP.md` | Owner-facing setup guide for the Apps Script backend (Indonesian). |
 
 ### 2.1 Data model
@@ -63,7 +90,7 @@ Each row is one item, stored in the Google Sheet `Materi AKPOL - Database`:
 
 ### 2.2 API contract (Apps Script web app, `API_URL` in `index.html`)
 
-- `GET ?action=list` returns `{ ok, version: 2, items: Item[] }`.
+- `GET ?action=list` returns `{ ok, version: 3, drive_folder, items: Item[] }`. `drive_folder` is the id of "Materi AKPOL (jangan dihapus)". Folder rows carry the id of their mirrored Drive folder in `drive_id`.
 - `POST` with a JSON body (sent as `text/plain` to avoid a CORS preflight):
 
 | `action` | Body | Returns |
@@ -74,7 +101,8 @@ Each row is one item, stored in the Google Sheet `Materi AKPOL - Database`:
 | `finishUpload` | `drive_id, name, mime, folder_id, variants` | `{ item }` |
 | `addLink` | `url, name, folder_id` | `{ item }` (YouTube) |
 | `move` | `id, folder_id` | `{}` |
-| `delete` | `id` | `{ deleted: id[] }` (recursive; trashes Drive files) |
+| `delete` | `id` | `{ deleted: id[] }` (recursive; trashes Drive files and the folder's Drive folder) |
+| `syncDrive` | `force?` | `{ added, partial?, skipped? }`: registers files and subfolders added directly in Drive; throttled to once a minute unless `force` |
 
 Errors come back as `{ ok: false, error: "message" }`. **Recommendation:** the new server should keep this exact contract where it can, so the frontend change stays small.
 
@@ -230,11 +258,12 @@ Original questions:
 5. **Domain:** is there one (or can one be bought), or is a LAN-only name fine?
 6. **Migration:** move everything currently in Google Drive (and the old Supabase data, if still reachable), or start fresh?
 7. **Keep Google Drive as a fallback/mirror** for off-site viewing, or cut it off completely?
-8. **On AKPOL Wi-Fi, do Google Drive videos play smoothly?** (YouTube is blocked there; Drive may be blocked or throttled too.) Also: will **AKPOL IT** allow a server on the campus network, or whitelist the domain we use?
+8. ~~**On AKPOL Wi-Fi, do Google Drive videos play smoothly?**~~ **Answered 2026-11-26: Google Drive is not blocked on campus.** (YouTube is blocked there; Drive may be blocked or throttled too.) Also: will **AKPOL IT** allow a server on the campus network, or whitelist the domain we use?
 
 ## 8. Known issues and unverified items in the current system
 
-- **Upload is slow (owner report).** The latest build labels the route in the progress text (`langsung ke Drive` = direct to Drive, vs `via server (lambat)` = via server, slow) and shows a red toast if Google refuses the direct route. **Waiting on the owner's screenshot** to see whether the direct browser→Drive upload works. If the self-hosted move happens, this becomes moot.
+- **Upload through the website is slow and gets cancelled (owner report, 2026-11-27).** The progress text labels the route (`langsung ke Drive` = direct to Drive, vs `via server (lambat)` = via server, slow), but the owner never sent a screenshot, so the cause is still unknown. **Workaround shipped:** upload directly in Google Drive plus `syncDrive` (see "Current condition"). This becomes moot once the self-hosted server is installed.
+- **Apps Script deployment is outdated** (as of 2026-11-27 the live `list` has no `version` field). The Drive-direct path, direct uploads and 360p variants all need the v3 deployment.
 - **Not verified against real Google** (only against mocks in Playwright):
   - the direct PUT to the Drive session URL (CORS with the `Origin` header set by Apps Script);
   - streaming from `drive.usercontent.google.com` into `<video>` with range requests;
@@ -262,5 +291,6 @@ Original questions:
 - **Drive over Supabase:** the free tier with no egress cap was the deciding factor. (Done.)
 - **YouTube links are first-class video items:** best option for very large videos and off-site viewing. (Done.)
 - **YouTube is not an option for course videos**, because it is blocked on AKPOL Wi-Fi. YouTube links stay supported for off-campus viewing only.
-- **Self-hosting is approved in principle** for independence from Google and faster LAN uploads. Remaining blocker: the §7 answers.
+- **Self-hosting is approved and built** for independence from Google and faster LAN uploads. Remaining: install on the owner's hardware and settle the network route (§5).
+- **Google Drive web/app is the recommended upload path while on Drive** (2026-11-27): Drive's own uploader is resumable and reliable, unlike uploads from the website through Apps Script.
 - **Prefer our own app plus an HLS pipeline over Jellyfin:** this keeps upload, documents and video in one UI, and keeps viewing open without per-viewer accounts. Revisit if the owner prefers Jellyfin.
