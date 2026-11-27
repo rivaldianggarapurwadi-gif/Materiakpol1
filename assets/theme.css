@@ -413,6 +413,9 @@ body.at-home .toolbar { margin: -31px 0 30px; padding: 0 clamp(0px, 4vw, 56px); 
   pointer-events: none;
 }
 .mapel-card:hover .mapel-kentung { transform: rotate(-4deg) scale(1.1) translateY(-5px); }
+/* Logo mapel (lencana): sedikit lebih besar dari stiker Kentung, tidak dimiringkan terlalu jauh */
+.mapel-card .mapel-badge { top: -24px; right: 6px; height: 122px; transform: rotate(3deg); filter: drop-shadow(0 3px 0 rgba(0,0,0,.18)); }
+.mapel-card:hover .mapel-badge { transform: rotate(-2deg) scale(1.07) translateY(-4px); }
 .mapel-card .new-chip { position: absolute; top: 14px; left: 14px; }
 .mapel-name { font: 1000 20px/1.14 Nunito, sans-serif; letter-spacing: -.4px; overflow-wrap: anywhere; }
 .mapel-meta { margin-top: 5px; color: var(--ink-2); font: 800 12.5px/1.3 Nunito, sans-serif; }
@@ -903,6 +906,7 @@ body.is-loading .folder-head { display: none; }
   .mapel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 12px; }
   .mapel-card { min-height: 150px; padding: 80px 12px 12px; border-radius: 20px; }
   .mapel-card .mapel-kentung { top: -18px; right: 6px; height: 92px; }
+  .mapel-card .mapel-badge { top: -20px; right: 4px; height: 100px; }
   .mapel-card .new-chip { top: 10px; left: 10px; }
   .mapel-name { font-size: 17px; }
   .mapel-meta { font-size: 11.5px; }

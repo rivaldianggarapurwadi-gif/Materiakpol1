@@ -14,7 +14,7 @@ export const MAPEL = [
   { name: 'Administrasi Kepolisian', words: ['administrasi kepolisian', 'adm kepolisian', 'adm pol', 'admpol', 'adminpol', 'administrasi polri', 'adm', 'administrasi'] },
   { name: 'IELTS', words: ['ielts', 'english', 'bahasa inggris', 'toefl', 'listening', 'speaking'] },
   { name: 'Lantas', words: ['lantas', 'lalu lintas', 'lalin', 'laka', 'kecelakaan lalu lintas', 'sim'] },
-  { name: 'KB', words: ['kb'] },
+  { name: 'Karakter Kebhayangkaraan', words: ['kb', 'karakter kebhayangkaraan', 'kebhayangkaraan'] },
   { name: 'Sabhara', words: ['sabhara', 'samapta', 'dalmas', 'turjawali'] },
   { name: 'TIK', words: ['tik', 'teknologi informasi', 'komputer', 'informatika'] },
   { name: 'Polair', words: ['polair', 'polairud', 'polisi air', 'perairan', 'kepolisian perairan'] },

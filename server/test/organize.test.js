@@ -15,7 +15,7 @@ test('name matching', () => {
   assert.equal(matchMapel('Intelijen Dasar.mp4'), 'Intel');
   assert.equal(matchMapel('Materi Manajemen Bin Polri.pptx'), 'Manajemen Bin Polri');
   assert.equal(matchMapel('IELTS Listening Test 1.mp3'), 'IELTS');
-  assert.equal(matchMapel('KB pertemuan 3.docx'), 'KB');
+  assert.equal(matchMapel('KB pertemuan 3.docx'), 'Karakter Kebhayangkaraan');
   assert.equal(matchMapel('Kebijakan umum.pdf'), null); // "kb" only as a whole word
   assert.equal(matchMapel('Dasar TIK.pdf'), 'TIK');
   assert.equal(matchMapel('Statistik.pdf'), null);      // "tik" only as a whole word
@@ -67,7 +67,7 @@ test('dry run changes nothing; apply sorts and keeps folder structure', () => {
   assert.equal(items.get('f7').folder_id, sub('Sabhara', 'PPT').id);
   assert.equal(items.get('f8').folder_id, sub('Sabhara', 'Tentir').id);
   assert.equal(sub('Sabhara', 'video').id, 'vid');
-  for (const m of ['Binmas', 'KB', 'Lantas']) for (const n of ['Video', 'PPT', 'Tentir']) assert.ok(sub(m, n), `${m}/${n}`);
+  for (const m of ['Binmas', 'Karakter Kebhayangkaraan', 'Lantas']) for (const n of ['Video', 'PPT', 'Tentir']) assert.ok(sub(m, n), `${m}/${n}`);
   assert.equal(items.get('pol').folder_id, root('Polair').id);
   assert.equal(items.get('f4').folder_id, 'pol');
   assert.equal(items.get('f3').folder_id, 'old');

@@ -481,7 +481,7 @@
 @media(max-width:700px) { .video-grid { grid-template-columns:1fr; } }
 
 </style>
-<link rel="stylesheet" href="assets/theme.css?v=kentung-4">
+<link rel="stylesheet" href="assets/theme.css?v=mapel-logo-1">
 </head>
 <body>
 <a class="skip-link" href="#library">Langsung ke materi</a>
@@ -1064,6 +1064,23 @@ function poseFor(name) {
   return POSE_POOL[h % POSE_POOL.length];
 }
 
+// Logo mapel (assets/mapel/<nama>.webp + <nama>-s.webp). Mapel tanpa logo memakai pose Kentung.
+const MAPEL_BADGE = [
+  [/manajemen|bin\s*polri|pembinaan/i, 'manajemen-bin-polri'], [/administrasi|\badm\b/i, 'administrasi-kepolisian'],
+  [/binmas|polmas|bimbingan\s*masyarakat/i, 'binmas'], [/ielts|inggris|english|toefl/i, 'ielts'],
+  [/\bintel/i, 'intel'], [/\bkb\b|karakter|kebhayangkaraan/i, 'karakter-kebhayangkaraan'],
+  [/lantas|lalu\s*lintas|lalin/i, 'lantas'], [/polair|perairan/i, 'polair'],
+  [/reserse|reskrim|serse|penyidik/i, 'reserse'], [/sabhara|samapta|dalmas/i, 'sabhara'],
+  [/\btik\b|teknologi\s*informasi|informatika/i, 'tik'],
+];
+function mapelBadge(name) { for (const [re, f] of MAPEL_BADGE) if (re.test(name)) return f; return null; }
+function mapelArt(name, size, cls = '') {
+  const f = mapelBadge(name);
+  if (!f) return kentung(poseFor(name), size, cls);
+  const src = 'assets/mapel/' + f;
+  return `<img class="k-sticker mapel-badge ${cls}" src="${src}-s.webp" srcset="${src}-s.webp 180w, ${src}.webp 360w" sizes="${size}px" alt="" width="360" height="355" style="--k:${size}px" loading="lazy" decoding="async" draggable="false">`;
+}
+
 // Judul video tanpa ekstensi file (.mp4, .webm, ...)
 function vTitle(item) { return isYoutube(item) ? item.name : item.name.replace(/\.(mp4|m4v|mov|webm|mkv|avi|ogv)$/i, ''); }
 function isYoutube(item) { return !!item.url && item.mime === 'video/youtube'; }
@@ -1487,7 +1504,7 @@ function renderFolderHead() {
   document.getElementById('breadcrumb').hidden = !!q || !cur;
   document.getElementById('sortToggle').hidden = !!q;
   document.querySelectorAll('#sortToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sort === sortMode())));
-  document.getElementById('folderKentung').innerHTML = q ? kentung('think', 88) : cur ? kentung(poseFor(currentPath[0].name), 88) : '';
+  document.getElementById('folderKentung').innerHTML = q ? kentung('think', 88) : cur ? mapelArt(currentPath[0].name, 96) : '';
   document.getElementById('dzDest').textContent = cur ? currentPath.map(p => p.name).join(' › ') : 'Semua Materi (paling atas)';
 }
 
@@ -1591,7 +1608,7 @@ function renderVideos() {
     const all = done === course.lessons.length;
     const started = done > 0 || course.lessons.some(item => pos[item.id] && pos[item.id].t > 3);
     return `<article class="course-card ${all ? 'is-done' : ''}">
-      <a class="course-cover" href="#v=${encodeURIComponent(next.id)}" aria-label="Buka kursus ${esc(course.name)}"><img class="course-thumb" src="${videoThumb(first)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="course-cover-label">${course.lessons.length} pelajaran</span>${all ? '<span class="course-stamp">TUNTAS</span>' : ''}${kentung(all ? 'cool' : started ? 'run' : poseFor(course.name), 86, 'course-kentung')}</a>
+      <a class="course-cover" href="#v=${encodeURIComponent(next.id)}" aria-label="Buka kursus ${esc(course.name)}"><img class="course-thumb" src="${videoThumb(first)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="course-cover-label">${course.lessons.length} pelajaran</span>${all ? '<span class="course-stamp">TUNTAS</span>' : ''}${all || started ? kentung(all ? 'cool' : 'run', 86, 'course-kentung') : mapelArt(course.name, 96, 'course-kentung')}</a>
       <div class="course-details"><h2>${esc(course.name)}</h2><p>${all ? 'Semua pelajaran selesai' : `${done} dari ${course.lessons.length} pelajaran selesai`}</p><progress value="${done}" max="${course.lessons.length}" aria-label="Progres ${esc(course.name)}"></progress><a class="btn ${all ? '' : 'primary'}" href="#v=${encodeURIComponent(next.id)}">${all ? 'Pelajari kembali' : started ? 'Lanjutkan belajar' : 'Mulai belajar'}</a></div>
     </article>`;
   }).join('');
@@ -1814,7 +1831,7 @@ function renderHome() {
       const ex = upcomingExams([m.id])[0];
       const exDays = ex ? examDaysLeft(ex) : 99;
       return `<a class="mapel-card tint-${i % 6}" href="${esc(folderUrl(m.id))}" onclick="return openFolderLink(event,'${m.id}')">
-        ${kentung(poseFor(m.name), 92, 'mapel-kentung')}
+        ${mapelArt(m.name, 118, 'mapel-kentung')}
         ${exDays <= 14 ? `<span class="exam-chip ${exDays <= 3 ? 'soon' : ''}">Ujian ${examCountdown(exDays).toLowerCase()}</span>` : t.fresh ? '<span class="new-chip">BARU</span>' : ''}
         <span class="mapel-name">${esc(m.name)}</span>
         <span class="mapel-meta">${meta}</span>
