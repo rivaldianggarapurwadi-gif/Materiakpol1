@@ -18,6 +18,7 @@ const HELP = `Materi AKPOL — perintah admin
   migrate-drive [URL]       Pindahkan semua materi dari Google Drive (URL Web App Apps Script)
   organize-mapel [--apply]  Rapikan materi ke satu folder per mapel + subfolder Video/PPT/Tentir
                             (tanpa --apply: hanya rencana)
+  loadtest [URL] [--max N]  Uji beban: berapa orang bisa menonton bersamaan (hanya membaca)
   purge-trash [hari]        Hapus permanen isi sampah yang lebih lama dari [hari] (bawaan ${config.trashDays})
   status                    Ringkasan: jumlah materi, antrean proses, sisa disk
 `;
@@ -117,6 +118,14 @@ async function main([cmd, ...args]) {
     case 'organize-mapel': {
       const { organizeMapel } = await import('./organize.js');
       organizeMapel({ apply: args.includes('--apply') });
+      break;
+    }
+    case 'loadtest': {
+      const { loadTest } = await import('./loadtest.js');
+      const opt = k => { const i = args.indexOf(k); return i >= 0 ? Number(args[i + 1]) : undefined; };
+      // inside Docker the app reaches the site through the caddy container
+      const url = args.find(a => /^https?:/.test(a)) || (process.env.SERVE_STATIC === '0' ? 'http://caddy/' : `http://127.0.0.1:${config.port}/`);
+      await loadTest(url, { max: opt('--max') ?? 200, stepSeconds: opt('--step-seconds') ?? 15 });
       break;
     }
     case 'purge-trash':
