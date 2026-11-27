@@ -3,6 +3,8 @@
 #   worker — adds FFmpeg (video) and LibreOffice (Word/PPT/Excel previews)
 FROM node:22.20.0-bookworm-slim AS base
 ENV NODE_ENV=production
+# node:sqlite still prints an "experimental" notice; hide it for CLI commands too
+ENV NODE_OPTIONS=--disable-warning=ExperimentalWarning
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
