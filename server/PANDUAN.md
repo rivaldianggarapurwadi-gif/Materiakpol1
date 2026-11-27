@@ -60,7 +60,7 @@ Server **otomatis menyala lagi** setelah komputer restart atau listrik padam.
 
 Setelah selesai, buka **`http://<IP-server>/`** dari HP yang tersambung ke Wi‑Fi yang sama (mis. `http://192.168.1.10/`).
 Alamat IP server bisa dilihat dengan perintah `hostname -I` (angka pertama).
-Klik ikon 🔒 **Masuk admin** di kanan atas untuk mulai upload.
+Klik **Masuk admin** (di laptop ada di kanan atas; di HP ada di bar bawah, tab **Admin**), lalu buka **Upload** untuk menambah materi.
 
 Jika halaman **tidak terbuka** dari HP padahal sudah satu Wi‑Fi, kemungkinan jaringan memblokir antarperangkat — lihat [bagian 6](#6-tanpa-akses-ke-pengaturan-router--wifi).
 
@@ -158,7 +158,7 @@ Cocok untuk pemakaian ringan. Kecepatannya terbatas, jadi tidak cocok untuk bany
 
 ### Pilihan C — Link YouTube untuk video penting
 
-Untuk video yang sangat sering ditonton dari luar, upload ke YouTube (*unlisted*/tidak publik) lalu tambahkan lewat tombol **Video → Dari YouTube**. Tidak memakai internet server sama sekali.
+Untuk video yang sangat sering ditonton dari luar, upload ke YouTube (*unlisted*/tidak publik) lalu tambahkan lewat **Upload → Tambah video / link YouTube → Dari YouTube**. Tidak memakai internet server sama sekali.
 
 ## 6. Tanpa akses ke pengaturan router / Wi‑Fi
 
@@ -289,13 +289,14 @@ sudo ./scripts/backup.sh
 |---|---|
 | Ringkasan (jumlah materi, sisa disk) | `docker compose exec app node src/cli.js status` |
 | Memperbarui aplikasi | `git pull` lalu `docker compose up -d --build` |
+| Memperbarui tampilan saja | `git pull` (langsung tampil; muat ulang halaman di browser) |
 | Melihat log | `docker compose logs -f` |
 | Restart server | `docker compose restart` |
 | Proses ulang file yang gagal | `docker compose exec app node src/cli.js reprocess --failed` |
 | Rapikan materi ke folder per mapel (lihat rencana dulu) | `docker compose exec app node src/cli.js organize-mapel`, lalu tambahkan `--apply` untuk menjalankan |
 | Setelah memasang GPU baru | `sudo ./install.sh` lalu `docker compose exec app node src/cli.js reprocess --all-videos` |
 
-Di web, admin akan melihat peringatan jika **disk hampir penuh** (sisa < 10 GB) atau ada **file gagal diproses** (tanda ⚠️; klik ikon ↻ untuk mencoba lagi).
+Di web, admin akan melihat peringatan jika **disk hampir penuh** (sisa < 10 GB) atau ada **file gagal diproses** (tanda ⚠️ di halaman **Upload**; klik ikon ↻ untuk mencoba lagi).
 
 Ubuntu memasang pembaruan keamanan otomatis. Sesekali (mis. sebulan sekali) jalankan `sudo apt update && sudo apt upgrade` lalu restart komputer.
 

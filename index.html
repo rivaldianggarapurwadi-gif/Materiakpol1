@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Materi AKPOL — Ruang belajar taruna</title>
-<link rel="icon" type="image/png" href="assets/manggala-satya.png">
+<meta name="theme-color" content="#7a1f32">
+<link rel="icon" type="image/png" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <!-- Library kompresi video (dimuat hanya saat upload video) -->
 <script src="config.js"></script>
 <script type="importmap">{"imports":{"mediabunny":"https://cdn.jsdelivr.net/npm/mediabunny@1.65.2/dist/bundles/mediabunny.min.mjs"}}</script>
@@ -33,7 +35,6 @@
 
   /* ——— HERO ——— */
   .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 60%, #243d8a 100%); padding: 28px 24px; text-align: center; border-bottom: 2px solid var(--gold); }
-  .hero-badge { display: inline-flex; align-items: center; background: rgba(201,162,39,0.15); border: 1px solid rgba(201,162,39,0.4); color: var(--gold-light); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 99px; margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
   .hero h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
   .hero p { font-size: 13px; color: rgba(255,255,255,0.65); }
 
@@ -437,8 +438,6 @@
 /* Course catalogue, focused lessons, and a separate upload route. */
 [hidden] { display:none!important; }
 .nav-link[aria-current="page"] { outline:2px solid #7b9471; outline-offset:3px; }
-body[data-page="videos"] .container,body[data-page="upload"] .container { padding-top:52px; }
-body[data-page="files"] .file-actions { display:none; }
 .upload-tools { margin-bottom:20px; }
 .upload-tools h2 { font-size:20px; font-weight:500; margin-bottom:12px; }
 .upload-tools p { max-width:720px; line-height:1.7; color:var(--text-sec); }
@@ -465,66 +464,141 @@ body[data-page="files"] .file-actions { display:none; }
 .player { color:#f1f1f1; }
 .autoplay-toggle { border:0;background:transparent;font-family:inherit;padding:0; }
 .switch { background:#c7c9c1; }.switch.on { background:#809c75; }.switch.on::after { background:#e4edde; }
-.library-heading > div { flex:1;min-width:0; }.library-heading > p { flex:0 0 260px; }
 .video-grid { grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:24px; }
 .course-details { display:flex;flex-direction:column; }.course-details h2 { min-height:56px; }
-body[data-page="files"] .file-list-header > span:last-child { visibility:hidden; }
-@media(max-width:700px) { .video-grid { grid-template-columns:1fr; }.library-heading > p { max-width:100%; } }
+@media(max-width:700px) { .video-grid { grid-template-columns:1fr; } }
 
 </style>
-<link rel="stylesheet" href="assets/theme.css?v=office-preview">
+<link rel="stylesheet" href="assets/theme.css?v=kentung-1">
 </head>
 <body>
+<a class="skip-link" href="#library">Langsung ke materi</a>
 
 <header>
-  <div class="logo">
-    <img class="brand-crest" src="assets/manggala-satya.png" alt="Lambang Manggala Satya" width="56" height="56">
-    <div>
-      <div class="logo-title">Materi AKPOL</div>
-      <div class="logo-sub">MANGGALA SATYA</div>
-    </div>
-  </div>
+  <a class="logo" href="./" aria-label="Materi AKPOL, ke beranda">
+    <img class="brand-crest" src="assets/manggala-satya-192.webp" alt="Lambang Manggala Satya" width="56" height="56">
+    <span>
+      <span class="logo-title">Materi AKPOL</span>
+      <span class="logo-sub">MANGGALA SATYA</span>
+    </span>
+  </a>
   <nav class="header-actions" aria-label="Navigasi utama">
-    <a class="btn nav-link" data-page="files" href="?page=files#library">Materi</a>
-    <a class="btn nav-link" data-page="videos" href="?page=courses">Kursus</a>
-    <a class="btn primary nav-link admin-only" data-page="upload" href="?page=upload">Upload</a>
-    <button class="btn server-only login-only" onclick="showLoginModal()" title="Masuk admin" aria-label="Masuk admin">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <a class="nav-link" data-page="files" href="./">Materi</a>
+    <a class="nav-link" data-page="videos" href="?page=courses">Kursus</a>
+    <a class="nav-link admin-only" data-page="upload" href="?page=upload">Upload</a>
+    <button class="btn small server-only login-only" onclick="showLoginModal()" title="Masuk admin" aria-label="Masuk admin">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
       <span class="lbl">Masuk admin</span>
     </button>
-    <button class="btn server-only admin-only" onclick="logoutAdmin()" id="logoutBtn" title="Keluar" aria-label="Keluar">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <button class="btn small server-only admin-only" onclick="logoutAdmin()" id="logoutBtn" title="Keluar" aria-label="Keluar">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       <span class="lbl" id="adminName">Keluar</span>
     </button>
   </nav>
 </header>
 
-<section class="hero" aria-labelledby="heroTitle">
-  <img class="hero-crest" src="assets/manggala-satya.png" alt="Lambang Manggala Satya" width="340" height="340" fetchpriority="high">
-  <div class="hero-copy">
-    <p class="hero-kicker">RUANG BELAJAR TARUNA</p>
-    <h1 id="heroTitle">Langkah kecil hari ini.<br>Bekal besar untuk mengabdi.</h1>
-    <p>Materi dan video untuk menemani belajarmu. <br>Pilih topik, mulai belajar, dan maju bersama.</p>
-    <div class="hero-actions">
-      <a class="btn primary" href="?page=courses">Mulai belajar</a>
-      <a class="btn" href="#library">Jelajahi materi</a>
+<!-- Beranda: Kentung menyapa -->
+<section class="hero" id="hero" aria-labelledby="heroTitle">
+  <div class="hero-panel">
+    <i class="spark s1" aria-hidden="true"></i><i class="spark s2" aria-hidden="true"></i><i class="spark s3" aria-hidden="true"></i>
+    <button class="hero-kentung" id="heroKentungBtn" type="button" onclick="kentungSays()" aria-label="Kentung, ketuk untuk kata semangat">
+      <picture>
+        <source id="heroBustSrc" media="(max-width: 720px)">
+        <img class="k-sticker" id="heroImg" alt="" width="468" height="1000" fetchpriority="high" draggable="false">
+      </picture>
+    </button>
+    <div class="hero-copy">
+      <p class="bubble" id="heroBubble" aria-live="polite">Halo, Taruna!</p>
+      <h1 id="heroTitle">Mau belajar <em>apa</em> hari ini?</h1>
+      <p class="hero-sub">Materi dan video pembelajaran, rapi per mapel. Pilih, buka, belajar.</p>
+      <div class="hero-actions">
+        <a class="btn gold" href="#mapel" onclick="return jumpTo('mapelSection')">Pilih mapel</a>
+        <a class="btn ghost" href="?page=courses">Kursus video</a>
+      </div>
+    </div>
+    <div class="hero-brand">
+      <span class="crest-plate"><img class="hero-crest" src="assets/manggala-satya-360.webp" srcset="assets/manggala-satya-192.webp 192w, assets/manggala-satya-360.webp 360w" sizes="(max-width: 720px) 52px, 154px" alt="Lambang Manggala Satya" width="360" height="360"></span>
+      <span class="hero-kicker">RUANG BELAJAR TARUNA</span>
     </div>
   </div>
 </section>
 
-<div class="container" id="library">
-  <div class="library-heading"><div><p class="eyebrow">PERPUSTAKAAN BERSAMA</p><h2>temukan bekal belajarmu.<br><span>Satu topik, satu langkah maju.</span></h2></div><p>Buka materi pilihanmu atau tambahkan<br>pengetahuan untuk teman satu angkatan.</p></div>
+<script>
+// Sapaan Kentung sesuai jam. Dijalankan di sini, sebelum skrip utama, supaya hanya stiker yang tampil yang diunduh:
+// layar lebar memakai Kentung berdiri, HP memakai pose setengah badan sesuai sapaan.
+(function () {
+  var h = new Date().getHours();
+  var mood = h >= 4 && h < 11 ? ['salute', 'Selamat pagi, Taruna!']
+    : h === 12 ? ['eat', 'Selamat siang! Sudah makan?']
+    : h >= 11 && h < 15 ? ['thumbs', 'Selamat siang, Taruna!']
+    : h >= 15 && h < 18 ? ['fight', 'Selamat sore! Tetap semangat.']
+    : h >= 18 && h < 22 ? ['study', 'Selamat malam! Waktunya belajar.']
+    : ['yawn', 'Sudah larut. Jangan lupa istirahat.'];
+  document.getElementById('heroBubble').textContent = mood[1];
+  if (/[?&]page=(courses|upload)\b/.test(location.search)) return; // beranda tidak tampil di halaman ini
+  document.getElementById('heroBustSrc').srcset = 'assets/kentung/' + mood[0] + '.webp';
+  document.getElementById('heroImg').src = 'assets/kentung/hello.webp';
+})();
+</script>
 
-  <div class="tabs" hidden>
-    <button class="tab active" id="tabFiles" onclick="setView('files')">📄 Materi</button>
-    <button class="tab" id="tabVideos" onclick="setView('videos')">🎬 Video Pembelajaran <span class="tab-count" id="videoCount">0</span></button>
+<!-- Kepala halaman Kursus / Upload -->
+<section class="page-head" id="pageHead" hidden>
+  <div class="page-head-panel">
+    <div class="page-head-copy">
+      <p class="eyebrow" id="pageEyebrow"></p>
+      <h1 id="pageTitle"></h1>
+      <p id="pageSub"></p>
+    </div>
+    <span id="pageKentung"></span>
   </div>
+</section>
+
+<main class="container" id="library">
+  <div class="toolbar" id="toolbar">
+    <label class="search-box" for="searchInput">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16.5" y2="16.5"/></svg>
+      <input type="search" id="searchInput" placeholder="Cari materi, video, atau mapel…" autocomplete="off" enterkeyhint="search" oninput="onSearchInput()">
+      <button type="button" class="search-clear" id="searchClear" onclick="clearSearch()" aria-label="Hapus pencarian" hidden>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </label>
+  </div>
+
+  <!-- Beranda Materi -->
+  <div id="homeView" hidden>
+    <section class="home-section" id="continueSection" hidden aria-labelledby="continueTitle">
+      <div class="sec-head"><h2 id="continueTitle">Lanjutkan belajar</h2><span class="sec-note">Tersimpan di perangkat ini</span></div>
+      <div class="continue-row" id="continueRow"></div>
+    </section>
+    <section class="home-section" id="mapelSection" aria-labelledby="mapelTitle">
+      <div class="sec-head"><h2 id="mapelTitle">Pilih mapel</h2><span class="sec-note" id="mapelCount"></span></div>
+      <div class="mapel-grid" id="mapelGrid"></div>
+    </section>
+    <section class="home-section" id="looseSection" hidden aria-labelledby="looseTitle">
+      <div class="sec-head"><h2 id="looseTitle">Materi lainnya</h2><span class="sec-note">Belum masuk mapel</span></div>
+      <div class="file-list" id="looseList"></div>
+    </section>
+    <section class="home-section" id="recentSection" hidden aria-labelledby="recentTitle">
+      <div class="sec-head"><h2 id="recentTitle">Baru ditambahkan</h2></div>
+      <div class="file-list" id="recentList"></div>
+    </section>
+  </div>
+
   <section class="upload-tools admin-only" id="uploadTools" hidden>
-    <h2>Tambahkan materi belajar</h2>
-    <p>Pilih folder di bawah sebagai tujuan upload. Video dalam folder yang sama akan tampil sebagai satu kursus. Gunakan nama seperti “01 Pengantar” untuk mengatur urutan pelajaran.</p>
-    <div class="upload-actions"><button class="btn" onclick="showNewFolderModal()">Buat folder kursus</button><button class="btn" onclick="showVideoModal()">Tambah video / link YouTube</button></div>
+    <div class="steps">
+      <div class="step"><b>1</b><span>Buka folder tujuan di daftar bawah<small>Video dalam satu folder tampil sebagai satu kursus.</small></span></div>
+      <div class="step"><b>2</b><span>Seret file ke kotak upload<small>Beri nama seperti “01 Pengantar” agar urut.</small></span></div>
+    </div>
+    <div class="upload-actions">
+      <button class="btn" onclick="showNewFolderModal()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="9.5" y1="13.5" x2="14.5" y2="13.5"/></svg>
+        Buat folder kursus</button>
+      <button class="btn" onclick="showVideoModal()">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        Tambah video / link YouTube</button>
+    </div>
     <div class="drive-box" id="driveBox" hidden>
-      <h3>📁 Video besar? Upload lewat Google Drive</h3>
+      <h3>Video besar? Upload lewat Google Drive</h3>
       <p>Lebih stabil untuk file besar: upload tetap jalan walau koneksi putus-sambung, dan bisa ditinggal.</p>
       <ol>
         <li>Buka folder Google Drive di bawah (folder kursus yang sedang dipilih).</li>
@@ -537,70 +611,111 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
       </div>
       <p class="drive-note">Folder Drive hanya bisa dibuka akun Google pemilik web (dan akun yang diberi akses <b>Editor</b> ke folder “Materi AKPOL (jangan dihapus)”).</p>
     </div>
-    <p class="destination-label">Tujuan upload</p>
   </section>
-  <div class="breadcrumb" id="breadcrumb"></div>
-  <div class="stats-bar" id="statsBar"></div>
 
-  <div class="upload-zone admin-only" id="dropZone" role="button" tabindex="0" aria-label="Pilih file untuk diupload" onkeydown="if(event.target===this && (event.key==='Enter'||event.key===' ')){event.preventDefault();document.getElementById('fileInput').click()}" onclick="document.getElementById('fileInput').click()">
-    <div class="upload-icon">
-      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+  <!-- Isi folder, hasil pencarian, dan daftar kelola (Upload) -->
+  <div id="listView">
+    <div class="folder-head" id="folderHead">
+      <button class="back-btn" id="backBtn" type="button" onclick="goUp()" aria-label="Kembali ke folder sebelumnya">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <div class="fh-main">
+        <nav class="breadcrumb" id="breadcrumb" aria-label="Lokasi folder"></nav>
+        <h2 id="folderTitle"></h2>
+        <div class="stats-bar" id="statsBar"></div>
+      </div>
+      <div class="sort-toggle" id="sortToggle" role="group" aria-label="Urutkan">
+        <button type="button" data-sort="name" onclick="setSort('name')">A–Z</button>
+        <button type="button" data-sort="new" onclick="setSort('new')">Terbaru</button>
+      </div>
+      <span class="fh-kentung" id="folderKentung" aria-hidden="true"></span>
     </div>
-    <h3>Seret materi ke sini atau klik untuk memilih</h3>
-    <p data-srv="PDF, Word, PPT, gambar, video, audio — tersimpan di server Materi AKPOL">PDF, Word, PPT, gambar, video, audio — tersimpan di Google Drive</p>
-    <label class="compress-opt" onclick="event.stopPropagation()"><input type="checkbox" class="compress-chk" checked onchange="setCompress(this.checked)"> <span data-srv="⚡ Kompres video di browser dulu — hanya jika internet lambat (server tetap membuat 1080p–360p)">⚡ Kompres video otomatis — upload lebih cepat &amp; diputar lancar</span></label>
-    <input type="file" id="fileInput" multiple>
-    <div class="progress-wrap" id="progressWrap">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-label" id="progressLabel"></div>
+
+    <div class="upload-zone admin-only" id="dropZone" role="button" tabindex="0" aria-label="Pilih file untuk diupload" onkeydown="if(event.target===this && (event.key==='Enter'||event.key===' ')){event.preventDefault();document.getElementById('fileInput').click()}" onclick="document.getElementById('fileInput').click()">
+      <span class="dz-kentung" id="dzKentung" aria-hidden="true"></span>
+      <div class="dz-copy">
+        <p class="dz-dest">Upload ke: <b id="dzDest">Semua Materi</b></p>
+        <h3>Seret file ke sini, atau ketuk untuk memilih</h3>
+        <p data-srv="PDF, Word, PPT, gambar, video, audio. Tersimpan di server Materi AKPOL.">PDF, Word, PPT, gambar, video, audio. Tersimpan di Google Drive.</p>
+        <label class="compress-opt" onclick="event.stopPropagation()"><input type="checkbox" class="compress-chk" checked onchange="setCompress(this.checked)"> <span data-srv="⚡ Kompres video di browser dulu — hanya jika internet lambat (server tetap membuat 1080p–360p)">⚡ Kompres video otomatis — upload lebih cepat &amp; diputar lancar</span></label>
+        <input type="file" id="fileInput" multiple>
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-label" id="progressLabel" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drop zone untuk pindah ke folder parent -->
+    <div class="drop-to-parent admin-only" id="dropToParent"
+      ondragover="onParentDragOver(event)"
+      ondragleave="onParentDragLeave(event)"
+      ondrop="onParentDrop(event)">
+      ↑ Lepas di sini untuk pindah ke folder sebelumnya
+    </div>
+    <div class="drag-hint admin-only" id="dragHint" style="display:none">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l3 3 3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
+      Seret file ke folder tujuan untuk memindahkan, atau pakai tombol pindah
+    </div>
+
+    <div class="file-list" id="fileList">
+      <div id="fileListBody">
+        <div class="empty state-card"><img class="k-sticker k-run" src="assets/kentung/run-s.webp" alt="" width="422" height="510" style="--k:132px" loading="lazy"><h3>Sebentar, lagi diambilkan…</h3><p>Kentung sedang mengambil materi dari server.</p></div>
+      </div>
     </div>
   </div>
 
-  <!-- Drop zone untuk pindah ke folder parent -->
-  <div class="drop-to-parent admin-only" id="dropToParent"
-    ondragover="onParentDragOver(event)"
-    ondragleave="onParentDragLeave(event)"
-    ondrop="onParentDrop(event)">
-    ↑ Lepas di sini untuk pindah ke folder sebelumnya
-  </div>
+  <div class="video-grid" id="videoGrid" style="display:none"><div class="empty state-card course-empty"><img class="k-sticker k-run" src="assets/kentung/run-s.webp" alt="" width="422" height="510" style="--k:132px" loading="lazy"><h3>Memuat kursus…</h3></div></div>
+</main>
 
-  <div class="toolbar">
-    <div class="search-box">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchInput" placeholder="Cari materi..." oninput="renderFiles()">
+<footer class="site-footer">
+  <div class="footer-inner">
+    <img class="k-sticker footer-kentung" src="assets/kentung/laptop-s.webp" alt="" width="394" height="500" loading="lazy" draggable="false">
+    <div class="footer-brand">
+      <span class="crest-plate"><img class="brand-crest" src="assets/manggala-satya-192.webp" alt="Lambang Manggala Satya" width="64" height="64" loading="lazy"></span>
+      <div><b>Materi AKPOL</b><span>Manggala Satya · Ruang belajar taruna</span></div>
     </div>
+    <p class="footer-credit">Run and managed by <b>Tim IT MS 60</b></p>
   </div>
-  <div class="drag-hint admin-only" id="dragHint" style="display:none">
-    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l3 3 3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
-    Seret file ke folder tujuan untuk memindahkan
-  </div>
+</footer>
 
-  <div class="video-grid" id="videoGrid" style="display:none"><p role="status">Memuat kursus...</p></div>
+<!-- Navigasi bawah (HP) -->
+<nav class="tabbar" aria-label="Navigasi cepat">
+  <a class="tab-link" data-page="files" href="./">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><line x1="9" y1="8" x2="15.5" y2="8"/></svg>
+    <span>Materi</span>
+  </a>
+  <a class="tab-link" data-page="videos" href="?page=courses">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10.5 9.2v5.6l4.6-2.8z" fill="currentColor"/></svg>
+    <span>Kursus</span>
+  </a>
+  <a class="tab-link admin-only" data-page="upload" href="?page=upload">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V5"/><polyline points="7.5 9.5 12 5 16.5 9.5"/><path d="M5 16v2.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V16"/></svg>
+    <span>Upload</span>
+  </a>
+  <button class="tab-link server-only login-only" type="button" onclick="showLoginModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <span>Admin</span>
+  </button>
+  <button class="tab-link server-only admin-only" type="button" onclick="logoutAdmin()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <span>Keluar</span>
+  </button>
+</nav>
 
-  <div class="file-list" id="fileList">
-    <div class="file-list-header">
-      <span>Nama Materi</span><span>Tanggal</span><span>Ukuran</span><span>Aksi</span>
-    </div>
-    <div id="fileListBody">
-      <div class="empty"><div class="empty-icon">⏳</div><h3>Memuat materi...</h3><p>Mengambil data dari server</p></div>
-    </div>
-  </div>
-</div>
-
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
 <!-- Folder Modal -->
-<div class="modal-overlay" id="folderModal" style="display:none">
+<div class="modal-overlay" id="folderModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="folderModalTitle">
   <div class="modal">
     <div class="modal-header">
-      <h2>📁 Buat folder baru</h2>
-      <button class="icon-btn" style="color:rgba(255,255,255,0.7)" onclick="hideModal('folderModal')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <h2 id="folderModalTitle">Buat folder baru</h2>
+      <button class="icon-btn" onclick="hideModal('folderModal')" aria-label="Tutup"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
-      <label class="form-label">Nama folder</label>
-      <input type="text" class="form-input" id="folderNameInput" placeholder="mis. Materi Hukum, Latja, Sabhara..." onkeydown="if(event.key==='Enter')createFolder()">
+      <p class="modal-hint" id="folderModalWhere"></p>
+      <label class="form-label" for="folderNameInput">Nama folder</label>
+      <input type="text" class="form-input" id="folderNameInput" placeholder="mis. Lantas, Sabhara, Pertemuan 1…" onkeydown="if(event.key==='Enter')createFolder()">
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="hideModal('folderModal')">Batal</button>
@@ -610,59 +725,105 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 </div>
 
 <!-- Video Modal -->
-<div class="modal-overlay" id="videoModal" style="display:none">
+<div class="modal-overlay" id="videoModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle">
   <div class="modal wide">
     <div class="modal-header">
-      <h2>🎬 Tambah video pembelajaran</h2>
-      <button class="icon-btn" style="color:rgba(255,255,255,0.7)" onclick="hideModal('videoModal')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <h2 id="videoModalTitle">Tambah video pembelajaran</h2>
+      <button class="icon-btn" onclick="hideModal('videoModal')" aria-label="Tutup"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="modal-body">
       <div class="vm-option">
-        <h4>📤 Upload file video</h4>
+        <h4>Upload file video</h4>
         <p data-srv="MP4, MOV, WEBM, dll. Server otomatis membuat versi 1080p–360p agar lancar diputar seperti YouTube.">MP4, MOV, WEBM, dll. Disimpan di Google Drive dan bisa diputar langsung di web.</p>
         <label class="compress-opt" style="margin:0 0 10px"><input type="checkbox" class="compress-chk" checked onchange="setCompress(this.checked)"> <span data-srv="⚡ Kompres di browser dulu (hanya jika internet lambat)">⚡ Kompres ke 720p + 360p (disarankan: upload 3–10× lebih kecil, diputar lancar di HP)</span></label>
         <button class="btn gold" onclick="hideModal('videoModal');document.getElementById('videoInput').click()">Pilih file video</button>
         <input type="file" id="videoInput" accept="video/*" multiple style="display:none">
       </div>
       <div class="vm-option" style="margin-bottom:0">
-        <h4>▶️ Dari YouTube</h4>
+        <h4>Dari YouTube</h4>
         <p data-srv="Tidak memakai ruang disk server. Cocok untuk penonton dari luar kampus.">Tidak memakai kuota Google Drive.</p>
-        <p style="color:var(--danger);font-weight:500">⚠️ YouTube diblokir di WiFi AKPOL — taruna di jaringan kampus tidak bisa menonton video dari link YouTube. Untuk materi kursus, pakai <b>Upload file video</b> di atas.</p>
-        <input type="url" class="form-input" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." onkeydown="if(event.key==='Enter')addYoutube()">
-        <input type="text" class="form-input" id="ytTitleInput" placeholder="Judul video (opsional)" onkeydown="if(event.key==='Enter')addYoutube()">
+        <p class="vm-warn">⚠️ YouTube diblokir di WiFi AKPOL — taruna di jaringan kampus tidak bisa menonton video dari link YouTube. Untuk materi kursus, pakai <b>Upload file video</b> di atas.</p>
+        <input type="url" class="form-input" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." aria-label="Link YouTube" onkeydown="if(event.key==='Enter')addYoutube()">
+        <input type="text" class="form-input" id="ytTitleInput" placeholder="Judul video (opsional)" aria-label="Judul video" onkeydown="if(event.key==='Enter')addYoutube()">
         <button class="btn primary" onclick="addYoutube()">Tambahkan video</button>
       </div>
     </div>
-    <div class="modal-footer" style="padding-top:4px">
-      <span style="flex:1;font-size:12px;color:var(--text-muted);align-self:center" id="videoModalFolder"></span>
+    <div class="modal-footer">
+      <span class="modal-where" id="videoModalFolder"></span>
       <button class="btn" onclick="hideModal('videoModal')">Tutup</button>
     </div>
   </div>
 </div>
 
 <!-- Login Modal (server sendiri) -->
-<div class="modal-overlay" id="loginModal" style="display:none">
-  <div class="modal">
+<div class="modal-overlay" id="loginModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+  <div class="modal has-sticker">
+    <img class="k-sticker modal-sticker" src="assets/kentung/salute.webp" srcset="assets/kentung/salute-s.webp 229w, assets/kentung/salute.webp 458w" sizes="128px" alt="" width="458" height="560" loading="lazy" draggable="false">
     <div class="modal-header">
-      <h2>🔑 Masuk admin</h2>
-      <button class="icon-btn" style="color:rgba(255,255,255,0.7)" onclick="hideModal('loginModal')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <h2 id="loginModalTitle">Siap! Masuk admin</h2>
+      <button class="icon-btn" onclick="hideModal('loginModal')" aria-label="Tutup"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <form class="modal-body" id="loginForm" onsubmit="event.preventDefault();loginAdmin()">
-      <p style="font-size:13px;color:var(--text-muted);margin:0 0 12px">Hanya admin yang bisa upload, memindahkan, dan menghapus materi. Semua orang tetap bisa melihat dan mengunduh.</p>
+      <p class="modal-hint">Hanya admin yang bisa upload, memindahkan, dan menghapus materi. Semua orang tetap bisa melihat dan mengunduh.</p>
       <label class="form-label" for="loginUser">Nama admin</label>
       <input type="text" class="form-input" id="loginUser" autocomplete="username" autocapitalize="off" spellcheck="false">
       <label class="form-label" for="loginPass">Kata sandi</label>
       <input type="password" class="form-input" id="loginPass" autocomplete="current-password">
-      <div class="login-err" id="loginErr"></div>
-      <button type="submit" style="display:none"></button>
+      <div class="login-err" id="loginErr" role="alert"></div>
+      <button type="submit" style="display:none" tabindex="-1" aria-hidden="true"></button>
     </form>
     <div class="modal-footer">
       <button class="btn" onclick="hideModal('loginModal')">Batal</button>
       <button class="btn primary" id="loginBtn" onclick="loginAdmin()">Masuk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Konfirmasi (hapus, dll.) -->
+<div class="modal-overlay" id="confirmModal" style="display:none" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText">
+  <div class="modal has-sticker confirm">
+    <span id="confirmSticker"></span>
+    <div class="modal-body">
+      <h2 id="confirmTitle"></h2>
+      <p id="confirmText"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="confirmCancel" type="button">Batal</button>
+      <button class="btn danger" id="confirmOk" type="button">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pindahkan ke folder lain -->
+<div class="modal-overlay" id="moveModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="moveModalTitle">
+  <div class="modal wide">
+    <div class="modal-header">
+      <h2 id="moveModalTitle">Pindahkan ke…</h2>
+      <button class="icon-btn" onclick="hideModal('moveModal')" aria-label="Tutup"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-hint" id="moveModalWhat"></p>
+      <div class="folder-pick" id="moveList"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal('moveModal')">Batal</button></div>
+  </div>
+</div>
+
+<!-- Ganti nama (server sendiri) -->
+<div class="modal-overlay" id="renameModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="renameModalTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="renameModalTitle">Ganti nama</h2>
+      <button class="icon-btn" onclick="hideModal('renameModal')" aria-label="Tutup"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label" for="renameInput">Nama baru</label>
+      <input type="text" class="form-input" id="renameInput" onkeydown="if(event.key==='Enter')submitRename()">
+      <p class="modal-hint" id="renameHint"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="hideModal('renameModal')">Batal</button>
+      <button class="btn primary" onclick="submitRename()">Simpan</button>
     </div>
   </div>
 </div>
@@ -673,7 +834,7 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
     <button class="w-icon" onclick="closeWatch()" title="Kembali (Esc)" aria-label="Kembali">
       <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     </button>
-    <div class="wt-title"><img class="brand-crest compact-crest" src="assets/manggala-satya.png" alt="" width="38" height="38"><span>Kembali ke daftar kursus</span></div>
+    <div class="wt-title"><img class="brand-crest compact-crest" src="assets/manggala-satya-192.webp" alt="" width="38" height="38"><span id="wBackLabel">Kembali</span></div>
   </div>
   <div class="watch-main">
     <div class="watch-primary">
@@ -712,7 +873,7 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
         <p id="lessonPosition" class="eyebrow"></p><h1 class="watch-title" id="wTitle"></h1><div class="lesson-actions"><button class="btn" id="previousLesson" onclick="previousLesson()">Pelajaran sebelumnya</button><button class="btn primary" id="completeLesson" onclick="toggleLessonComplete()">Tandai selesai</button><button class="btn" id="nextLesson" onclick="playNext()">Pelajaran berikutnya</button></div>
         <div class="watch-row">
           <div class="watch-chan">
-            <img class="brand-crest" src="assets/manggala-satya.png" alt="" width="48" height="48">
+            <img class="brand-crest" src="assets/manggala-satya-192.webp" alt="" width="48" height="48">
             <div><b>Manggala Satya</b><span id="wFolder"></span></div>
           </div>
           <button class="w-pill" onclick="shareVideo()"><svg viewBox="0 0 24 24"><path d="M15 5.63 20.66 12 15 18.37V14h-1c-3.96 0-7.14 1-9.75 3.09 1.84-4.07 5.11-6.4 9.89-7.1l.86-.13V5.63M14 3v6C6.22 10.13 3.11 15.33 2 21c2.78-3.97 6.44-6 12-6v6l8-9-8-9z"/></svg>Bagikan</button>
@@ -736,7 +897,7 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
         <b>Daftar pelajaran</b>
         <button type="button" class="autoplay-toggle" id="autoplayButton" role="switch" aria-checked="true" onclick="toggleAutoplay()"><span>Putar otomatis</span><span class="switch" id="wAuto" aria-hidden="true"></span></button>
       </div>
-      <div id="courseProgress" class="course-progress" aria-live="polite"></div><div class="upnext-list" id="wUpnext"></div><p class="progress-note">Progres tersimpan di perangkat ini.</p>
+      <div class="course-progress-box"><span id="courseMood" aria-hidden="true"></span><div><div id="courseProgress" class="course-progress" aria-live="polite"></div><div class="mini-progress"><i id="courseProgressBar"></i></div></div></div><div class="upnext-list" id="wUpnext"></div><p class="progress-note">Progres tersimpan di perangkat ini.</p>
     </aside>
   </div>
 </div>
@@ -744,7 +905,7 @@ body[data-page="files"] .file-list-header > span:last-child { visibility:hidden;
 <!-- ——— FULLSCREEN VIEWER ——— -->
 <div class="viewer-overlay" id="viewerOverlay" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
   <div class="viewer-header">
-    <img class="brand-crest compact-crest" src="assets/manggala-satya.png" alt="Manggala Satya" width="38" height="38">
+    <img class="brand-crest compact-crest" src="assets/manggala-satya-192.webp" alt="Manggala Satya" width="38" height="38">
     <div class="viewer-title" id="viewerTitle"></div>
     <div class="viewer-type-badge" id="viewerBadge"></div>
     <div class="viewer-acts">
@@ -779,6 +940,7 @@ let viewerReturnFocus = null;
 let viewerPreviousOverflow = '';
 const pageName = new URLSearchParams(location.search).get('page');
 let currentView = pageName === 'courses' ? 'videos' : pageName === 'upload' ? 'upload' : 'files';
+let loaded = false; // daftar materi sudah pernah berhasil dimuat
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 function currentFolderId() { return currentPath.length ? currentPath[currentPath.length-1].id : null; }
@@ -792,6 +954,45 @@ function fmtSize(b) {
 }
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function getExt(n) { return (n.split('.').pop()||'').toLowerCase(); }
+const natCmp = new Intl.Collator('id', { numeric: true, sensitivity: 'base' }).compare; // "2 Rambu" sebelum "10 Laka"
+const DAY = 86400000;
+function isNew(item) { return !!item.created_at && Date.now() - new Date(item.created_at).getTime() < 3 * DAY; }
+function fmtAgo(ts) {
+  const d = Math.floor((new Date().setHours(0,0,0,0) - new Date(ts).setHours(0,0,0,0)) / DAY);
+  if (!(d >= 0)) return fmtDate(ts);
+  return d === 0 ? 'Hari ini' : d === 1 ? 'Kemarin' : d < 7 ? d + ' hari lalu' : fmtDate(ts);
+}
+
+// ——— Kentung: maskot stiker (assets/kentung/<pose>.webp), ukuran asli [lebar, tinggi] ———
+const K = { angry: [414, 454], cool: [382, 479], cry: [426, 440], drink: [424, 456], eat: [408, 467], fight: [470, 555], game: [394, 492], guitar: [458, 488], heart: [420, 476], hello: [468, 1000], laptop: [394, 500], laugh: [442, 534], love: [455, 465], please: [403, 456], point: [382, 527], pray: [400, 460], pushup: [465, 414], relax: [479, 496], run: [422, 510], salute: [458, 560], sleep: [534, 426], smug: [398, 528], study: [480, 488], think: [454, 458], thumbs: [478, 530], tired: [436, 460], yawn: [419, 446] };
+// size = lebar tampil (px); tinggi mengikuti perbandingan gambar.
+// Tiap pose punya dua file: <pose>.webp dan <pose>-s.webp (setengah ukuran, ±15 KB).
+// Stiker kecil (kartu mapel, baris, toast) selalu memakai file kecil; yang besar dipilih browser sesuai layar.
+function kentung(pose, size, cls = '', alt = '') {
+  if (!K[pose]) pose = 'thumbs';
+  const [w, h] = K[pose], src = 'assets/kentung/' + pose;
+  const files = size <= 100 ? `src="${src}-s.webp"` : `src="${src}.webp" srcset="${src}-s.webp ${Math.round(w / 2)}w, ${src}.webp ${w}w" sizes="${size}px"`;
+  return `<img class="k-sticker ${cls}" ${files} alt="${esc(alt)}" width="${w}" height="${h}" style="--k:${size}px" loading="lazy" decoding="async" draggable="false">`;
+}
+// Kartu keadaan (kosong / memuat / gagal). title & text sudah berupa HTML aman.
+function stateCard(pose, title, text = '', actions = '', cls = '') {
+  return `<div class="empty state-card ${cls}">${kentung(pose, 132, 'k-pop')}<h3>${title}</h3>${text ? `<p>${text}</p>` : ''}${actions ? `<div class="state-actions">${actions}</div>` : ''}</div>`;
+}
+// Pose Kentung untuk tiap mapel: yang cocok dengan namanya, sisanya tetap (tidak berubah-ubah) per nama
+const MAPEL_POSE = [
+  [/\blantas\b|lalu\s*lintas|lalin/i, 'point'], [/\btik\b|komputer|informatika|teknologi|siber/i, 'laptop'],
+  [/sabhara|samapta|dalmas/i, 'salute'], [/reserse|reskrim|serse|penyidik/i, 'think'], [/\bintel/i, 'cool'],
+  [/binmas|polmas|masyarakat/i, 'heart'], [/administrasi|\badm\b/i, 'study'], [/manajemen|pembinaan/i, 'smug'],
+  [/ielts|inggris|english|toefl|bahasa/i, 'laugh'], [/jasmani|olahraga|binsik|fisik|bela\s*diri/i, 'pushup'],
+  [/musik|seni|budaya/i, 'guitar'], [/polair|perairan/i, 'thumbs'], [/\bkb\b/i, 'fight'],
+];
+const POSE_POOL = ['thumbs', 'fight', 'run', 'pray', 'love'];
+function poseFor(name) {
+  for (const [re, pose] of MAPEL_POSE) if (re.test(name)) return pose;
+  let h = 0;
+  for (const c of String(name)) h = (h * 31 + c.codePointAt(0)) >>> 0;
+  return POSE_POOL[h % POSE_POOL.length];
+}
 
 // Judul video tanpa ekstensi file (.mp4, .webm, ...)
 function vTitle(item) { return isYoutube(item) ? item.name : item.name.replace(/\.(mp4|m4v|mov|webm|mkv|avi|ogv)$/i, ''); }
@@ -829,12 +1030,16 @@ function getIconClass(item) {
   if (t === 'pdf') return 'pdf';
   if (t === 'vid') return 'vid';
   if (t === 'aud') return 'aud';
+  const e = getExt(item.name);
+  if (['ppt','pptx'].includes(e)) return 'ppt';
+  if (['xls','xlsx','csv'].includes(e)) return 'xls';
   if (t === 'office' || t === 'txt') return 'doc';
   return 'other';
 }
 
+const FOLDER_SVG = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h3.7c.7 0 1.3.3 1.8.8L12.4 6.3h6.1A2.5 2.5 0 0 1 21 8.8v8.7a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/></svg>';
 function getIconLabel(item) {
-  if (item.is_folder) return '📁';
+  if (item.is_folder) return FOLDER_SVG;
   const e = getExt(item.name);
   const t = getFileType(item);
   if (t === 'img') return 'IMG';
@@ -848,20 +1053,78 @@ function getIconLabel(item) {
   return e.toUpperCase().slice(0,3) || '…';
 }
 
+// Pesan singkat dari Kentung. type: success | error | info
 function toast(msg, type='success') {
   const el = document.createElement('div');
   el.className = 'toast ' + type;
-  el.textContent = (type==='success'?'✓ ':'✕ ') + msg;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  el.innerHTML = kentung(type === 'error' ? 'cry' : type === 'info' ? 'point' : 'thumbs', 46) + '<span></span>';
+  el.lastChild.textContent = msg;
+  const box = document.getElementById('toastContainer');
+  box.appendChild(el);
+  while (box.children.length > 3) box.firstChild.remove();
+  const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 260); };
+  el.onclick = close; // ketuk untuk menutup lebih cepat
+  setTimeout(close, type === 'error' ? 5200 : 3600);
+}
+
+// ——— Modal ———
+let modalReturnFocus = null;
+function openModal(id, focusEl) {
+  const m = document.getElementById(id);
+  if (m.style.display === 'none') modalReturnFocus = document.activeElement;
+  m.style.display = 'flex';
+  // Fokus langsung (bukan lewat timer): keyboard HP ikut terbuka, dan ketikan cepat tidak salah kolom
+  (focusEl || m.querySelector('.modal-body input:not([type=file]):not([type=checkbox]), .modal-footer .btn.primary, .modal-footer .btn'))?.focus();
+}
+function hideModal(id) {
+  const m = document.getElementById(id);
+  if (m.style.display === 'none') return;
+  m.style.display = 'none';
+  m.dispatchEvent(new CustomEvent('modal-close'));
+  if (modalReturnFocus && modalReturnFocus.isConnected) modalReturnFocus.focus({ preventScroll: true });
+  modalReturnFocus = null;
+}
+function openModalEl() { return [...document.querySelectorAll('.modal-overlay')].reverse().find(m => m.style.display !== 'none'); }
+// Esc menutup modal yang sedang terbuka (sebelum pemutar/penampil ikut tertutup)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const m = openModalEl();
+  if (m) { e.stopImmediatePropagation(); hideModal(m.id); }
+}, true);
+// Pengganti confirm() bawaan browser. Hasil: Promise<boolean>
+function askConfirm({ title, text = '', ok = 'Ya', cancel = 'Batal', pose = 'please', danger = false }) {
+  return new Promise(resolve => {
+    const m = document.getElementById('confirmModal');
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmText').textContent = text;
+    document.getElementById('confirmSticker').innerHTML = kentung(pose, 128, 'modal-sticker k-pop');
+    const okBtn = document.getElementById('confirmOk'), cancelBtn = document.getElementById('confirmCancel');
+    okBtn.textContent = ok; cancelBtn.textContent = cancel;
+    okBtn.className = 'btn ' + (danger ? 'danger' : 'primary');
+    let done = false;
+    const finish = v => {
+      if (done) return;
+      done = true;
+      m.removeEventListener('modal-close', onClose);
+      okBtn.onclick = cancelBtn.onclick = null;
+      hideModal('confirmModal');
+      resolve(v);
+    };
+    const onClose = () => finish(false);
+    okBtn.onclick = () => finish(true);
+    cancelBtn.onclick = () => finish(false);
+    m.addEventListener('modal-close', onClose);
+    openModal('confirmModal', cancelBtn);
+  });
 }
 
 function showNewFolderModal() {
+  if (needAdmin()) return;
   document.getElementById('folderNameInput').value = '';
-  document.getElementById('folderModal').style.display = 'flex';
-  setTimeout(() => document.getElementById('folderNameInput').focus(), 50);
+  document.getElementById('folderModalWhere').textContent = 'Dibuat di: ' + folderPathName(currentFolderId());
+  openModal('folderModal');
 }
-function hideModal(id) { document.getElementById(id).style.display = 'none'; }
 
 // ——— API (server sendiri atau Google Apps Script) ———
 function apiReady() { return SERVER || /^https:\/\/script\.google\.com\//.test(API_URL); }
@@ -903,7 +1166,7 @@ function setAdmin(on, user) {
   isAdmin = on;
   document.body.classList.toggle('is-admin', on);
   if (SERVER) document.getElementById('adminName').textContent = on ? 'Keluar (' + (user || 'admin') + ')' : 'Keluar';
-  if (changed && allItems.length) { renderStats(); renderFiles(); }
+  if (changed && loaded) { renderBreadcrumb(); renderStats(); renderFiles(); }
   if (changed && on) checkHealth();
 }
 function needAdmin() {
@@ -915,8 +1178,7 @@ function needAdmin() {
 function showLoginModal() {
   document.getElementById('loginErr').textContent = '';
   document.getElementById('loginPass').value = '';
-  document.getElementById('loginModal').style.display = 'flex';
-  setTimeout(() => document.getElementById(document.getElementById('loginUser').value ? 'loginPass' : 'loginUser').focus(), 50);
+  openModal('loginModal', document.getElementById(document.getElementById('loginUser').value ? 'loginPass' : 'loginUser'));
 }
 async function loginAdmin() {
   const username = document.getElementById('loginUser').value.trim();
@@ -928,7 +1190,7 @@ async function loginAdmin() {
     const { user } = await apiPost('login', { username, password });
     hideModal('loginModal');
     setAdmin(true, user);
-    toast('Masuk sebagai ' + user);
+    toast('Siap! Masuk sebagai ' + user);
   } catch (e) {
     document.getElementById('loginErr').textContent = e.message;
   } finally { btn.disabled = false; }
@@ -985,77 +1247,203 @@ async function retryItem(id) {
   } catch (e) { toast('Gagal: ' + e.message, 'error'); }
 }
 
+// Tampilkan satu kartu keadaan saja (memuat / gagal / belum diatur) menggantikan isi halaman
+function showStatus(html) {
+  document.body.classList.remove('at-home', 'is-loading');
+  document.getElementById('homeView').hidden = true;
+  document.getElementById('folderHead').hidden = true;
+  if (currentView === 'videos') { document.getElementById('videoGrid').innerHTML = html.replace('state-card', 'state-card course-empty'); return; }
+  document.getElementById('listView').hidden = false;
+  document.getElementById('fileListBody').innerHTML = html;
+}
+
 async function loadAndRender() {
   if (!apiReady()) {
-    document.getElementById('fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚙️</div><h3>Server belum diatur</h3><p>Isi <code>DRIVE_API_URL</code> di index.html dengan URL Web App Google Apps Script (lihat SETUP.md).</p></div>`;
+    showStatus(stateCard('laptop', 'Server belum diatur', 'Isi <code>DRIVE_API_URL</code> di index.html dengan URL Web App Google Apps Script (lihat SETUP.md).'));
     return;
   }
   try {
     allItems = await dbSelect();
+    loaded = true;
+    document.body.classList.remove('is-loading');
+    const f = folderFromUrl();
+    if (f) currentPath = pathTo(f);
     renderBreadcrumb(); renderStats(); renderFiles();
     schedulePoll();
     if (!SERVER && serverVersion >= 3) syncFromDrive(false);
     const m = location.hash.match(/^#v=(.+)$/);
-    if (m && allItems.some(i => i.id === decodeURIComponent(m[1]))) openWatch(decodeURIComponent(m[1]), false);
+    if (m && allItems.some(i => i.id === decodeURIComponent(m[1]))) { W.deepLink = true; openWatch(decodeURIComponent(m[1]), false); }
   } catch(e) {
-    document.getElementById(currentView === 'videos' ? 'videoGrid' : 'fileListBody').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>Gagal memuat</h3><p>${esc(e.message)}</p><button class="btn" onclick="loadAndRender()">Coba lagi</button></div>`;
+    showStatus(stateCard('cry', 'Gagal memuat', esc(e.message), '<button class="btn primary" onclick="retryLoad()">Coba lagi</button>'));
   }
+}
+function retryLoad() {
+  showStatus(stateCard('run', 'Sebentar, lagi diambilkan…', '', '', 'is-busy'));
+  loadAndRender();
+}
+
+// ——— Folder: navigasi + riwayat browser (tombol Kembali di HP membawa ke folder sebelumnya) ———
+function pathTo(id) {
+  const out = [], seen = new Set();
+  let f = allItems.find(i => i.id === id && i.is_folder);
+  while (f && !seen.has(f.id)) { seen.add(f.id); out.unshift({ id: f.id, name: f.name }); f = allItems.find(i => i.id === f.folder_id); }
+  return out;
+}
+function folderUrl(id) {
+  const u = new URL(location.href);
+  u.hash = '';
+  if (id) u.searchParams.set('f', id); else u.searchParams.delete('f');
+  return u.pathname + u.search;
+}
+function folderFromUrl() {
+  const f = new URLSearchParams(location.search).get('f');
+  return f && allItems.some(i => i.id === f && i.is_folder) ? f : null;
+}
+const scrollMemo = new Map(); // posisi gulir tiap folder, dipulihkan saat kembali
+function jumpScroll(y) { window.scrollTo({ top: y, behavior: 'instant' }); }
+function setFolder(id, { push = true, restore = false } = {}) {
+  scrollMemo.set(currentFolderId() || '', scrollY);
+  currentPath = id ? pathTo(id) : [];
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').hidden = true;
+  if (push && folderUrl(id) !== location.pathname + location.search) history.pushState({ f: id || null }, '', folderUrl(id));
+  renderBreadcrumb(); renderStats(); renderFiles();
+  if (restore && scrollMemo.has(id || '')) return jumpScroll(scrollMemo.get(id || ''));
+  // Folder baru: mulai dari atas. Di halaman Upload cukup sampai kepala daftar (panduan upload tidak perlu dilewati lagi).
+  const top = currentView === 'upload'
+    ? Math.max(0, document.getElementById('folderHead').getBoundingClientRect().top + scrollY - document.querySelector('header').offsetHeight - 14)
+    : 0;
+  if (scrollY > top) jumpScroll(top);
+}
+function navigateTo(idx) { setFolder(idx === -1 ? null : currentPath[idx].id, { restore: true }); }
+function openFolder(id) { if (allItems.some(i => i.id === id && i.is_folder)) setFolder(id); }
+// Kartu mapel adalah link biasa (bisa dibuka di tab baru); klik biasa berpindah tanpa memuat ulang
+function openFolderLink(e, id) {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return true;
+  e.preventDefault();
+  openFolder(id);
+  return false;
+}
+function goUp() {
+  if (searchQuery()) return clearSearch();
+  setFolder(currentPath.length >= 2 ? currentPath[currentPath.length - 2].id : null, { restore: true });
+}
+window.addEventListener('popstate', () => {
+  if (!loaded) return;
+  const f = folderFromUrl();
+  if ((f || null) !== currentFolderId()) setFolder(f, { push: false, restore: true });
+});
+function jumpTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  return false;
+}
+
+// ——— Pencarian (semua folder sekaligus) dan urutan ———
+function searchQuery() { return document.getElementById('searchInput').value.trim().toLowerCase(); }
+let searchTimer = null;
+function onSearchInput() {
+  document.getElementById('searchClear').hidden = !document.getElementById('searchInput').value;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { if (!loaded) return; renderBreadcrumb(); renderStats(); renderFiles(); }, 90);
+}
+function clearSearch() {
+  const input = document.getElementById('searchInput');
+  input.value = '';
+  onSearchInput();
+  input.focus();
+}
+function sortMode() { return store('akpol_sort', 'name'); }
+function setSort(mode) { storeSet('akpol_sort', mode); renderFiles(); }
+function sortList(list) {
+  const byNew = sortMode() === 'new';
+  return list.sort((a, b) => (b.is_folder - a.is_folder)
+    || (byNew && !a.is_folder ? String(b.created_at).localeCompare(String(a.created_at)) : 0)
+    || natCmp(a.name, b.name));
+}
+function getVisible() {
+  const q = searchQuery();
+  if (q) {
+    const rank = i => (i.name.toLowerCase().startsWith(q) ? 0 : 1);
+    return allItems.filter(i => i.name.toLowerCase().includes(q))
+      .sort((a, b) => rank(a) - rank(b) || (b.is_folder - a.is_folder) || natCmp(a.name, b.name));
+  }
+  const fid = currentFolderId();
+  return sortList(allItems.filter(i => (i.folder_id||null)===fid));
 }
 
 function renderBreadcrumb() {
   const el = document.getElementById('breadcrumb');
-  let html = `<span class="breadcrumb-item ${currentPath.length===0?'active':''}" onclick="navigateTo(-1)">🏠 Semua Materi</span>`;
+  let html = `<button type="button" class="breadcrumb-item ${currentPath.length===0?'active':''}" onclick="navigateTo(-1)">Semua Materi</button>`;
   currentPath.forEach((p,i) => {
     const isLast = i===currentPath.length-1;
-    html += `<span class="breadcrumb-sep">›</span><span class="breadcrumb-item ${isLast?'active':''}" onclick="navigateTo(${i})">${esc(p.name)}</span>`;
+    html += `<span class="breadcrumb-sep" aria-hidden="true">›</span><button type="button" class="breadcrumb-item ${isLast?'active':''}" ${isLast?'aria-current="page"':''} onclick="navigateTo(${i})">${esc(p.name)}</button>`;
   });
   el.innerHTML = html;
 }
 
 function renderStats() {
-  const fid = currentFolderId();
-  const vis = allItems.filter(i => (i.folder_id||null)===fid);
+  const el = document.getElementById('statsBar');
+  if (currentView === 'videos') { el.innerHTML = ''; return; }
+  const q = searchQuery();
+  const vis = q ? getVisible() : allItems.filter(i => (i.folder_id||null)===currentFolderId());
   const files = vis.filter(i=>!i.is_folder);
   const folders = vis.filter(i=>i.is_folder);
+  const vids = files.filter(i => getFileType(i) === 'vid').length;
   const total = files.reduce((a,f)=>a+(f.size||0),0);
-  document.getElementById('videoCount').textContent = allItems.filter(i=>getFileType(i)==='vid').length;
-  if (currentView === 'videos') { document.getElementById('statsBar').innerHTML = ''; return; }
-  document.getElementById('statsBar').innerHTML = `
-    <div class="stat">📁 <strong>${folders.length}</strong> folder</div>
-    <div class="stat">📄 <strong>${files.length}</strong> materi</div>
-    ${files.length?`<div class="stat">💾 <strong>${fmtSize(total)}</strong></div>`:''}
-  `;
+  const chips = [];
+  if (q) chips.push(`<span class="stat"><strong>${vis.length}</strong> hasil di semua folder</span>`);
+  else {
+    if (folders.length) chips.push(`<span class="stat"><strong>${folders.length}</strong> folder</span>`);
+    if (vids) chips.push(`<span class="stat"><strong>${vids}</strong> video</span>`);
+    if (files.length - vids) chips.push(`<span class="stat"><strong>${files.length - vids}</strong> dokumen</span>`);
+    if (total && currentView === 'upload') chips.push(`<span class="stat">${fmtSize(total)}</span>`);
+  }
+  el.innerHTML = chips.join('');
 }
 
-function getVisible() {
-  const fid = currentFolderId();
-  const search = document.getElementById('searchInput').value.trim().toLowerCase();
-  return allItems.filter(i => (i.folder_id||null)===fid && (!search || i.name.toLowerCase().includes(search)));
-}
-
-function setView(v) {
-  location.href = '?page=' + (v === 'videos' ? 'courses' : v) + (v === 'files' ? '#library' : '');
+// Kepala daftar: judul folder / hasil pencarian, tombol kembali, urutan, tujuan upload
+function renderFolderHead() {
+  const q = searchQuery();
+  const cur = currentPath[currentPath.length - 1];
+  const gated = currentView === 'upload' && !canEdit();
+  document.getElementById('folderHead').hidden = gated;
+  document.getElementById('folderHead').classList.toggle('has-kentung', !!(q || cur));
+  document.getElementById('toolbar').hidden = gated;
+  document.getElementById('folderTitle').textContent = q ? `Hasil untuk “${document.getElementById('searchInput').value.trim()}”` : cur ? cur.name : 'Semua Materi';
+  document.getElementById('backBtn').hidden = !q && !cur;
+  document.getElementById('backBtn').setAttribute('aria-label', q ? 'Tutup hasil pencarian' : 'Kembali ke folder sebelumnya');
+  document.getElementById('breadcrumb').hidden = !!q || !cur;
+  document.getElementById('sortToggle').hidden = !!q;
+  document.querySelectorAll('#sortToggle button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sort === sortMode())));
+  document.getElementById('folderKentung').innerHTML = q ? kentung('think', 88) : cur ? kentung(poseFor(currentPath[0].name), 88) : '';
+  document.getElementById('dzDest').textContent = cur ? currentPath.map(p => p.name).join(' › ') : 'Semua Materi (paling atas)';
 }
 
 function configurePage() {
   const isVideo = currentView === 'videos';
   const isUpload = currentView === 'upload';
   document.body.dataset.page = currentView;
-  document.querySelector('.hero').hidden = isVideo || isUpload;
+  document.body.classList.add('is-loading');
+  document.body.classList.toggle('at-home', currentView === 'files' && !new URLSearchParams(location.search).get('f'));
+  document.getElementById('pageHead').hidden = !(isVideo || isUpload);
   document.getElementById('uploadTools').hidden = !isUpload;
   document.getElementById('dropZone').style.display = isUpload ? '' : 'none';
-  document.getElementById('fileList').style.display = isVideo ? 'none' : '';
+  document.getElementById('listView').hidden = isVideo;
   document.getElementById('videoGrid').style.display = isVideo ? '' : 'none';
-  document.getElementById('breadcrumb').style.display = isVideo ? 'none' : '';
-  document.getElementById('searchInput').placeholder = isVideo ? 'Cari kursus atau pelajaran...' : 'Cari materi...';
+  document.getElementById('searchInput').placeholder = isVideo ? 'Cari kursus atau pelajaran…' : 'Cari materi, video, atau mapel…';
+  document.getElementById('dzKentung').innerHTML = kentung('laptop', 112);
   document.querySelectorAll('nav [data-page]').forEach(link => {
     if (link.dataset.page === currentView) link.setAttribute('aria-current', 'page');
   });
   if (isVideo || isUpload) {
-    const heading = document.querySelector('.library-heading');
-    heading.querySelector('.eyebrow').textContent = isVideo ? 'RUANG BELAJAR' : 'BERBAGI PENGETAHUAN';
-    heading.querySelector('h2').innerHTML = isVideo ? 'siap belajar hal baru?<br><span>Pilih kursus, mulai langkahmu.</span>' : 'ilmu makin seru dibagikan.<br><span>Tambahkan materi untuk sesama.</span>';
-    heading.querySelector(':scope > p').textContent = isVideo ? 'Tonton video, ikuti urutan pelajaran, dan lanjutkan kapan saja.' : 'Simpan dokumen dan video di folder yang sesuai.';
+    // Mode Google Drive tidak punya admin: semua orang boleh menambah materi
+    document.getElementById('pageEyebrow').textContent = isVideo ? 'KURSUS VIDEO' : SERVER ? 'KHUSUS ADMIN' : 'BERBAGI MATERI';
+    document.getElementById('pageTitle').textContent = isVideo ? 'Tonton, ikuti, tuntaskan.' : 'Tambah materi baru';
+    document.getElementById('pageSub').textContent = isVideo
+      ? 'Setiap folder berisi video menjadi satu kursus. Progresmu tersimpan di perangkat ini.'
+      : 'Buka folder tujuan, lalu seret file ke kotak upload. ' + (SERVER ? 'Video otomatis dibuatkan versi 1080p–360p.' : 'File tersimpan di Google Drive.');
+    document.getElementById('pageKentung').innerHTML = kentung(isVideo ? 'game' : 'laptop', 150, 'k-bob');
     document.title = (isVideo ? 'Kursus' : 'Upload materi') + ' — Materi AKPOL';
   }
 }
@@ -1065,12 +1453,15 @@ function courseLessons(folderId) {
     .sort((a, b) => a.name.localeCompare(b.name, 'id', { numeric: true, sensitivity: 'base' }));
 }
 function lessonComplete(id) { return store('akpol_completed', {})[id] === true; }
+function setLessonComplete(id, on) {
+  const completed = store('akpol_completed', {});
+  if (on) completed[id] = true; else delete completed[id];
+  storeSet('akpol_completed', completed);
+}
 function courseName(folderId) { return folderId ? folderPathName(folderId) : 'Video pembelajaran umum'; }
 function toggleLessonComplete() {
   if (!W.item) return;
-  const completed = store('akpol_completed', {});
-  completed[W.item.id] = !lessonComplete(W.item.id);
-  storeSet('akpol_completed', completed);
+  setLessonComplete(W.item.id, !lessonComplete(W.item.id));
   renderUpnext();
 }
 function previousLesson() {
@@ -1087,26 +1478,49 @@ function folderPathName(folderId) {
   return parts.length ? parts.join(' › ') : 'Semua Materi';
 }
 
+// ——— "Lanjutkan belajar": video yang belum selesai ditonton di perangkat ini ———
+function continueCards() {
+  const pos = store('akpol_pos', {});
+  return allItems
+    .filter(v => getFileType(v) === 'vid' && pos[v.id] && pos[v.id].d > 0 && pos[v.id].t > 3 && pos[v.id].t < pos[v.id].d * 0.95 && !lessonComplete(v.id))
+    .sort((a, b) => (pos[b.id].u || 0) - (pos[a.id].u || 0)).slice(0, 4)
+    .map(v => {
+      const p = pos[v.id];
+      return `<a class="continue-card" href="#v=${encodeURIComponent(v.id)}">
+        <span class="cc-thumb"><img src="${videoThumb(v, 320)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="watched-bar"><i style="width:${Math.round(p.t / p.d * 100)}%"></i></span></span>
+        <span class="cc-text"><b>${esc(vTitle(v))}</b><small>${esc(courseName(v.folder_id))} · sisa ${fmtTime(p.d - p.t)}</small></span>
+        <span class="cc-go" aria-hidden="true"></span>
+      </a>`;
+    }).join('');
+}
+
 function renderVideos() {
   const grid = document.getElementById('videoGrid');
-  const search = document.getElementById('searchInput').value.trim().toLowerCase();
+  const search = searchQuery();
   document.getElementById('dragHint').style.display = 'none';
   document.getElementById('dropToParent').classList.remove('visible');
   const folders = [...new Set(allItems.filter(item => getFileType(item) === 'vid').map(item => item.folder_id || null))];
   const courses = folders.map(folder => ({ name: courseName(folder), lessons: courseLessons(folder) }))
     .filter(course => course.name.toLowerCase().includes(search) || course.lessons.some(item => item.name.toLowerCase().includes(search)))
-    .sort((a,b) => a.name.localeCompare(b.name, 'id'));
+    .sort((a,b) => natCmp(a.name, b.name));
   if (!courses.length) {
-    grid.innerHTML = `<div class="empty course-empty"><h3>${search ? 'Kursus tidak ditemukan' : 'Belum ada kursus'}</h3><p>${search ? 'Coba nama kursus atau pelajaran lain.' : 'Video pembelajaran akan muncul di sini setelah ditambahkan.'}</p>${search ? '' : '<a class="btn" href="?page=upload">Tambahkan video pertama</a>'}</div>`;
+    grid.innerHTML = search
+      ? stateCard('think', 'Kursus tidak ditemukan', `Tidak ada kursus atau pelajaran dengan kata “${esc(search)}”.`, '<button class="btn" onclick="clearSearch()">Hapus pencarian</button>', 'course-empty')
+      : stateCard('guitar', 'Belum ada kursus video', 'Video pembelajaran akan muncul di sini setelah admin menambahkannya.', canEdit() ? '<a class="btn primary" href="?page=upload">Tambahkan video pertama</a>' : '', 'course-empty');
     return;
   }
-  grid.innerHTML = courses.map(course => {
+  const cont = search ? '' : continueCards();
+  const pos = store('akpol_pos', {});
+  grid.innerHTML = (cont ? `<section class="home-section in-grid" aria-label="Lanjutkan belajar"><div class="sec-head"><h2>Lanjutkan belajar</h2><span class="sec-note">Tersimpan di perangkat ini</span></div><div class="continue-row">${cont}</div></section>` : '')
+  + courses.map(course => {
     const done = course.lessons.filter(item => lessonComplete(item.id)).length;
     const next = course.lessons.find(item => !lessonComplete(item.id)) || course.lessons[0];
     const first = course.lessons[0];
-    return `<article class="course-card">
-      <a class="course-cover" href="#v=${encodeURIComponent(next.id)}" aria-label="Buka kursus ${esc(course.name)}"><img src="${videoThumb(first)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="course-cover-label">${course.lessons.length} pelajaran</span><span class="course-play" aria-hidden="true"></span></a>
-      <div class="course-details"><h2>${esc(course.name)}</h2><p>${done} dari ${course.lessons.length} pelajaran selesai</p><progress value="${done}" max="${course.lessons.length}" aria-label="Progres ${esc(course.name)}"></progress><a class="btn" href="#v=${encodeURIComponent(next.id)}">${done === course.lessons.length ? 'Pelajari kembali' : done ? 'Lanjutkan belajar' : 'Mulai belajar'}</a></div>
+    const all = done === course.lessons.length;
+    const started = done > 0 || course.lessons.some(item => pos[item.id] && pos[item.id].t > 3);
+    return `<article class="course-card ${all ? 'is-done' : ''}">
+      <a class="course-cover" href="#v=${encodeURIComponent(next.id)}" aria-label="Buka kursus ${esc(course.name)}"><img class="course-thumb" src="${videoThumb(first)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"><span class="course-cover-label">${course.lessons.length} pelajaran</span>${all ? '<span class="course-stamp">TUNTAS</span>' : ''}${kentung(all ? 'cool' : started ? 'run' : poseFor(course.name), 86, 'course-kentung')}</a>
+      <div class="course-details"><h2>${esc(course.name)}</h2><p>${all ? 'Semua pelajaran selesai' : `${done} dari ${course.lessons.length} pelajaran selesai`}</p><progress value="${done}" max="${course.lessons.length}" aria-label="Progres ${esc(course.name)}"></progress><a class="btn ${all ? '' : 'primary'}" href="#v=${encodeURIComponent(next.id)}">${all ? 'Pelajari kembali' : started ? 'Lanjutkan belajar' : 'Mulai belajar'}</a></div>
     </article>`;
   }).join('');
 }
@@ -1156,85 +1570,160 @@ async function syncFromDrive(manual) {
   }
 }
 
+// ——— Baris daftar (folder / file) ———
+const ROW_ICON = {
+  download: '<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><polyline points="7 11 12 16 17 11"/><path d="M5 20h14"/></svg>',
+  retry: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><polyline points="21 4 21 10 15 10"/><path d="M19.5 14a8 8 0 1 1-1.9-8.3L21 10"/></svg>',
+  rename: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17z"/><line x1="13.5" y1="8" x2="16.5" y2="11"/></svg>',
+  move: '<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="9" y1="13" x2="15" y2="13"/><polyline points="12.5 10.5 15 13 12.5 15.5"/></svg>',
+  del: '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 7 20 7"/><path d="M18 7l-1 13H7L6 7"/><path d="M10 11v5"/><path d="M14 11v5"/><path d="M9 7V4h6v3"/></svg>',
+  chevron: '<svg class="row-chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 5 16 12 9 19"/></svg>',
+};
+// manage = halaman Upload (admin: ganti nama, pindah, hapus, seret); showPath = tampilkan lokasi folder
+function rowHtml(item, { manage = false, showPath = false } = {}) {
+  const type = getFileType(item);
+  const isVid = type === 'vid';
+  const proc = procLabel(item);
+  const drag = manage && canEdit();
+  const meta = [];
+  if (showPath) meta.push(esc(folderPathName(item.folder_id)));
+  if (item.is_folder) { const n = allItems.filter(c => c.folder_id === item.id).length; meta.push(n ? n + ' item' : 'Kosong'); }
+  else {
+    if (isYoutube(item)) meta.push('YouTube');
+    if (isVid && item.duration) meta.push(fmtTime(item.duration));
+    if (item.size) meta.push(fmtSize(item.size));
+    meta.push(fmtAgo(item.created_at));
+  }
+  const icon = isVid
+    ? `<span class="file-icon vid thumb"><img src="${videoThumb(item,160)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('thumb');this.parentNode.textContent='${isYoutube(item) ? '▶' : 'VID'}'"></span>`
+    : `<span class="file-icon ${getIconClass(item)}">${getIconLabel(item)}</span>`;
+  const id = item.id;
+  const btn = (key, title, onclick, cls = '') => `<button type="button" class="icon-btn ${cls}" title="${title}" aria-label="${title} ${esc(item.name)}" onclick="${onclick}">${ROW_ICON[key]}</button>`;
+  const acts = [];
+  if (!item.is_folder && !isYoutube(item)) acts.push(btn('download', 'Download', `downloadItem('${id}')`));
+  if (manage) {
+    if (SERVER && item.status === 'failed') acts.push(btn('retry', 'Proses ulang', `retryItem('${id}')`, 'admin-only'));
+    if (SERVER) acts.push(btn('rename', 'Ganti nama', `showRenameModal('${id}')`, 'admin-only'));
+    acts.push(btn('move', 'Pindahkan', `showMoveModal('${id}')`, 'admin-only'));
+    acts.push(btn('del', 'Hapus', `deleteItem('${id}')`, 'del admin-only'));
+  }
+  return `<div class="file-item ${item.is_folder ? 'is-folder' : ''}"
+      draggable="${drag}"
+      data-id="${id}"
+      data-is-folder="${item.is_folder}"
+      ${drag ? `ondragstart="onItemDragStart(event,'${id}')" ondragend="onItemDragEnd(event)"` : ''}
+      ${drag && item.is_folder ? `ondragover="onFolderDragOver(event,'${id}')" ondragleave="onFolderDragLeave(event)" ondrop="onFolderDrop(event,'${id}')"` : ''}>
+      <div class="row-main" role="button" tabindex="0" onclick="${item.is_folder ? `openFolder('${id}')` : `openViewer('${id}')`}" onkeydown="rowKey(event)">
+        ${icon}
+        <span class="row-text">
+          <span class="file-name ${item.is_folder ? 'folder-name' : ''}">${esc(item.name)}</span>
+          <span class="file-meta">${meta.join(' · ')}</span>
+          ${proc ? `<span class="proc-badge ${item.status==='failed'?'failed':''}" title="${esc(item.error||'')}">${item.status==='failed'?'⚠️':'⏳'} ${proc}</span>` : ''}
+        </span>
+        ${!item.is_folder && isNew(item) ? '<span class="new-chip">BARU</span>' : ''}
+        ${item.is_folder ? ROW_ICON.chevron : ''}
+      </div>
+      ${acts.length ? `<div class="file-actions">${acts.join('')}</div>` : ''}
+    </div>`;
+}
+
+// Baris adalah div role="button" (bukan <button>) supaya tetap bisa diseret di Firefox; Enter/Spasi membukanya
+function rowKey(e) {
+  if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return;
+  e.preventDefault();
+  e.currentTarget.click();
+}
+
+// ——— Beranda Materi: lanjutkan belajar, kartu mapel, materi terbaru ———
+function renderHome() {
+  const roots = allItems.filter(i => !i.folder_id);
+  const mapel = roots.filter(i => i.is_folder).sort((a, b) => natCmp(a.name, b.name));
+  const loose = sortList(roots.filter(i => !i.is_folder));
+  const kids = new Map();
+  for (const i of allItems) { const k = i.folder_id || ''; if (!kids.has(k)) kids.set(k, []); kids.get(k).push(i); }
+  const tally = id => {
+    let v = 0, d = 0, fresh = false;
+    const walk = (fid, depth) => { for (const c of kids.get(fid) || []) { if (c.is_folder) { if (depth < 20) walk(c.id, depth + 1); } else { getFileType(c) === 'vid' ? v++ : d++; if (isNew(c)) fresh = true; } } };
+    walk(id, 0);
+    return { v, d, fresh };
+  };
+  const cont = continueCards();
+  document.getElementById('continueSection').hidden = !cont;
+  document.getElementById('continueRow').innerHTML = cont;
+
+  const grid = document.getElementById('mapelGrid');
+  document.getElementById('mapelCount').textContent = mapel.length ? mapel.length + ' mapel' : '';
+  if (!allItems.length) {
+    grid.innerHTML = stateCard('salute', 'Perpustakaan masih kosong', canEdit() ? 'Mulai dengan membuat folder mapel, lalu upload materinya.' : 'Admin belum menambahkan materi. Cek lagi nanti, ya.', canEdit() ? '<a class="btn primary" href="?page=upload">Upload materi pertama</a>' : '', 'in-grid');
+  } else {
+    grid.innerHTML = mapel.map((m, i) => {
+      const t = tally(m.id);
+      const meta = [t.v ? t.v + ' video' : '', t.d ? t.d + ' dokumen' : ''].filter(Boolean).join(' · ') || 'Belum ada isi';
+      return `<a class="mapel-card tint-${i % 6}" href="${esc(folderUrl(m.id))}" onclick="return openFolderLink(event,'${m.id}')">
+        ${kentung(poseFor(m.name), 92, 'mapel-kentung')}
+        ${t.fresh ? '<span class="new-chip">BARU</span>' : ''}
+        <span class="mapel-name">${esc(m.name)}</span>
+        <span class="mapel-meta">${meta}</span>
+      </a>`;
+    }).join('');
+  }
+  document.getElementById('mapelSection').hidden = !!allItems.length && !mapel.length;
+
+  document.getElementById('looseSection').hidden = !loose.length;
+  document.getElementById('looseList').innerHTML = loose.map(i => rowHtml(i)).join('');
+
+  const recent = allItems.filter(i => !i.is_folder && i.folder_id && Date.now() - new Date(i.created_at).getTime() < 14 * DAY)
+    .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 5);
+  document.getElementById('recentSection').hidden = !recent.length;
+  document.getElementById('recentList').innerHTML = recent.map(i => rowHtml(i, { showPath: true })).join('');
+}
+
 function renderFiles() {
   renderDriveBox();
+  const q = searchQuery();
+  const atHome = currentView === 'files' && !currentPath.length && !q;
+  document.body.classList.toggle('at-home', atHome);
+  document.getElementById('homeView').hidden = !atHome;
+  document.getElementById('listView').hidden = currentView === 'videos' || atHome;
   if (currentView === 'videos') return renderVideos();
-  const items = getVisible();
+  if (atHome) return renderHome();
+  renderFolderHead();
+
   const body = document.getElementById('fileListBody');
+  const manage = currentView === 'upload';
+  const dtp = document.getElementById('dropToParent');
+  if (manage && !canEdit()) { // halaman Upload dibuka tanpa masuk admin
+    document.getElementById('dragHint').style.display = 'none';
+    dtp.classList.remove('visible');
+    body.innerHTML = stateCard('salute', 'Halaman ini khusus admin', 'Masuk dulu untuk upload, memindahkan, atau menghapus materi.', '<button class="btn primary" onclick="showLoginModal()">Masuk admin</button> <a class="btn" href="./">Lihat materi</a>');
+    return;
+  }
+  const items = getVisible();
 
   // Tampilkan hint dan drop-to-parent jika ada folder di atasnya
   const hasFolder = items.some(i => i.is_folder);
-  document.getElementById('dragHint').style.display = hasFolder && canEdit() ? 'flex' : 'none';
-  const dtp = document.getElementById('dropToParent');
-  dtp.classList.toggle('visible', currentPath.length > 0);
+  document.getElementById('dragHint').style.display = manage && hasFolder && canEdit() && !q ? 'flex' : 'none';
+  dtp.classList.toggle('visible', manage && currentPath.length > 0 && !q);
 
   if (!items.length) {
-    const s = document.getElementById('searchInput').value.trim();
-    body.innerHTML = `<div class="empty"><div class="empty-icon">📂</div><h3>${s?'Tidak ada hasil untuk "'+esc(s)+'"':'Belum ada materi'}</h3><p>${s?'Coba kata kunci lain.':'Upload materi atau buat folder baru.'}</p></div>`;
+    const typed = document.getElementById('searchInput').value.trim();
+    const cur = currentPath[currentPath.length - 1];
+    body.innerHTML = q
+      ? stateCard('think', `Tidak ketemu “${esc(typed)}”`, 'Coba kata lain, atau periksa ejaannya.', '<button class="btn" onclick="clearSearch()">Hapus pencarian</button>')
+      : stateCard('yawn', cur ? 'Folder ini masih kosong' : 'Belum ada materi',
+          manage ? 'Seret file ke kotak upload di atas untuk mengisinya.' : 'Belum ada materi di sini. Cek lagi nanti, ya.',
+          !manage && canEdit() ? `<a class="btn primary" href="?page=upload${cur ? '&f=' + encodeURIComponent(cur.id) : ''}">Upload ke folder ini</a>` : '');
     return;
   }
-
-  body.innerHTML = items.map(item => {
-    const childCount = item.is_folder ? allItems.filter(c=>c.folder_id===item.id).length : 0;
-    const canView = !item.is_folder;
-    const proc = procLabel(item);
-    return `<div class="file-item"
-      draggable="${canEdit()}"
-      data-id="${item.id}"
-      data-is-folder="${item.is_folder}"
-      ondragstart="onItemDragStart(event,'${item.id}')"
-      ondragend="onItemDragEnd(event)"
-      ${item.is_folder?`ondragover="onFolderDragOver(event,'${item.id}')" ondragleave="onFolderDragLeave(event)" ondrop="onFolderDrop(event,'${item.id}')"`:''}>
-      <div class="file-name-cell">
-        ${getFileType(item)==='vid'
-          ? `<div class="file-icon vid thumb"><img src="${videoThumb(item,120)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('thumb');this.parentNode.textContent='${getIconLabel(item)}'"></div>`
-          : `<div class="file-icon ${getIconClass(item)}">${getIconLabel(item)}</div>`}
-        <div style="min-width:0">
-          <div class="file-name ${item.is_folder?'folder-name':''}" onclick="${item.is_folder?`openFolder('${item.id}')`:`openViewer('${item.id}')`}">${esc(item.name)}</div>
-          ${item.is_folder?`<div class="file-meta">${childCount} item</div>`:''}
-          ${proc?`<div class="proc-badge ${item.status==='failed'?'failed':''}" title="${esc(item.error||'')}">${item.status==='failed'?'⚠️':'⏳'} ${proc}</div>`:''}
-        </div>
-      </div>
-      <div class="file-meta">${fmtDate(item.created_at)}</div>
-      <div class="file-meta">${fmtSize(item.size)}</div>
-      <div class="file-actions">
-        ${canView?`<button class="icon-btn" title="Lihat" onclick="openViewer('${item.id}')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>`:''}
-        ${!item.is_folder && !isYoutube(item)?`<button class="icon-btn" title="Download" onclick="downloadItem('${item.id}')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
-        </button>`:''}
-        ${SERVER && item.status==='failed'?`<button class="icon-btn admin-only" title="Proses ulang" onclick="retryItem('${item.id}')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        </button>`:''}
-        <button class="icon-btn del admin-only" title="Hapus" onclick="deleteItem('${item.id}')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        </button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function navigateTo(idx) {
-  if (idx===-1) currentPath=[];
-  else currentPath=currentPath.slice(0,idx+1);
-  document.getElementById('searchInput').value='';
-  renderBreadcrumb(); renderStats(); renderFiles();
-}
-function openFolder(id) {
-  const f = allItems.find(i=>i.id===id);
-  if (!f) return;
-  currentPath.push({id, name: f.name});
-  document.getElementById('searchInput').value='';
-  renderBreadcrumb(); renderStats(); renderFiles();
+  body.innerHTML = items.map(item => rowHtml(item, { manage, showPath: !!q })).join('');
 }
 
 function showVideoModal() {
   document.getElementById('ytUrlInput').value = '';
   document.getElementById('ytTitleInput').value = '';
   const where = currentView === 'videos' ? 'Semua Materi' : folderPathName(currentFolderId());
-  document.getElementById('videoModalFolder').textContent = '📁 Disimpan di: ' + where;
-  document.getElementById('videoModal').style.display = 'flex';
+  document.getElementById('videoModalFolder').textContent = 'Disimpan di: ' + where;
+  openModal('videoModal', document.querySelector('#videoModal .btn.gold'));
 }
 
 async function addYoutube() {
@@ -1270,7 +1759,7 @@ async function createFolder() {
     allItems.unshift(item);
     hideModal('folderModal');
     renderBreadcrumb(); renderStats(); renderFiles();
-    toast('Folder "'+name+'" berhasil dibuat');
+    toast('Folder “'+name+'” berhasil dibuat');
   } catch(e) { toast('Gagal: '+e.message,'error'); }
 }
 
@@ -1291,7 +1780,7 @@ function isVideoFile(f) { return /^video\//.test(f.type) || /\.(mp4|m4v|mov|webm
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 async function handleFiles(fileInput) {
-  if (currentView !== 'upload') { toast('Buka halaman Upload untuk menambahkan materi.'); return; }
+  if (currentView !== 'upload') { toast('Buka halaman Upload untuk menambahkan materi.', 'info'); return; }
   const files = Array.from(fileInput);
   if (!files.length) return;
   if (needAdmin()) return;
@@ -1305,6 +1794,8 @@ async function handleFiles(fileInput) {
   const dzWasHidden = dz.style.display === 'none';
   if (dzWasHidden) dz.style.display = '';
   uploading = true;
+  dz.classList.add('uploading');
+  document.getElementById('dzKentung').innerHTML = kentung('pushup', 124, 'k-pump');
 
   let done = 0, failed = 0, savedBytes = 0;
   const total = files.length;
@@ -1368,11 +1859,14 @@ async function handleFiles(fileInput) {
 
   uploading = false;
   pf.style.width = '100%';
+  dz.classList.remove('uploading');
+  document.getElementById('dzKentung').innerHTML = kentung(failed && !done ? 'cry' : 'thumbs', 112, 'k-pop');
+  setTimeout(() => { if (!uploading) document.getElementById('dzKentung').innerHTML = kentung('laptop', 112); }, 6000);
   setTimeout(() => { pw.style.display = 'none'; pf.style.width = '0%'; if (dzWasHidden && currentView==='videos') dz.style.display = 'none'; }, 600);
   renderBreadcrumb(); renderStats(); renderFiles();
 
   if (done > 0) toast(done + ' dari ' + total + ' materi berhasil diupload ✓' + (savedBytes > 1048576 ? ` (hemat ${fmtSize(savedBytes)} berkat kompresi)` : ''));
-  if (done > 0 && SERVER && allItems.some(i => i.status === 'processing')) { toast('Video sedang diproses server agar lancar diputar — bisa ditinggal'); schedulePoll(); }
+  if (done > 0 && SERVER && allItems.some(i => i.status === 'processing')) { toast('Video sedang diproses server agar lancar diputar. Bisa ditinggal.', 'info'); schedulePoll(); }
   if (failed > 0) toast(failed + ' file gagal diupload', 'error');
 }
 window.addEventListener('beforeunload', e => { if (uploading) { e.preventDefault(); e.returnValue = ''; } });
@@ -1586,15 +2080,74 @@ async function deleteItem(id) {
   const item = allItems.find(i=>i.id===id);
   if (!item || needAdmin()) return;
   const n = item.is_folder ? allItems.filter(i=>isDescendant(i.id, id)).length : 0;
-  const msg = 'Hapus "'+item.name+'"?' + (n ? '\nSemua isi folder ('+n+' item) juga akan dihapus.' : '') + (SERVER ? '\n(File masih bisa dipulihkan admin server selama 30 hari.)' : '');
-  if (!confirm(msg)) return;
+  const ok = await askConfirm({
+    title: `Hapus “${item.name}”?`,
+    text: (n ? `Semua isi folder (${n} item) juga ikut terhapus. ` : '') + (SERVER ? 'Masih bisa dipulihkan admin server selama 30 hari.' : 'File masuk ke Sampah Google Drive selama 30 hari.'),
+    ok: 'Ya, hapus', pose: 'please', danger: true,
+  });
+  if (!ok) return;
   try {
     const { deleted } = await apiPost('delete', { id });
     const gone = new Set(deleted);
     allItems = allItems.filter(i => !gone.has(i.id));
-    toast('"'+item.name+'" berhasil dihapus');
+    if (currentPath.some(p => gone.has(p.id))) currentPath = currentPath.slice(0, currentPath.findIndex(p => gone.has(p.id)));
+    toast('“'+item.name+'” berhasil dihapus');
   } catch(e) { toast('Gagal hapus: '+e.message,'error'); }
   renderBreadcrumb(); renderStats(); renderFiles();
+}
+
+// Pindahkan lewat daftar folder (pengganti seret-lepas, juga untuk HP)
+let moveId = null;
+function showMoveModal(id) {
+  const item = allItems.find(i => i.id === id);
+  if (!item || needAdmin()) return;
+  moveId = id;
+  document.getElementById('moveModalWhat').textContent = `Pilih folder tujuan untuk “${item.name}”.`;
+  const rows = [];
+  const add = (folder, depth) => {
+    const fid = folder ? folder.id : null;
+    const here = (item.folder_id || null) === fid;
+    rows.push(`<button type="button" class="pick-row" style="--depth:${depth}" ${here ? 'disabled' : ''} onclick="pickMove(${fid ? `'${fid}'` : 'null'})">${FOLDER_SVG}<span>${folder ? esc(folder.name) : 'Semua Materi (paling atas)'}</span>${here ? '<small>lokasi sekarang</small>' : ''}</button>`);
+    if (depth > 20) return;
+    allItems.filter(i => i.is_folder && (i.folder_id || null) === fid && i.id !== item.id) // folder tidak bisa masuk ke dirinya sendiri
+      .sort((a, b) => natCmp(a.name, b.name)).forEach(c => add(c, depth + 1));
+  };
+  add(null, 0);
+  document.getElementById('moveList').innerHTML = rows.join('');
+  openModal('moveModal', document.querySelector('#moveList .pick-row:not([disabled])'));
+}
+async function pickMove(folderId) {
+  const id = moveId;
+  hideModal('moveModal');
+  const target = folderId ? allItems.find(i => i.id === folderId) : null;
+  await moveItem(id, folderId, target ? target.name : 'Semua Materi');
+}
+
+// Ganti nama (hanya server sendiri)
+let renameId = null;
+function showRenameModal(id) {
+  const item = allItems.find(i => i.id === id);
+  if (!item || needAdmin()) return;
+  renameId = id;
+  const input = document.getElementById('renameInput');
+  input.value = item.name;
+  document.getElementById('renameHint').textContent = item.is_folder ? '' : 'Akhiran file (mis. .pdf, .mp4) sebaiknya tidak diubah.';
+  openModal('renameModal', input);
+  const dot = item.is_folder ? -1 : item.name.lastIndexOf('.');
+  input.setSelectionRange(0, dot > 0 ? dot : item.name.length); // pilih nama tanpa akhiran file
+}
+async function submitRename() {
+  const item = allItems.find(i => i.id === renameId);
+  const name = document.getElementById('renameInput').value.trim();
+  if (!item || !name || name === item.name) return hideModal('renameModal');
+  try {
+    const r = await apiPost('rename', { id: item.id, name });
+    Object.assign(item, r.item || { name });
+    currentPath = currentPath.map(p => p.id === item.id ? { id: p.id, name: item.name } : p);
+    hideModal('renameModal');
+    renderBreadcrumb(); renderStats(); renderFiles();
+    toast('Nama diganti menjadi “' + item.name + '”');
+  } catch (e) { toast('Gagal mengganti nama: ' + e.message, 'error'); }
 }
 
 // ——— VIEWER ———
@@ -1631,7 +2184,7 @@ function openViewer(id) {
   // Render
   const body = document.getElementById('viewerBody');
   body.style.alignItems = 'center';
-  body.innerHTML = '<div class="viewer-loading"><div class="viewer-spinner"></div><span style="color:rgba(255,255,255,0.5);font-size:13px">Memuat file...</span></div>';
+  body.innerHTML = `<div class="viewer-loading">${kentung('run', 96, 'k-run')}<span>Memuat file…</span></div>`;
 
   if (SERVER) return renderServerViewer(item, ft, body);
 
@@ -1640,6 +2193,7 @@ function openViewer(id) {
     const presentation = ['ppt', 'pptx'].includes(ext);
     const card = document.createElement('section');
     card.className = 'office-preview';
+    card.insertAdjacentHTML('afterbegin', kentung('study', 116, 'k-pop'));
     const format = document.createElement('span');
     format.className = 'office-format';
     format.textContent = ext.toUpperCase();
@@ -1661,6 +2215,7 @@ function openViewer(id) {
     actions.className = 'office-preview-actions';
     actions.append(open, download);
     card.append(format, title, description, actions);
+    card.prepend(card.querySelector('.k-sticker'));
     body.replaceChildren(card);
     return;
   }
@@ -1702,8 +2257,8 @@ function openViewer(id) {
 }
 
 // ——— Pratinjau file dari server sendiri ———
-function viewerMsg(icon, html, item) {
-  return `<div class="viewer-msg"><div class="vm-icon">${icon}</div>${html}${item ? `<div><button class="btn gold" onclick="downloadItem('${item.id}')">⬇ Download file</button></div>` : ''}</div>`;
+function viewerMsg(pose, html, item) {
+  return `<div class="viewer-msg">${kentung(pose, 124, 'k-pop')}<div>${html}</div>${item ? `<div><button class="btn gold" onclick="downloadItem('${item.id}')">Download file</button></div>` : ''}</div>`;
 }
 function renderServerViewer(item, ft, body) {
   const id = item.id;
@@ -1733,13 +2288,13 @@ function renderServerViewer(item, ft, body) {
       body.appendChild(ctrl);
       window._vImg = img;
     };
-    img.onerror = () => { if (still()) body.innerHTML = viewerMsg('🖼️', 'Gambar ini tidak bisa ditampilkan di browser.', item); };
+    img.onerror = () => { if (still()) body.innerHTML = viewerMsg('think', 'Gambar ini tidak bisa ditampilkan di browser.', item); };
   } else if (ft === 'pdf') {
     renderPdf(body, item.src, item);
   } else if (ft === 'office') {
     if (item.preview) renderPdf(body, item.preview, item);
-    else if (item.status === 'processing') body.innerHTML = viewerMsg('⏳', 'Pratinjau sedang dibuat server. Coba buka lagi sebentar lagi.', item);
-    else body.innerHTML = viewerMsg('📄', 'Pratinjau tidak tersedia untuk file ini.', item);
+    else if (item.status === 'processing') body.innerHTML = viewerMsg('run', 'Pratinjau sedang dibuat server. Coba buka lagi sebentar lagi.', item);
+    else body.innerHTML = viewerMsg('please', 'Pratinjau tidak tersedia untuk file ini.', item);
   } else if (ft === 'aud') {
     body.innerHTML = `<audio class="audio-viewer" controls autoplay preload="metadata" src="${esc(item.src)}"></audio>`;
   } else if (ft === 'txt') {
@@ -1750,9 +2305,9 @@ function renderServerViewer(item, ft, body) {
       pre.textContent = t.length > 2000000 ? t.slice(0, 2000000) + '\n\n… (terpotong, download untuk melihat seluruhnya)' : t;
       body.innerHTML = ''; body.style.alignItems = 'flex-start';
       body.appendChild(pre);
-    }).catch(() => { if (still()) body.innerHTML = viewerMsg('📄', 'File tidak bisa dimuat.', item); });
+    }).catch(() => { if (still()) body.innerHTML = viewerMsg('cry', 'File tidak bisa dimuat. Periksa koneksi lalu coba lagi.', item); });
   } else {
-    body.innerHTML = viewerMsg('📦', 'Pratinjau tidak tersedia untuk jenis file ini.', item);
+    body.innerHTML = viewerMsg('think', 'Pratinjau tidak tersedia untuk jenis file ini.', item);
   }
 }
 
@@ -1868,7 +2423,7 @@ function onItemDragStart(e, id) {
   // Custom ghost image
   dragGhost = document.createElement('div');
   dragGhost.className = 'drag-ghost';
-  dragGhost.textContent = (item.is_folder ? '📁 ' : '📄 ') + item.name;
+  dragGhost.textContent = item.name;
   document.body.appendChild(dragGhost);
   e.dataTransfer.setDragImage(dragGhost, 0, 0);
   e.dataTransfer.effectAllowed = 'move';
@@ -1963,7 +2518,7 @@ async function moveItem(itemId, targetFolderId, targetName) {
     // Update local state
     item.folder_id = targetFolderId;
     renderBreadcrumb(); renderStats(); renderFiles();
-    toast(`"${item.name}" dipindahkan ke ${targetName||'Semua Materi'}`);
+    toast(`“${item.name}” dipindahkan ke ${targetName||'Semua Materi'}`);
   } catch(e) {
     toast('Gagal memindahkan: ' + e.message, 'error');
   }
@@ -1978,7 +2533,7 @@ window.addEventListener('dragover',e=>{if(!dragItemId)e.preventDefault();});
 window.addEventListener('drop',e=>{if(dragItemId)return;e.preventDefault();if(e.dataTransfer.files.length && currentView === 'upload')handleFiles(e.dataTransfer.files);});
 document.getElementById('videoInput').addEventListener('change',e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value='';});
 document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files.length)handleFiles(e.target.files);e.target.value='';});
-document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.style.display='none';}));
+document.querySelectorAll('.modal-overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)hideModal(el.id);}));
 
 // ——— WATCH PAGE: pemutar video ———
 const ICON = {
@@ -1999,7 +2554,7 @@ const $ = id => document.getElementById(id);
 function store(k, def) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? def; } catch (e) { return def; } }
 function storeSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 function getPos(id) { return store('akpol_pos', {})[id]; }
-function setPos(id, t, d) { const p = store('akpol_pos', {}); p[id] = { t, d }; storeSet('akpol_pos', p); }
+function setPos(id, t, d) { const p = store('akpol_pos', {}); p[id] = { t, d, u: Date.now() }; storeSet('akpol_pos', p); }
 function autoplayOn() { return store('akpol_autoplay', true); }
 
 function fmtTime(s) {
@@ -2056,12 +2611,17 @@ function openWatch(id, push = true) {
   w.classList.toggle('theater', store('akpol_theater', false));
   w.scrollTop = 0;
   document.body.style.overflow = 'hidden';
-  if (push) { const h = '#v=' + encodeURIComponent(id); if (location.hash !== h) history.pushState({ v: id }, '', h); }
-  document.title = vTitle(item) + ' - Video Pembelajaran AKPOL';
+  // Pindah pelajaran mengganti entri riwayat yang sama, jadi "Kembali" selalu keluar dari pemutar
+  const h = '#v=' + encodeURIComponent(id);
+  if (push && location.hash !== h) {
+    if (/^#v=/.test(location.hash)) history.replaceState({ v: id }, '', h); else history.pushState({ v: id }, '', h);
+  }
+  document.title = vTitle(item) + ' — Materi AKPOL';
+  $('wBackLabel').textContent = 'Kembali ke ' + (currentView === 'videos' ? 'daftar kursus' : item.folder_id ? folderPathName(item.folder_id).split(' › ').pop() : 'materi');
 
   $('wTitle').textContent = vTitle(item);
   $('pTitle').textContent = vTitle(item);
-  $('wFolder').textContent = '📁 ' + folderPathName(item.folder_id);
+  $('wFolder').textContent = folderPathName(item.folder_id);
   $('wDescMeta').innerHTML = `<b>Diupload ${fmtDate(item.created_at)}</b>${item.size ? ' · ' + fmtSize(item.size) : ''} · ${isYoutube(item) ? 'Sumber: YouTube' : SERVER ? 'Disimpan di server Materi AKPOL' : 'Disimpan di Google Drive'}`;
   $('wDlLabel').textContent = isYoutube(item) ? 'Buka di YouTube' : 'Download';
   $('wDl').onclick = isYoutube(item) ? () => window.open(item.url, '_blank', 'noopener') : () => downloadItem(item.id);
@@ -2075,6 +2635,10 @@ function openWatch(id, push = true) {
 
 function closeWatch(fromPop = false) {
   if (!$('watch').classList.contains('open')) return;
+  // Tombol kembali di halaman: mundur satu langkah riwayat (hashchange lalu menutup pemutar).
+  // Jika video dibuka langsung dari link, tidak ada langkah sebelumnya → bersihkan alamat saja.
+  if (!fromPop && /^#v=/.test(location.hash) && !W.deepLink) { history.back(); return; }
+  const last = W.item;
   savePos();
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   teardownPlayer();
@@ -2082,12 +2646,15 @@ function closeWatch(fromPop = false) {
   $('watch').classList.remove('open');
   $('watch').setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-  document.title = 'Kursus — Materi AKPOL';
+  document.title = currentView === 'videos' ? 'Kursus — Materi AKPOL' : 'Materi AKPOL — Ruang belajar taruna';
   if (!fromPop) {
-    if (currentView !== 'videos') { location.href = '?page=courses'; return; }
-    history.pushState(null, '', location.pathname + location.search);
+    W.deepLink = false;
+    // dibuka dari link langsung: tampilkan folder tempat video itu berada
+    if (currentView === 'files' && last && last.folder_id && !currentPath.length) currentPath = pathTo(last.folder_id);
+    history.replaceState(null, '', folderUrl(currentFolderId()));
+    renderBreadcrumb(); renderStats();
   }
-  renderFiles(); // perbarui bar "sudah ditonton"
+  renderFiles(); // perbarui progres dan "Lanjutkan belajar"
 }
 
 function teardownPlayer() {
@@ -2264,12 +2831,12 @@ function serverPlayError(item) {
   const pl = $('player');
   pl.classList.remove('loading');
   pl.querySelector('.p-msg')?.remove();
-  const msg = item.status === 'processing'
-    ? `⏳ Video sedang diproses server agar lancar diputar${item.progress ? ' (' + item.progress + '%)' : ''}.<br>Coba lagi beberapa menit lagi.`
+  const [pose, msg] = item.status === 'processing'
+    ? ['run', `Video sedang diproses server agar lancar diputar${item.progress ? ' (' + item.progress + '%)' : ''}.<br>Coba lagi beberapa menit lagi.`]
     : item.status === 'failed'
-      ? '⚠️ Video ini gagal diproses dan formatnya tidak bisa diputar di browser.<br>Silakan download untuk menonton.'
-      : '⚠️ Video tidak bisa diputar. Periksa koneksi lalu coba lagi.';
-  pl.insertAdjacentHTML('beforeend', `<div class="p-msg"><div>${msg}</div></div>`);
+      ? ['cry', 'Video ini gagal diproses dan formatnya tidak bisa diputar di browser.<br>Silakan download untuk menonton.']
+      : ['tired', 'Video tidak bisa diputar. Periksa koneksi lalu coba lagi.'];
+  pl.insertAdjacentHTML('beforeend', `<div class="p-msg"><div>${kentung(pose, 110, 'k-pop')}<p>${msg}</p></div></div>`);
 }
 function serverQualityLabel(h) { return h ? h + 'p' : 'Otomatis'; }
 function curServerHeight() {
@@ -2341,7 +2908,7 @@ function loadYT(item) {
     const end = $('pEnd');
     const next = upNextQueue()[0];
     end.innerHTML = `
-      <div style="font-size:44px">🚫</div>
+      ${kentung('please', 104, 'k-pop')}
       <div class="pe-title">Video YouTube tidak bisa diputar di jaringan ini</div>
       <div class="pe-label" style="max-width:440px;line-height:1.5">YouTube diblokir di jaringan ini (mis. WiFi AKPOL). Putar video ini dengan data seluler,
         atau minta pengunggah mengupload <b>file videonya</b> langsung ke web ini.</div>
@@ -2365,13 +2932,17 @@ function renderUpnext() {
   const lessons = courseLessons(W.item.folder_id);
   const index = lessons.findIndex(item => item.id === W.item.id);
   const done = lessons.filter(item => lessonComplete(item.id)).length;
-  $('courseProgress').textContent = done + ' dari ' + lessons.length + ' pelajaran selesai';
+  const all = done === lessons.length;
+  $('courseProgress').textContent = all ? 'Semua pelajaran selesai. Mantap!' : done + ' dari ' + lessons.length + ' pelajaran selesai';
+  $('courseProgressBar').style.width = (lessons.length ? done / lessons.length * 100 : 0) + '%';
+  $('courseMood').innerHTML = kentung(all ? 'cool' : done ? 'run' : 'fight', 58);
   $('lessonPosition').textContent = courseName(W.item.folder_id) + ' · Pelajaran ' + (index + 1) + ' dari ' + lessons.length;
-  $('completeLesson').textContent = lessonComplete(W.item.id) ? 'Selesai — batalkan tanda' : 'Tandai selesai';
+  $('completeLesson').textContent = lessonComplete(W.item.id) ? '✓ Selesai (batalkan)' : 'Tandai selesai';
+  $('completeLesson').classList.toggle('is-done', lessonComplete(W.item.id));
   $('completeLesson').setAttribute('aria-pressed', String(lessonComplete(W.item.id)));
   $('previousLesson').disabled = index === 0;
   $('nextLesson').disabled = index === lessons.length - 1;
-  $('wUpnext').innerHTML = lessons.map((item, i) => `<button class="lesson-row ${item.id === W.item.id ? 'selected' : ''}" onclick="openWatch('${item.id}')" ${item.id === W.item.id ? 'aria-current="step"' : ''}><span class="lesson-number">${lessonComplete(item.id) ? '✓' : i + 1}</span><span><strong>${esc(vTitle(item))}</strong><small>${item.id === W.item.id ? 'Sedang dipelajari' : lessonComplete(item.id) ? 'Selesai' : 'Belum selesai'}</small></span></button>`).join('');
+  $('wUpnext').innerHTML = lessons.map((item, i) => `<button class="lesson-row ${item.id === W.item.id ? 'selected' : ''} ${lessonComplete(item.id) ? 'done' : ''}" onclick="openWatch('${item.id}')" ${item.id === W.item.id ? 'aria-current="step"' : ''}><span class="lesson-number">${lessonComplete(item.id) ? '✓' : i + 1}</span><span><strong>${esc(vTitle(item))}</strong><small>${item.id === W.item.id ? 'Sedang dipelajari' : lessonComplete(item.id) ? 'Selesai' : item.duration ? fmtTime(item.duration) : 'Belum selesai'}</small></span></button>`).join('');
   $('pNext').style.display = index < lessons.length - 1 ? '' : 'none';
 }
 
@@ -2382,10 +2953,30 @@ function onEnded() {
   const d = P.dur();
   if (d) setPos(W.item.id, d, d);
   updatePlayBtn();
+  // Menonton sampai habis = pelajaran selesai (bisa dibatalkan lewat tombol "Selesai")
+  if (!lessonComplete(W.item.id)) { setLessonComplete(W.item.id, true); renderUpnext(); }
   const next = upNextQueue()[0];
-  if (!next || !autoplayOn()) { if (W.kind === 'native') { $('pCenter').innerHTML = ICON.replay; $('pCenter').className = 'p-center show'; } return; }
-  let n = 5;
   const end = $('pEnd');
+  if (!next) { // pelajaran terakhir: rayakan hanya jika semua pelajaran memang sudah selesai
+    const lessons = courseLessons(W.item.folder_id);
+    const left = lessons.filter(l => !lessonComplete(l.id));
+    const many = lessons.length > 1;
+    const [pose, title, text] = left.length
+      ? ['point', 'Pelajaran terakhir selesai!', `Masih ada ${left.length} pelajaran yang belum selesai.`]
+      : many ? ['cool', 'Mantap, kursus tuntas!', 'Semua pelajaran di kursus ini sudah selesai.']
+      : ['thumbs', 'Selesai ditonton!', 'Pelajaran ini sudah ditandai selesai.'];
+    end.innerHTML = `
+      ${kentung(pose, 112, 'k-pop')}
+      <div class="pe-title">${title}</div>
+      <div class="pe-label">${text}</div>
+      <div class="pe-acts"><button class="btn ghost" onclick="replayLesson()">Tonton ulang</button>${left.length
+        ? `<button class="btn gold" onclick="openWatch('${left[0].id}')">Lanjut ke yang belum</button>`
+        : '<button class="btn gold" onclick="closeWatch()">Kembali</button>'}</div>`;
+    end.classList.add('open');
+    return;
+  }
+  if (!autoplayOn()) { if (W.kind === 'native') { $('pCenter').innerHTML = ICON.replay; $('pCenter').className = 'p-center show'; } return; }
+  let n = 5;
   end.innerHTML = `
     <div class="pe-label">Berikutnya dalam <span class="p-end-ring" id="peCount">${n}</span></div>
     <img src="${videoThumb(next, 640)}" alt="" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
@@ -2399,6 +2990,11 @@ function onEnded() {
     W.endTimer = setTimeout(tick, 1000);
   };
   W.endTimer = setTimeout(tick, 1000);
+}
+function replayLesson() {
+  $('pEnd').classList.remove('open');
+  P.seek(0);
+  P.play();
 }
 function cancelAutoNext() {
   clearTimeout(W.endTimer);
@@ -2669,13 +3265,47 @@ function initWatch() {
 window.addEventListener('beforeunload', event => {
   if (uploading) { event.preventDefault(); event.returnValue = ''; }
 });
+// ——— Kentung di beranda: sapaan sesuai jam, kata semangat saat diketuk ———
+const KENTUNG_LINES = [
+  ['salute', 'Siap, laksanakan!'],
+  ['thumbs', 'Langkah kecil hari ini, bekal besar untuk mengabdi.'],
+  ['study', 'Catat yang penting, tanyakan yang belum paham.'],
+  ['fight', 'Satu materi sehari, lama-lama jadi ahli.'],
+  ['pushup', 'Belajar dulu, push-up kemudian.'],
+  ['drink', 'Sudah minum air? Otak juga butuh cairan.'],
+  ['relax', 'Istirahat sebentar boleh, menyerah jangan.'],
+  ['cool', 'Tenang, satu-satu. Pelan tapi paham.'],
+  ['heart', 'Belajar bareng satu angkatan lebih seru.'],
+  ['guitar', 'Selingi belajar dengan hal yang kamu suka.'],
+];
+function setHeroMood(pose, text) {
+  $('heroBustSrc').srcset = 'assets/kentung/' + pose + '.webp';
+  const bubble = $('heroBubble');
+  bubble.textContent = text;
+  for (const el of [bubble, $('heroImg')]) { el.classList.remove('k-pop'); void el.offsetWidth; el.classList.add('k-pop'); }
+}
+let kentungLine = -1;
+function kentungSays() {
+  kentungLine = (kentungLine + 1) % KENTUNG_LINES.length;
+  setHeroMood(...KENTUNG_LINES[kentungLine]);
+}
+
+// "/" langsung ke kotak pencarian
+document.addEventListener('keydown', e => {
+  if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target.matches('input, textarea, select') || openModalEl() || $('watch').classList.contains('open') || $('viewerOverlay').classList.contains('open')) return;
+  e.preventDefault();
+  $('searchInput').focus();
+});
+
 configurePage();
 initWatch();
 
 document.body.classList.add(SERVER ? 'mode-server' : 'mode-drive');
 if (SERVER) {
   document.querySelectorAll('[data-srv]').forEach(el => { el.textContent = el.dataset.srv; });
-  loadScript(HLS_JS).catch(() => {}); // siapkan pemutar video lebih awal
+  // siapkan pemutar video lebih awal, tetapi setelah halaman tampil dulu
+  (window.requestIdleCallback || (fn => setTimeout(fn, 1500)))(() => loadScript(HLS_JS).catch(() => {}));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) schedulePoll(); });
 } else {
   document.body.classList.add('is-admin');
