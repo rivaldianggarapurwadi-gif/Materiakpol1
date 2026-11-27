@@ -107,6 +107,28 @@ test('folders, move rules, YouTube links', async () => {
   assert.equal(yt.data.item.mime, 'video/youtube');
 });
 
+let examId;
+test('exam schedule: admin saves and edits, everyone sees it, bad input is refused', async () => {
+  const r = await api('saveExam', { title: 'UTS', folder_id: folderA.id, date: '2026-12-08', time: '08:00', place: 'Aula', note: 'Bab 1-4' });
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  examId = r.data.exam.id;
+  assert.equal(r.data.exam.folder_id, folderA.id);
+  const up = await api('saveExam', { id: examId, title: 'UTS Hukum', folder_id: folderA.id, date: '2026-12-09', time: '', place: '', note: '' });
+  assert.equal(up.data.exam.title, 'UTS Hukum');
+  assert.equal(up.data.exam.time, '');
+  for (const bad of [{ title: '', date: '2026-12-08' }, { title: 'X', date: '8-12-2026' }, { title: 'X', date: '2026-12-08', time: '25:00' }, { title: 'X', date: '2026-12-08', folder_id: 'nope' }, { id: 'nope', title: 'X', date: '2026-12-08' }])
+    assert.equal((await api('saveExam', bad)).status, 400, JSON.stringify(bad));
+  const saved = cookie; cookie = '';
+  const l = await list();
+  assert.deepEqual(l.exams.map(e => [e.id, e.title, e.date]), [[examId, 'UTS Hukum', '2026-12-09']]);
+  assert.equal((await api('saveExam', { title: 'Hack', date: '2026-12-08' })).status, 401);
+  assert.equal((await api('deleteExam', { id: examId })).status, 401);
+  cookie = saved;
+  const tmp = await api('saveExam', { title: 'Kuis', date: '2026-12-01' });
+  assert.equal((await api('deleteExam', { id: tmp.data.exam.id })).status, 200);
+  assert.equal((await api('deleteExam', { id: tmp.data.exam.id })).status, 400);
+});
+
 let textItem;
 test('upload a document: stored as-is, served with range requests', async () => {
   const f = path.join(tmp, 'catatan kuliah.txt');
@@ -197,6 +219,8 @@ test('a broken video is marked failed but stays downloadable', { timeout: 60000 
 test('recursive delete moves files to trash', async () => {
   const r = await api('delete', { id: folderA.id });
   assert.equal(r.status, 200);
+  const exam = (await list()).exams.find(e => e.id === examId);
+  assert.equal(exam.folder_id, null, 'exam of a deleted mapel stays, as "Umum"');
   assert.equal(r.data.deleted.length, 4); // folder A, sub folder, text file, YouTube link
   const l = await list();
   assert.ok(!l.items.some(i => i.id === textItem.id));

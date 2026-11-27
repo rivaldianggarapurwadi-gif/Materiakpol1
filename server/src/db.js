@@ -46,6 +46,18 @@ CREATE TABLE IF NOT EXISTS jobs (
 );
 CREATE INDEX IF NOT EXISTS jobs_state ON jobs(state, priority, id);
 
+CREATE TABLE IF NOT EXISTS exams (
+  id         TEXT PRIMARY KEY,
+  folder_id  TEXT,                        -- mapel folder (null = umum)
+  title      TEXT NOT NULL,               -- e.g. "UTS", "Ujian Praktik"
+  date       TEXT NOT NULL,               -- YYYY-MM-DD (local date of the exam)
+  time       TEXT NOT NULL DEFAULT '',    -- HH:MM, optional
+  place      TEXT NOT NULL DEFAULT '',
+  note       TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS exams_date ON exams(date);
+
 CREATE TABLE IF NOT EXISTS admins (
   username   TEXT PRIMARY KEY,
   hash       TEXT NOT NULL,
@@ -119,6 +131,22 @@ export const items = {
     }
     return false;
   },
+};
+
+// Exam schedule (jadwal ujian)
+export const exams = {
+  all: () => db.prepare('SELECT * FROM exams ORDER BY date, time, title').all(),
+  get: id => db.prepare('SELECT * FROM exams WHERE id = ?').get(id),
+  save(e) {
+    db.prepare(`INSERT INTO exams (id, folder_id, title, date, time, place, note, created_at)
+      VALUES (:id, :folder_id, :title, :date, :time, :place, :note, :created_at)
+      ON CONFLICT(id) DO UPDATE SET folder_id = :folder_id, title = :title, date = :date, time = :time, place = :place, note = :note`)
+      .run({ ...e, created_at: e.created_at || now() });
+    return exams.get(e.id);
+  },
+  delete: id => db.prepare('DELETE FROM exams WHERE id = ?').run(id).changes > 0,
+  // a deleted mapel folder leaves its exams as "umum" instead of pointing nowhere
+  unlinkFolders: ids => { const st = db.prepare('UPDATE exams SET folder_id = NULL WHERE folder_id = ?'); for (const id of ids) st.run(id); },
 };
 
 export function enqueue(itemId, priority = 0) {

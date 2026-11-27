@@ -7,7 +7,7 @@ import express from 'express';
 import { Server as TusServer } from '@tus/server';
 import { FileStore } from '@tus/file-store';
 import { config } from './config.js';
-import { db, items, toApi, enqueue, uid, now, ID_RE } from './db.js';
+import { db, items, exams, toApi, enqueue, uid, now, ID_RE } from './db.js';
 import { placeFile, kindOf, trashItem, diskFree } from './storage.js';
 import { COOKIE, login, logout, parseCookies, sessionUser, loginBlocked, loginFailed, loginSucceeded, admins } from './auth.js';
 
@@ -91,7 +91,7 @@ export function createApp() {
     const user = sessionUser(req.headers.cookie);
     if ((req.query.action || 'list') !== 'list') return res.status(400).json({ ok: false, error: 'Aksi tidak dikenal: ' + req.query.action });
     res.set('Cache-Control', 'no-store');
-    res.json({ ok: true, version: API_VERSION, admin: !!user, user: user || null, items: items.all().map(toApi) });
+    res.json({ ok: true, version: API_VERSION, admin: !!user, user: user || null, items: items.all().map(toApi), exams: exams.all() });
   });
 
   app.get('/api/health', async (req, res) => {
@@ -159,7 +159,7 @@ export function createApp() {
     }
 
     // Everything else changes data → admin only
-    const known = ['createFolder', 'addLink', 'move', 'rename', 'delete', 'uploadedItem', 'retry'];
+    const known = ['createFolder', 'addLink', 'move', 'rename', 'delete', 'uploadedItem', 'retry', 'saveExam', 'deleteExam'];
     if (!known.includes(action)) throw bad('Aksi tidak dikenal: ' + action);
     if (!sessionUser(req.headers.cookie)) throw new HttpError(401, 'Silakan masuk sebagai admin');
 
@@ -199,6 +199,7 @@ export function createApp() {
           if (!it.is_folder) await trashItem(it.id);
           items.delete(it.id);
         }
+        exams.unlinkFolders(all.filter(i => i.is_folder).map(i => i.id));
         return { deleted: all.map(i => i.id) };
       }
       case 'uploadedItem': { // the item a finished tus upload became
@@ -206,6 +207,25 @@ export function createApp() {
         const item = items.byUpload(id);
         if (!item) throw bad('Upload belum selesai');
         return { item: toApi(item) };
+      }
+      case 'saveExam': { // create (no id) or update (id) one exam
+        const title = cleanName(b.title, '').slice(0, 120);
+        if (!title) throw bad('Nama ujian kosong');
+        const date = String(b.date || '');
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date + 'T00:00:00Z'))) throw bad('Tanggal ujian tidak valid');
+        const time = String(b.time || '');
+        if (time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) throw bad('Jam ujian tidak valid (contoh 08:00)');
+        const id = b.id ? String(b.id) : uid();
+        if (b.id && !exams.get(id)) throw bad('Jadwal ujian tidak ditemukan');
+        const exam = exams.save({
+          id, folder_id: targetFolder(b.folder_id), title, date, time,
+          place: cleanName(b.place, '').slice(0, 120), note: cleanName(b.note, '').slice(0, 500),
+        });
+        return { exam };
+      }
+      case 'deleteExam': {
+        if (!exams.delete(String(b.id || ''))) throw bad('Jadwal ujian tidak ditemukan');
+        return {};
       }
       case 'retry': { // re-run processing for a failed item
         const item = items.get(String(b.id));

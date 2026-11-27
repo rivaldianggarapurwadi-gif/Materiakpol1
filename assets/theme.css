@@ -963,3 +963,85 @@ body.is-loading .folder-head { display: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ── Jadwal ujian ──────────────────────────────────────────────────────── */
+.sec-head .btn.small { min-height: 38px; }
+.exam-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.exam-card {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px 14px 14px;
+  background: #fff;
+  border: var(--bd);
+  border-radius: var(--r-lg);
+  box-shadow: var(--pop);
+}
+.exam-card.soon { background: var(--gold-soft); }
+.exam-card.today { background: var(--maroon-soft); }
+.exam-date {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 64px;
+  height: 70px;
+  flex-shrink: 0;
+  background: var(--maroon);
+  color: #fff;
+  border: var(--bd);
+  border-radius: 14px;
+  box-shadow: var(--pop-sm);
+  line-height: 1;
+}
+.exam-date b { font: 1000 28px/1 Nunito, sans-serif; }
+.exam-date span { margin-top: 4px; color: var(--gold-2); font: 900 12px/1 Nunito, sans-serif; letter-spacing: 1px; text-transform: uppercase; }
+.exam-body { display: grid; flex: 1; gap: 2px; min-width: 0; padding-right: 58px; }
+.exam-count { justify-self: start; padding: 1px 10px; background: var(--gold); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; font: 1000 11.5px/1.5 Nunito, sans-serif; }
+.exam-card.today .exam-count, .exam-line.today .exam-count { background: var(--red); color: #fff; }
+.exam-body h3 { margin: 4px 0 0; font: 1000 18px/1.2 Nunito, sans-serif; overflow-wrap: anywhere; }
+.exam-mapel { margin: 0; color: var(--maroon); font: 900 13.5px/1.3 Nunito, sans-serif; }
+.exam-when { margin: 2px 0 0; color: var(--ink-2); font: 700 13px/1.4 Nunito, sans-serif; }
+.exam-note { margin: 4px 0 0; color: var(--ink-2); font: 700 12.5px/1.4 Nunito, sans-serif; font-style: italic; overflow-wrap: anywhere; }
+.exam-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.exam-acts:empty { display: none; }
+.exam-acts .icon-btn { width: 36px; height: 36px; }
+.exam-kentung { position: absolute; top: -16px; right: 8px; transform: rotate(5deg); pointer-events: none; }
+.exam-empty { display: flex; align-items: center; gap: 14px; grid-column: 1 / -1; padding: 14px 18px; background: #fff; color: var(--ink-2); border: 2.5px dashed var(--ink-3); border-radius: var(--r-lg); font-weight: 800; }
+.more-btn { margin-top: 12px; padding: 4px 2px; background: none; color: var(--maroon); border: 0; font: 900 14px/1.4 Nunito, sans-serif; text-decoration: underline; cursor: pointer; }
+.exam-chip { align-self: flex-start; max-width: 100%; margin-bottom: 6px; padding: 1px 9px; overflow: hidden; background: #fff; color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; font: 900 11px/1.5 Nunito, sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.exam-chip.soon { background: var(--gold); }
+.exam-strip { display: grid; gap: 8px; margin: 0 0 20px; }
+.exam-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 10px 14px; background: var(--gold-soft); border: var(--bd); border-radius: 16px; font: 700 13.5px/1.4 Nunito, sans-serif; }
+.exam-line.today { background: var(--maroon-soft); }
+.exam-line b { font-weight: 1000; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-label small { color: var(--ink-3); font-weight: 700; }
+select.form-input { appearance: auto; }
+@media (max-width: 720px) {
+  .exam-row { grid-template-columns: 1fr; gap: 14px; }
+  .mapel-card .exam-chip { font-size: 10.5px; }
+}
+.hero-exam {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  max-width: 560px;
+  margin: 0 0 18px;
+  padding: 9px 14px;
+  background: #fff;
+  color: var(--ink);
+  border: var(--bd);
+  border-radius: 16px;
+  box-shadow: var(--pop-sm);
+  font: 800 13.5px/1.35 Nunito, sans-serif;
+  text-decoration: none;
+  transition: transform .12s;
+}
+.hero-exam:hover { transform: translateY(-2px); }
+.hero-exam .he-label { color: var(--ink-3); font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+.hero-exam b { font-weight: 1000; overflow-wrap: anywhere; }
+.hero-exam .he-count { padding: 1px 10px; background: var(--gold); border: 2px solid var(--ink); border-radius: 999px; font-weight: 1000; font-size: 12px; }
+.hero-exam.today .he-count { background: var(--red); color: #fff; }
+.hero-exam .he-more { color: var(--maroon); font-size: 12.5px; font-weight: 900; }
+@media (max-width: 720px) { .hero-exam { margin-bottom: 14px; font-size: 13px; } }
