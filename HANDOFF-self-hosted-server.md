@@ -38,7 +38,7 @@ Status: **installed on a campus PC on 2026-11-26 and running; the library is sti
 - **Upload (admin):** the upload box names its destination folder. Rename (server mode only), move through a folder picker (also works on phones) or by drag and drop, delete through a confirm dialog instead of the browser's `confirm()`.
 - **States:** loading, empty folder, no search results, load error, upload in progress and "YouTube is blocked" each show a Kentung pose with a plain sentence.
 - **Tests:** `npm run test:e2e` (server mode against a temporary in-process server and worker) and `npm run test:e2e:drive` (Drive mode: the static files at a sub-path with the Apps Script stubbed, including the v1 response shape that is still deployed). Both pass on the commit that introduced the redesign.
-- **Deployment:** pushed to the work branch. The self-hosted server shows it after `git pull`; GitHub Pages shows it once the branch is merged into `main`.
+- **Deployment:** merged into `main` on 2026-11-27 at the owner's request, so GitHub Pages (Drive mode) serves it. The self-hosted server shows it after `git pull` in its checkout.
 
 **Next steps**
 1. Owner redeploys Apps Script v3, then uploads a test video through Drive and checks it appears under **Kursus**.
