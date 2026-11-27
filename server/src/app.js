@@ -222,7 +222,7 @@ export function createApp() {
   // ——— Static files (Caddy serves these in production; this is for running without it) ———
   if (config.serveStatic) {
     app.get('/config.js', (req, res) => {
-      res.type('application/javascript').set('Cache-Control', 'no-cache').send('window.AKPOL_SERVER = true;\n');
+      res.type('application/javascript').set({ 'Cache-Control': 'no-cache', 'Access-Control-Allow-Origin': '*' }).send('window.AKPOL_SERVER = true;\n');
     });
     app.use('/media', (req, res, next) => {
       if (req.query.dl === '1') res.setHeader('Content-Disposition', 'attachment');

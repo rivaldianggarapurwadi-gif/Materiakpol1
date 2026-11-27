@@ -15,6 +15,8 @@
 	handle /config.js {
 		header Content-Type "application/javascript"
 		header Cache-Control "no-cache"
+		# Versi GitHub Pages / Railway memeriksa file ini untuk tahu server sedang menyala
+		header Access-Control-Allow-Origin "*"
 		respond "window.AKPOL_SERVER = true;" 200
 	}
 

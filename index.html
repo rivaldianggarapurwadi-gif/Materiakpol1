@@ -945,22 +945,49 @@
 //  - Google Drive lewat Apps Script (GitHub Pages, lihat SETUP.md).
 const SERVER = window.AKPOL_SERVER === true;
 
-// Banner ke server kampus (hanya di versi Google Drive / GitHub Pages)
-const CAMPUS_URL = !SERVER && typeof window.AKPOL_CAMPUS_URL === 'string' ? window.AKPOL_CAMPUS_URL : '';
+// ——— Server Materi AKPOL: alamat internet (Tailscale Funnel) & alamat jaringan kampus ———
+const PUBLIC_URL = typeof window.AKPOL_PUBLIC_URL === 'string' ? window.AKPOL_PUBLIC_URL : '';
+const CAMPUS_URL = typeof window.AKPOL_CAMPUS_URL === 'string' ? window.AKPOL_CAMPUS_URL : 'http://10.4.128.65/';
+const withPath = base => base.replace(/\/?$/, '/') + location.search.replace(/([?&])drive=1(&|$)/, '$1').replace(/[?&]$/, '') + location.hash;
 function hideCampusBanner() {
   document.getElementById('campusBanner').hidden = true;
   try { localStorage.setItem('akpol_campus_hide', String(Date.now())); } catch (e) {}
 }
-(function showCampusBanner() {
-  if (!CAMPUS_URL) return;
+function showCampusBanner(text, button, base) {
   let hidAt = 0;
   try { hidAt = Number(localStorage.getItem('akpol_campus_hide') || 0); } catch (e) {}
   if (Date.now() - hidAt < 7 * 24 * 3600 * 1000) return; // ditutup → muncul lagi setelah 7 hari
+  const banner = document.getElementById('campusBanner');
+  banner.querySelector('span').innerHTML = text;
   const link = document.getElementById('campusLink');
+  link.textContent = button;
   // Bawa halaman & video yang sedang dibuka (id materi sama setelah migrasi)
-  const go = () => { link.href = CAMPUS_URL.replace(/\/$/, '/') + location.search + location.hash; };
+  const go = () => { link.href = withPath(base); };
   go(); window.addEventListener('hashchange', go);
-  document.getElementById('campusBanner').hidden = false;
+  banner.hidden = false;
+}
+(function routeToServer() {
+  const campusText = '📡 Di WiFi AKPOL? Buka <b>versi kampus</b> — lebih cepat &amp; video lancar.';
+  if (SERVER) {
+    // Dibuka lewat alamat internet → tawarkan alamat kampus yang lebih cepat bagi yang di WiFi AKPOL
+    if (/\.ts\.net$/.test(location.hostname)) showCampusBanner(campusText, 'Buka alamat kampus', CAMPUS_URL);
+    return;
+  }
+  // GitHub Pages / Railway: pindah ke server Materi AKPOL, tetapi hanya bila server benar-benar menjawab
+  if (!PUBLIC_URL || new URLSearchParams(location.search).get('drive') === '1') {
+    showCampusBanner(campusText, 'Buka versi kampus', CAMPUS_URL);
+    return;
+  }
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 6000);
+  fetch(PUBLIC_URL.replace(/\/?$/, '/') + 'config.js?ping=' + Date.now(), { cache: 'no-store', signal: ctl.signal })
+    .then(r => r.ok ? r.text() : '')
+    .then(t => {
+      if (/AKPOL_SERVER\s*=\s*true/.test(t)) location.replace(withPath(PUBLIC_URL));
+      else showCampusBanner(campusText, 'Buka versi kampus', CAMPUS_URL);
+    })
+    .catch(() => showCampusBanner(campusText, 'Buka versi kampus', CAMPUS_URL)) // server mati → tetap di versi Google Drive
+    .finally(() => clearTimeout(timer));
 })();
 // URL Web App dari Google Apps Script (lihat SETUP.md). Ganti dengan URL milikmu.
 const DRIVE_API_URL = 'https://script.google.com/macros/s/AKfycbyJ1hvlyX0vDeKo_Bf6-tdVnMm2nBfnbAypTVBgTvO-3hx0Fch2K4iksJ80vRTkc8gf/exec';
