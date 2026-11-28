@@ -1347,25 +1347,31 @@ async function checkHealth() {
   } catch (e) { /* abaikan */ }
 }
 
-// Selama ada file yang masih diproses server (video → 1080p–360p), perbarui daftar tiap beberapa detik.
+// Daftar materi & kursus selalu ikut terbarui tanpa muat ulang halaman:
+// tiap 4 dtk selama ada file yang diproses server, selain itu tiap 30 dtk selama halaman dibuka.
 let pollTimer = null;
-function schedulePoll() {
+function schedulePoll(delay) {
   clearTimeout(pollTimer);
-  if (!SERVER || !allItems.some(i => i.status === 'processing')) return;
+  if (!SERVER) return;
+  const busy = allItems.some(i => i.status === 'processing');
+  if (document.hidden && !busy) return; // tab tidak dilihat → berhenti; dilanjutkan saat dibuka lagi
   pollTimer = setTimeout(async () => {
     try {
       const fresh = await dbSelect();
-      const sig = l => JSON.stringify(l.map(i => [i.id, i.status, i.progress, i.thumb, i.hls, i.preview]));
+      const sig = l => JSON.stringify(l.map(i => [i.id, i.name, i.folder_id, i.status, i.progress, i.thumb, i.hls, i.preview]));
       const changed = sig(fresh) !== sig(allItems);
+      const known = new Set(allItems.map(i => i.id));
+      const newVideos = fresh.filter(i => !known.has(i.id) && getFileType(i) === 'vid').length;
       allItems = fresh;
       if (changed) {
         // jangan ganggu pengguna yang sedang menyeret file
         if (!dragItemId) { renderStats(); renderFiles(); }
         if (W.item) { const cur = allItems.find(i => i.id === W.item.id); if (cur) { W.item = cur; renderUpnext(); } }
+        if (newVideos && !isAdmin) toast(newVideos + ' video baru ditambahkan ke kursus', 'info');
       }
     } catch (e) { /* coba lagi nanti */ }
     schedulePoll();
-  }, document.hidden ? 15000 : 4000);
+  }, delay ?? (busy ? (document.hidden ? 15000 : 4000) : 30000));
 }
 // Label status proses untuk satu file
 function procLabel(item) {
@@ -3554,7 +3560,12 @@ if (SERVER) {
   document.querySelectorAll('[data-srv]').forEach(el => { el.textContent = el.dataset.srv; });
   // siapkan pemutar video lebih awal, tetapi setelah halaman tampil dulu
   (window.requestIdleCallback || (fn => setTimeout(fn, 1500)))(() => loadScript(HLS_JS).catch(() => {}));
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) schedulePoll(); });
+  let hiddenAt = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    // kembali ke tab setelah ditinggal lama → periksa materi baru sekarang juga
+    schedulePoll(Date.now() - hiddenAt > 30000 ? 0 : undefined);
+  });
 } else {
   document.body.classList.add('is-admin');
 }
