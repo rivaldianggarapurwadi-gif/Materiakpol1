@@ -82,6 +82,10 @@ export function loginBlocked(ip) {
   return !!f && f.count >= 10 && Date.now() - f.first < 15 * 60000;
 }
 export function loginFailed(ip) {
+  if (failures.size > 10000) { // jangan sampai memori penuh oleh serangan dari banyak alamat
+    for (const [k, v] of failures) if (Date.now() - v.first > 15 * 60000) failures.delete(k);
+    if (failures.size > 10000) failures.clear();
+  }
   const f = failures.get(ip);
   if (!f || Date.now() - f.first > 15 * 60000) failures.set(ip, { count: 1, first: Date.now() });
   else f.count++;

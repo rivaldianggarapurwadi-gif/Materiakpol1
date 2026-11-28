@@ -51,7 +51,17 @@ export async function registerFile({ srcPath, name, mime, folderId, size, upload
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', 'loopback, uniquelocal');
+  // Caddy (Docker) + pintu depan lewat Tailscale (VPS manggalasatya60.com, Funnel): alamat pengunjung asli
+  // diambil dari X-Forwarded-For yang disusun Caddy. Penting untuk batas percobaan login & cookie Secure.
+  app.set('trust proxy', ['loopback', 'uniquelocal', '100.64.0.0/10', 'fd7a:115c:a1e0::/48']);
+  app.use((req, res, next) => {
+    res.set({
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+    });
+    next();
+  });
 
   // ——— Resumable uploads (tus protocol) at /api/upload ———
   const tus = new TusServer({
@@ -230,6 +240,10 @@ export function createApp() {
     }, express.static(config.mediaDir, {
       fallthrough: false, index: false, dotfiles: 'deny',
       setHeaders(res, p) {
+        if (/\.(html?|xhtml|shtml|svgz?|xml|xsl|js|mjs)$/i.test(p)) {
+          res.setHeader('Content-Disposition', 'attachment');
+          res.setHeader('Content-Security-Policy', 'sandbox');
+        }
         if (p.endsWith('.m3u8')) res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
         else if (p.endsWith('.ts')) res.setHeader('Content-Type', 'video/mp2t');
         res.setHeader('Cache-Control', p.includes(`${path.sep}files${path.sep}`) ? 'public, max-age=3600' : 'public, max-age=86400');

@@ -156,6 +156,39 @@ Cocok untuk pemakaian ringan. Kecepatannya terbatas, jadi tidak cocok untuk bany
 
 > Jangan memakai **Cloudflare Tunnel versi gratis** untuk web ini: aturannya melarang dipakai untuk streaming video.
 
+### Pilihan D — VPS kecil sebagai "pintu depan" domain (yang dipakai sekarang: manggalasatya60.com)
+
+Pengunjung membuka **https://manggalasatya60.com**. Domain itu mengarah ke VPS IDCloudHost (`kentung`, IP `103.171.84.193`), dan Caddy di VPS meneruskan semua permintaan ke server kampus lewat Tailscale (`100.66.161.4`). Video tetap dikirim dari server kampus.
+
+| Bagian | Isi |
+|---|---|
+| DNS GoDaddy | A `@` → `103.171.84.193`, A `www` → `103.171.84.193`, A `kampus` → `10.4.128.65` |
+| Firewall IDCloudHost (`web`) | Masuk: TCP 22, 80, 443 dan UDP 41641. Keluar: semua |
+| VPS | Tailscale (akun yang sama dengan server kampus) + Caddy |
+
+Isi `/etc/caddy/Caddyfile` di VPS:
+
+```
+manggalasatya60.com, www.manggalasatya60.com {
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy 100.66.161.4:80
+}
+```
+
+Setelah mengubahnya: `sudo systemctl reload caddy`. Untuk masuk ke VPS: `ssh kentung@103.171.84.193`. Wi‑Fi kampus memblokir port 22, jadi pakai hotspot HP atau **Console** di dasbor IDCloudHost. Pastikan saldo IDCloudHost tidak habis, karena kalau VPS mati, domain ikut tidak bisa dibuka.
+
+#### Keamanan VPS (lakukan sekali)
+
+1. **Login SSH pakai kunci, bukan kata sandi.** Di Mac: `ssh-keygen -t ed25519` (tekan Enter terus), lalu `ssh-copy-id kentung@103.171.84.193`. Coba `ssh kentung@103.171.84.193`. Kalau sudah **tidak** ditanya kata sandi VPS, matikan login dengan kata sandi:
+   ```bash
+   printf "PasswordAuthentication no\nKbdInteractiveAuthentication no\nPermitRootLogin no\n" | sudo tee /etc/ssh/sshd_config.d/00-keamanan.conf
+   sudo systemctl reload ssh
+   ```
+   Kalau Mac hilang atau rusak, masuk lewat **Console** IDCloudHost lalu hapus file itu: `sudo rm /etc/ssh/sshd_config.d/00-keamanan.conf`.
+2. **Blokir penebak kata sandi otomatis:** `sudo apt install -y fail2ban`.
+3. **Pembaruan keamanan otomatis** sudah aktif di Ubuntu. Sebulan sekali: `sudo apt update && sudo apt upgrade -y`.
+4. Setelah domain jalan, **matikan Funnel** di server kampus supaya hanya ada satu pintu masuk dari internet: `sudo tailscale funnel reset`.
+
 ### Pilihan C — Link YouTube untuk video penting
 
 Untuk video yang sangat sering ditonton dari luar, upload ke YouTube (*unlisted*/tidak publik) lalu tambahkan lewat **Upload → Tambah video / link YouTube → Dari YouTube**. Tidak memakai internet server sama sekali.

@@ -4,9 +4,25 @@
 #   materi.example.com, :80      public domain with automatic HTTPS, plus plain HTTP on the LAN
 {
 	admin off
+	servers {
+		# Percayai alamat pengunjung asli (X-Forwarded-For) hanya dari "pintu depan" yang kita kenal:
+		# VPS manggalasatya60.com & Tailscale Funnel (jaringan Tailscale 100.64.0.0/10) dan Docker/localhost.
+		# Pengguna WiFi kampus (10.x) tidak dipercaya, jadi tidak bisa memalsukan alamatnya.
+		trusted_proxies static 127.0.0.1/8 ::1 172.16.0.0/12 100.64.0.0/10 fd7a:115c:a1e0::/48
+	}
 }
 
 (site) {
+	# Header keamanan untuk semua halaman
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		?Content-Security-Policy "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+		-Server
+	}
+
 	@api path /api /api/*
 	handle @api {
 		reverse_proxy app:3000
@@ -31,6 +47,10 @@
 		header @m3u8 Content-Type "application/vnd.apple.mpegurl"
 		@ts path *.ts
 		header @ts Content-Type "video/mp2t"
+		# File yang bisa menjalankan script (HTML, SVG, ...) tidak pernah dibuka sebagai halaman web situs ini
+		@active path_regexp active (?i)\.(html?|xhtml|shtml|svgz?|xml|xsl|js|mjs)$
+		header @active Content-Disposition "attachment"
+		header @active Content-Security-Policy "sandbox; frame-ancestors 'self'; object-src 'none'"
 		file_server
 	}
 
